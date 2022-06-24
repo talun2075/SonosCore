@@ -4,3 +4,4 @@ You can Rate your local Music over ID3 Meta Data. See Album Art or Lyrics stored
 
 
 Base on different Libs Like Intels UPNP OSTL.UPnP, C# TagLib,  Jishi Lib
+Missing Refs can found here: https://github.com/talun2075/HomeCommon
