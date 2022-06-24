@@ -30,7 +30,7 @@
             break;
         case "GetPlayer":
         case "GetLongPlayer":
-            url = SoVa.apiDeviceURL + _url + _para1;
+            url = SoVa.apiDeviceURL + _url +"/"+ _para1;
             break;
         case "SetGroups":
             url = SoVa.apiPlayerURL + "SetGroups/" + SoVa.masterPlayer;
