@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Diagnostics.EventLog" Version="5.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="HomeLoggingCore">
+      <HintPath>..\..\CommonCore\HomeCommon\HomeLoggingCore\bin\Debug\net5.0\HomeLoggingCore.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

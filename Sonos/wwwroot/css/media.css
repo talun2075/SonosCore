@@ -1,0 +1,421 @@
+﻿@media screen and (min-width: 1570px) {
+    #Lyricbox {
+        width: 30vw;
+    }
+}
+@media screen and (min-width: 1450px) {
+    #Lyricbox {
+        width: 25vw;
+    }
+}
+@media screen and (min-width: 1310px) {
+    #Lyricbox {
+        display: block;
+        left: 1025px;
+        min-width: 250px;
+        width: calc(100% - 1090px);
+    }
+
+    .arrow_box::before {
+        border: none;
+    }
+
+    .arrow_box {
+        bottom: 5px;
+    }
+
+    #Lyricbox > .righttopclose, #Lyric {
+        display: none;
+    }
+}
+@media screen and (max-width: 1000px) {
+    #Bodydiv {
+        width: 99%;
+        min-height: 655px;
+    }
+
+    #Playlist {
+        display: none;
+    }
+
+    #Currentplaylist {
+        bottom: 400px;
+    }
+
+    #Cover {
+        left: 250px;
+    }
+
+    #Shuffle {
+        left: 600px;
+    }
+
+    #Play {
+        top: 90px;
+        left: 600px;
+    }
+
+    #Pre {
+        top: 180px;
+        left: 600px;
+    }
+
+    #Next {
+        top: 270px;
+        left: 600px;
+    }
+
+    #Fade {
+        top: 360px;
+        left: 600px;
+    }
+
+    #Repeat {
+        top: 450px;
+        left: 600px;
+    }
+}
+@media screen and (max-width: 674px) {
+    #Bodydiv {
+        width: 99%;
+        min-height: 655px
+    }
+
+    #Currentplaylist, #Playlist {
+        display: none;
+    }
+
+        #Currentplaylist.active {
+            display: block;
+        }
+
+    #CurrentPlaylistClose {
+        position: fixed;
+        bottom: 0;
+        z-index: 100;
+        height: 75px;
+        width: 100%;
+        background-color: grey;
+        border: 1px solid black;
+        border-radius: 25px 25px 25px;
+        text-align: center;
+        line-height: 75px;
+    }
+
+    .moveCurrentPlaylistTrack, .addFavItemPlaylist {
+        display: none;
+    }
+
+    #CurrentPlaylistOpen {
+        display: block;
+        position: absolute;
+        right: 55px;
+        top: 500px;
+    }
+
+    #AktSongInfo {
+        top: initial;
+        bottom: 140px;
+        left: 30px;
+    }
+
+    #CurrentMeta {
+        height: 350px;
+        left: -20px;
+        position: absolute;
+        top: -370px;
+        width: 290px;
+    }
+
+        #CurrentMeta:after {
+            bottom: -11%;
+        }
+
+    #CurrentSongRuntime {
+        left: 150px;
+    }
+
+    #Cover {
+        top: 10px;
+        left: 200px;
+        height: 100px;
+        width: 100px;
+    }
+
+    #Nextsong {
+        max-width: 260px;
+    }
+
+    #Volumeup {
+        top: 250px;
+    }
+
+    #SetMute {
+        top: 310px;
+    }
+
+    #Volumedown {
+        top: 370px;
+    }
+
+    #SleepModeButton {
+        bottom: auto;
+        left: auto;
+        right: 45px;
+        top: 380px;
+        height: 25px;
+        width: 25px;
+    }
+
+    #Volume {
+        height: 200px;
+        top: 260px;
+    }
+
+    #LabelVolume {
+        top: 440px;
+        left: 20px;
+    }
+
+    #AlarmClockOpen {
+        top: 250px;
+    }
+
+    #Browse {
+        top: 310px;
+    }
+
+    #Lyric {
+        top: 370px;
+    }
+
+    #Settings {
+        left: auto;
+        right: 100px;
+        top: 380px;
+        height: 25px;
+        width: 25px;
+    }
+
+    #BewertungN {
+        top: initial;
+        bottom: 100px;
+        left: 20px;
+    }
+
+    #PlaylistCount {
+        left: 75px;
+        bottom: 30px;
+    }
+
+    #Play {
+        top: 120px;
+        left: 220px;
+    }
+
+    .mediabutton {
+        height: 50px;
+        width: 50px;
+    }
+
+    #Next {
+        left: 255px;
+        top: 180px;
+    }
+
+    #Pre {
+        top: 180px;
+        left: 180px;
+    }
+
+    #Shuffle {
+        left: 220px;
+        top: 310px;
+    }
+
+    #Repeat {
+        top: 250px;
+        left: 180px;
+    }
+
+    #Fade {
+        top: 250px;
+        left: 255px;
+    }
+
+    #Lyricbox, #LyricPlaylist {
+        width: calc(100% - 45px);
+        top: 0;
+        left: 0;
+        bottom: 0;
+        height: 410px;
+    }
+
+    .arrow_box::before {
+        display: none;
+    }
+
+    .box_settings::before {
+        border-color: #000000 #000000 #000000 #000000;
+        border-color: rgba(0, 0, 0, 0) #000000 rgba(0, 0, 0, 0) rgba(0, 0, 0, 0);
+        border-width: 0;
+        margin-top: 0;
+        top: 0;
+    }
+
+    .box_settings {
+        left: 5px;
+        bottom: 10px;
+        max-width: 348px;
+        width: calc(100% - 60px);
+        height: 300px;
+    }
+
+    #Settingsboxwrapper {
+        height: 260px;
+    }
+
+    #Settingsclose {
+        display: block;
+        position: absolute;
+        top: -1px;
+        right: -1px;
+        height: 50px;
+        width: 50px;
+        background-color: gray;
+        border-radius: 0 25px 0 25px;
+        text-align: center;
+        line-height: 50px;
+    }
+
+    #SaveQueue {
+        width: 200px;
+    }
+
+    #Suggestion {
+        width: 230px;
+        top: 86px;
+        left: 22px;
+    }
+
+    #SaveQueueImg {
+        left: 5px;
+    }
+
+    #AudioIn {
+        left: 220px;
+        top: 420px;
+    }
+
+    #SleepMode {
+        top: 380px;
+    }
+
+    #SetGroupMembers {
+        left: 5px;
+    }
+
+    #MultiVolume {
+        left: 5px;
+        width: 320px;
+    }
+
+    .devices {
+        left: 0;
+    }
+
+    .deviceWrapper.groupdevicesshown .groupdevicewrapper .deviceplayinggif {
+        display: none;
+    }
+
+    #CurrentBomb {
+        left: 17px;
+        top: initial;
+        bottom: 98px;
+    }
+
+    #Currentplaylist {
+        left: 0;
+        top: 0;
+        width: 100%;
+        position: fixed;
+        background-color: white;
+        z-index: 100;
+        height: calc(100% - 90px);
+    }
+
+    #Lyricbox {
+        position: fixed;
+        z-index: 100;
+        height: calc(100% - 50px);
+    }
+
+    .box_browse {
+        left: 0;
+        width: calc(100% - 27px);
+        top: 0;
+        padding: 70px 2px 20px 20px;
+        bottom: 5px;
+    }
+
+    #BrowseGenre {
+        left: 80px;
+        top: 35px;
+        right: 0;
+    }
+
+    #BrowseFavorites {
+        left: 170px;
+        top: 35px;
+    }
+
+    #Browseclose {
+        display: block;
+        position: absolute;
+        top: -1px;
+        right: -1px;
+        height: 50px;
+        width: 50px;
+        background-color: gray;
+        border-radius: 0 25px 0 25px;
+        text-align: center;
+        line-height: 50px;
+    }
+
+    .currentbrowse {
+        height: 100px;
+        display: block;
+    }
+
+    .alarmclockarrow {
+        left: 5px;
+        width: calc(100% - 55px);
+    }
+
+    .roomname {
+        width: 100px;
+    }
+
+    #AlarmClock {
+        height: 250px;
+        overflow: auto;
+    }
+
+    #SleepModeWrapper:after, #CurrentMeta:after {
+        border-style: none;
+    }
+
+    #Ratinglist, #Filterlist {
+        left: 50px;
+    }
+
+    #Ratingerrors {
+        right: 5px;
+        left: auto;
+        top: 470px;
+    }
+
+    #RatingerrorsList {
+        left: 50px;
+    }
+}

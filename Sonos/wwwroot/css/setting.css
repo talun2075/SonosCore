@@ -1,0 +1,233 @@
+﻿#Wrapper {
+    border: 1px solid;
+    border-radius: 25px;
+    padding: 10px;
+    width: 350px;
+    margin-left: auto;
+    margin-right: auto;
+}
+#SettingWrapper {
+    border: 1px solid;
+    border-radius: 25px;
+    padding: 10px;
+    min-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    min-height: 20px;
+    margin-top: 20px;
+}
+.settingprop {
+    display: flex;
+    border-bottom: 1px solid gray;
+    width: 100%;
+    margin-bottom: 10px;
+}
+.valueWrapper1, .valueWrapper2 {
+    display: flex;
+    width: 100%;
+}
+.valueWrapper3 {
+    display: flex;
+    width: 100%;
+    background-color: lightgray;
+    margin-bottom: 5px;
+}
+.dataWrapper {
+    margin-bottom: 5px;
+}
+.settingValueName2 {
+    width: 60%;
+}
+.ObjectValueConten {
+    width: inherit;
+}
+.settingValueName1 {
+    min-width: 15%;
+}
+.stringValueConten, .booleanValueConten {
+    padding-left: 5px;
+}
+.propertyName, .propertyValue {
+    width: 50%;
+}
+#LoadSettings {
+    float: right;
+}
+.playerpropwrapper {
+    display: flex;
+    padding-bottom: 15px;
+}
+#PlayerProps {
+
+    overflow: hidden;
+    height: auto;
+}
+.playerprop{
+    width:220px;
+}
+#Playerlist {
+    margin-left: auto;
+    margin-right: auto;
+    width: 200px;
+    margin-bottom: 15px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.sliderWrapper {
+    display: flex;
+}
+.playerpropval {
+    width: 125px;
+}
+.sliderInput{
+    width: 90px;
+}
+.sliderText{
+    width: 30px;
+    text-align: center;
+}
+#Ajaxloader {
+    position: fixed;
+    display: block;
+}
+#AjaxloaderSettings {
+    position: fixed;
+    display: none;
+}
+.deactive {
+    color: lightgray;
+}
+/*Switch*/
+.onoffswitch {
+    position: relative;
+    width: 60px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.onoffswitch-checkbox {
+    display: none;
+}
+
+.onoffswitch-label {
+    display: block;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid #999999;
+    border-radius: 20px;
+}
+
+.onoffswitch-inner {
+    width: 200%;
+    margin-left: -100%;
+    -moz-transition: margin 0.3s ease-in 0;
+    -webkit-transition: margin 0.3s ease-in 0;
+    -o-transition: margin 0.3s ease-in 0;
+    transition: margin 0.3s ease-in 0;
+}
+
+    .onoffswitch-inner:before, .onoffswitch-inner:after {
+        float: left;
+        width: 50%;
+        height: 20px;
+        padding: 0;
+        line-height: 20px;
+        font-size: 12px;
+        color: white;
+        font-family: Trebuchet, Arial, sans-serif;
+        font-weight: bold;
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        border-radius: 20px;
+        box-shadow: 0 10px 0 #000000 inset;
+        box-shadow: 0 10px 0 rgba(0,0,0,0.08) inset;
+    }
+
+    .onoffswitch-inner:before {
+        content: "Ja";
+        padding-left: 7px;
+        background-color: #FF0000;
+        color: #FFFFFF;
+        border-radius: 20px 0 0 20px;
+    }
+
+    .onoffswitch-inner:after {
+        content: "Nein";
+        padding-right: 7px;
+        background-color: #EEEEEE;
+        color: #999999;
+        text-align: right;
+        border-radius: 0 20px 20px 0;
+    }
+
+.onoffswitch-switch {
+    width: 20px;
+    margin: 0;
+    background: #FFFFFF;
+    border: 2px solid #999999;
+    border-radius: 20px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 36px;
+    -moz-transition: all 0.3s ease-in 0;
+    -webkit-transition: all 0.3s ease-in 0;
+    -o-transition: all 0.3s ease-in 0;
+    transition: all 0.3s ease-in 0;
+    background-image: -moz-linear-gradient(center top, rgba(0,0,0,0.1) 0, rgba(0,0,0,0) 80%);
+    background-image: -webkit-linear-gradient(center top, rgba(0,0,0,0.1) 0, rgba(0,0,0,0) 80%);
+    background-image: -o-linear-gradient(center top, rgba(0,0,0,0.1) 0, rgba(0,0,0,0) 80%);
+    box-shadow: 0 1px 1px white inset;
+}
+
+.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
+    margin-left: 0;
+}
+
+.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
+    right: 0;
+}
+@media screen and (max-width: 1410px) {
+    .valueWrapper3 {
+        display: block;
+    }
+}
+@media screen and (max-width: 1050px) {
+    .valueWrapper2 {
+        display: block;
+        width: 100%;
+        margin-bottom: 5px;
+        background-color: lightgray;
+    }
+    .valueWrapper3 {
+        background-color: darkgray;
+    }
+    .settingValueName2 {
+        font-weight: bold;
+        width: 100%;
+    }
+    .settingValueName1 {
+        min-width: 15%;
+        font-weight: bold;
+        font-style: italic;
+    }
+}
+@media screen and (max-width: 700px) {
+    .valueWrapper1, .valueWrapper2 {
+        display: block;
+    }
+}
+@media screen and (max-width: 550px) {
+    .settingprop {
+        display: block;
+    }
+    #SettingWrapper {
+        min-width: 0;
+    }
+    .propertyName, .propertyValue {
+        width: 100%;
+    }
+}
