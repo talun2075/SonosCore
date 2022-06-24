@@ -5,7 +5,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("Interoperability", "CA1416:Plattformkompatibilität überprüfen", Justification = "<Ausstehend>", Scope = "member", Target = "~M:OSTL.UPnP.UPnPDeviceFactory.Httprequestor_OnRequestCompleted(OSTL.UPnP.HttpRequestor,System.Boolean,System.Object,System.String,System.Byte[])")]
 [assembly: SuppressMessage("Interoperability", "CA1416:Plattformkompatibilität überprüfen", Justification = "<Ausstehend>", Scope = "member", Target = "~M:OSTL.UPnP.UPnPDeviceFactory.CreateDevice(System.Uri,System.Int32,System.Net.IPAddress,System.String)")]
 [assembly: SuppressMessage("Style", "IDE0057:Bereichsoperator verwenden", Justification = "<Ausstehend>", Scope = "member", Target = "~M:OSTL.UPnP.UPnPSmartControlPoint.#ctor(OSTL.UPnP.UPnPSmartControlPoint.DeviceHandler,OSTL.UPnP.UPnPSmartControlPoint.ServiceHandler,System.String[])")]
 [assembly: SuppressMessage("Performance", "CA1822:Member als statisch markieren", Justification = "<Ausstehend>", Scope = "member", Target = "~M:OSTL.UPnP.UPnPDeviceFactory.Shutdown")]
