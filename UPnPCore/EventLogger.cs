@@ -36,7 +36,7 @@ namespace OpenSource.Utilities
         public static bool Enabled = true;
         public static bool ShowAll = false;
 
-        public static Logging logger { get; set; } = new(new LoggerWrapperConfig() { ConfigName = "SonosUPNP", TraceFileName = "traceUPNP.txt", ErrorFileName = "ErrorUPNP.txt" });
+        public static Logging Logger { get; set; } = new(new LoggerWrapperConfig() { ConfigName = "SonosUPNP", TraceFileName = "traceUPNP.txt", ErrorFileName = "ErrorUPNP.txt" });
 
         public static void Log(object sender, EventLogEntryType LogType, string information)
         {
@@ -61,11 +61,11 @@ namespace OpenSource.Utilities
                                 trace.Append(declaringType.FullName + "." + t.GetFrame(i).GetMethod().Name + "\r\n");
                         }
                     }
-                    if (logger != null)
+                    if (Logger != null)
                     {
                         try
                         {
-                            logger.InfoLog(origin, information + "\r\n\r\nTRACE:\r\n" + trace);
+                            Logger.InfoLog(origin, information + "\r\n\r\nTRACE:\r\n" + trace);
                         }
                         catch
                         {
@@ -110,12 +110,12 @@ namespace OpenSource.Utilities
 
                 if (Enabled)
                 {
-                    if (logger != null)
+                    if (Logger != null)
                     {
                         try
                         {
                             if (!t.Message.Contains("The hostname could not be parsed"))
-                                logger.ServerErrorsAdd(exception.Source, exception, "SonosUpnp");
+                                Logger.ServerErrorsAdd(exception.Source, exception, "SonosUpnp");
                         }
                         catch (Exception ex)
                         {

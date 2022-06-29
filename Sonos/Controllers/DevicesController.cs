@@ -107,17 +107,10 @@ namespace Sonos.Controllers
         public async Task<Dictionary<string, DateTime>> GetLastChangesDateTimes()
         {
             if(!await SonosHelper.CheckSonosLiving()) return null;
-
+            _playersLastChange.Clear();
             foreach (SonosPlayer item in SonosHelper.Sonos.Players)
             {
-                if (!_playersLastChange.Keys.Contains(item.UUID))
-                {
                     _playersLastChange.Add(item.UUID, item.LastChange);
-                }
-                else
-                {
-                    _playersLastChange[item.UUID] = item.LastChange;
-                }
             }
             //Das erst hier, weil dann das Web schon initialisiert wurde. 
             Debug.WriteLine("GetLastChangesDateTimes wurde aufgerufen.");

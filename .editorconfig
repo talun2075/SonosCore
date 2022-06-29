@@ -8,3 +8,6 @@ dotnet_diagnostic.CA1822.severity = silent
 
 # IDE0066: Switch-Anweisung in Ausdruck konvertieren
 dotnet_diagnostic.IDE0066.severity = silent
+
+# IDE0057: Bereichsoperator verwenden
+dotnet_diagnostic.IDE0057.severity = none

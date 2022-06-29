@@ -375,10 +375,10 @@ namespace OSTL.UPnP
                     deviceInfo.Device = null;	// Don't warn user about this, user does not know about device
                 }
             }
-            if (deviceInfo.Device != null)
-            {
-                deviceInfo.Device.Removed();
-            }
+            //if (deviceInfo.Device != null)
+            //{
+            //    deviceInfo.Device.Removed();
+            //}//double?
             if (deviceInfo.Device != null)
             {
                 deviceInfo.Device.Removed();

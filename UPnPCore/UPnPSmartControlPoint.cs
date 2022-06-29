@@ -378,7 +378,7 @@ namespace OSTL.UPnP
         /// <param name="device">The UPnPDevice object that was removed from the network</param>
         private void HandleRemovedDevice(UPnPInternalSmartControlPoint sender, UPnPDevice device)
         {
-            if ((OnRemovedDevice != null) || (OnRemovedService != null))
+            if ((OnRemovedDevice != null) || (OnRemovedService != null))//todo: its not fired.
             {
                 ArrayList dList = new();
                 ArrayList sList = new ();

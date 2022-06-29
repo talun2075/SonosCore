@@ -126,7 +126,21 @@ namespace SonosUPnP
         public virtual void StartScan()
         {
             ControlPoint = new UPnPSmartControlPoint(OnDeviceAdded, OnServiceAdded, "urn:schemas-upnp-org:device:ZonePlayer:0");
+            ControlPoint.OnRemovedDevice += ControlPoint_OnRemovedDevice;
+
         }
+
+        private void ControlPoint_OnRemovedDevice(UPnPSmartControlPoint sender, UPnPDevice device)
+        {
+            if (playerDevices.ContainsKey(device.UniqueDeviceName))
+            {
+                playerDevices.Remove(device.UniqueDeviceName);
+            }
+            var p = Players.FirstOrDefault(x => x.UUID == device.UniqueDeviceName);
+            if(p != null)
+                Players.Remove(p);
+        }
+
         /// <summary>
         /// Füllt die Alarmliste und die Uhrzeit;
         /// </summary>
