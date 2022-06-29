@@ -93,7 +93,7 @@ namespace Sonos.Controllers
             {
                 await SonosHelper.Initialisierung();
             }
-            if(await SonosHelper.CheckAllPlayerReachable())
+            if(SonosHelper.CheckAllPlayerReachable())
                 return await SonosHelper.GetPlayerbyUuid(id);
             throw new Exception("System Reset, weil Player nicht erreichbar");
         }
@@ -148,7 +148,7 @@ namespace Sonos.Controllers
         {
             if (! await SonosHelper.CheckSonosLiving()) return false;
 
-            return await SonosHelper.CheckAllPlayerReachable();
+            return SonosHelper.CheckAllPlayerReachable();
         }
 
 

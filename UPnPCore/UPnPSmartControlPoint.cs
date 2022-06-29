@@ -177,7 +177,11 @@ namespace OSTL.UPnP
         {
             iSCP.UnicastSearch(RemoteAddress);
         }
-
+        public void RemoveDevice(UPnPDevice device)
+        {
+            iSCP.RemoveMe(device);
+            Rescan();
+        }
         /// <summary>
         /// An arraylist of Devices (Not Used)
         /// </summary>

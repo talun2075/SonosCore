@@ -192,7 +192,7 @@ namespace Sonos.Classes
             EventController.EventBroadCast(new Notification((SonosEnums.EventingEnums)sender, e));
         }
         #endregion Eventing
-        public static async Task<bool> CheckAllPlayerReachable(Boolean usetimer = false)
+        public static bool CheckAllPlayerReachable(Boolean usetimer = false)
         {
             Boolean retval = false;
             foreach (SonosPlayer sp in Sonos.Players)
@@ -202,7 +202,7 @@ namespace Sonos.Classes
 
                 if (!retval)
                 {
-                    _ = await SonosHelper.Reset();
+                    SonosHelper.RemoveDevice(sp);
                     break;
                 }
             }
@@ -213,13 +213,9 @@ namespace Sonos.Classes
             return retval;
         }
 
-        public async static Task<Boolean> Reset()
+        public static void RemoveDevice(SonosPlayer playerToRemove)
         {
-            Sonos.PlayerChange -= Sonos_Player_Changed;
-            Sonos.GlobalSonosChange -= Sonos_TopologyChanged;
-            Sonos = null;
-            await EventController.EventBroadCast(new Notification(SonosEnums.EventingEnums.ReloadNeeded, Sonos));
-            return await Initialisierung();
+            Sonos.RemoveDevice(playerToRemove);
         }
 
         #region public Methoden

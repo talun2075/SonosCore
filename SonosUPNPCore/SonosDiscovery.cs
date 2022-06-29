@@ -26,8 +26,8 @@ namespace SonosUPnP
         public event EventHandler<SonosPlayer> PlayerChange = delegate { };
         public event EventHandler<SonosDiscovery> GlobalSonosChange = delegate { };
         private readonly Boolean useSubscriptions = true;
-        private readonly ZonePerSoftwareGeneration ZoneSwGen1;
-        private readonly ZonePerSoftwareGeneration ZoneSwGen2;
+        private ZonePerSoftwareGeneration ZoneSwGen1;
+        private ZonePerSoftwareGeneration ZoneSwGen2;
         /// <summary>
         /// Liste mit den Erlaubten Services, wenn UseSubscription True ist.
         /// </summary>
@@ -126,21 +126,35 @@ namespace SonosUPnP
         public virtual void StartScan()
         {
             ControlPoint = new UPnPSmartControlPoint(OnDeviceAdded, OnServiceAdded, "urn:schemas-upnp-org:device:ZonePlayer:0");
-            ControlPoint.OnRemovedDevice += ControlPoint_OnRemovedDevice;
-
+            
         }
-
-        private void ControlPoint_OnRemovedDevice(UPnPSmartControlPoint sender, UPnPDevice device)
+        /// <summary>
+        /// Remove Device and make a Reset of SonosDiscovery
+        /// </summary>
+        /// <param name="playerToRemove"></param>
+        public void RemoveDevice(SonosPlayer playerToRemove)
         {
-            if (playerDevices.ContainsKey(device.UniqueDeviceName))
+            foreach (SonosPlayer item in Players)
             {
-                playerDevices.Remove(device.UniqueDeviceName);
+                item.Player_Changed -= Player_Changed;
             }
-            var p = Players.FirstOrDefault(x => x.UUID == device.UniqueDeviceName);
-            if(p != null)
-                Players.Remove(p);
-        }
+            var dev = playerDevices[playerToRemove.UUID];
+            ControlPoint.RemoveDevice(dev);
+            //Players.Remove(playerToRemove);
+            Players.Clear();
+            playerDevices.Clear();
+            ControlPoint = null;
+            ZoneSwGen1.GlobalSonosChange -= ZoneSwGen_GlobalSonosChange;
+            ZoneSwGen2.GlobalSonosChange -= ZoneSwGen_GlobalSonosChange;
+            ZoneMethods = new ZoneMethods();
+            ZoneSwGen1 = new ZonePerSoftwareGeneration(Logger);
+            ZoneSwGen2 = new ZonePerSoftwareGeneration(Logger);
+            ZoneSwGen1.GlobalSonosChange += ZoneSwGen_GlobalSonosChange;
+            ZoneSwGen2.GlobalSonosChange += ZoneSwGen_GlobalSonosChange;
+            ZoneProperties = new DiscoveryZoneProperties(ZoneSwGen1, ZoneSwGen2);
+            ControlPoint = new UPnPSmartControlPoint(OnDeviceAdded, OnServiceAdded, "urn:schemas-upnp-org:device:ZonePlayer:0");
 
+        }
         /// <summary>
         /// Füllt die Alarmliste und die Uhrzeit;
         /// </summary>

@@ -238,7 +238,5 @@ namespace Sonos.Controllers
             }
             return retval;
         }
-
-
     }
 }
