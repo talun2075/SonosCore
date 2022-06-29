@@ -5,6 +5,7 @@ Sonos Core (SC) is a ASP .Net 6 Web Application to Manage your Sonos Devices for
 I have wrote it for me because I missed for a long Time the ID3 Tag Support from Sonos. 
 So now I have my own little Monster of Sonos App. 
 My Primary Language is German so the Ui is with german terms but I think if you need it we can speak together.
+Pictures can be found here: https://github.com/talun2075/SonosAPI/tree/master/ExcamplePictures
 
 ## What can it not
 It is not there to replace the Sonos own App. 
