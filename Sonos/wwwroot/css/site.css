@@ -115,6 +115,7 @@ a {
     Background: URL("/images/sleepmode.png");
     background-size: 100% 100%;
     background-repeat: no-repeat;
+    transition: all 1s ease-in-out 0s;
 }
 
 #SleepMode {
@@ -1576,6 +1577,7 @@ a {
     Background: URL("/images/settings_red.png");
     background-size: 100% 100%;
     background-repeat: no-repeat;
+    transition: all 1s ease-in-out 0s;
 }
 
     #Settings.akt {

@@ -54,7 +54,7 @@ namespace Sonos.Classes
         {
             try
             {
-                Logger.InfoLog("Sonos", "InitStart");
+                //Logger.InfoLog("Sonos", "InitStart");
                 Boolean.TryParse(Configuration["UseSubscription"], out Boolean usesubscriptions);
                 ServiceEnums = new List<SonosEnums.Services>();
                 var allowedservices = Configuration["UseOnlyThisSubscriptions"];
@@ -94,7 +94,7 @@ namespace Sonos.Classes
                         }
                     }
                 });
-                Logger.InfoLog("Sonos", "InitEnd");
+                //Logger.InfoLog("Sonos", "InitEnd");
                 return true;
             }
             catch (Exception x)
@@ -242,7 +242,7 @@ namespace Sonos.Classes
                     _ = new Timer(state => CheckAllPlayerReachable(true), null, TimeSpan.FromMinutes(15), TimeSpan.FromMilliseconds(-1));
 
                 }
-                Logger.InfoLog("Init", "Init Ohne Fehler");
+                //Logger.InfoLog("Init", "Init Ohne Fehler");
                 return retval;
             }
             catch (Exception ex)

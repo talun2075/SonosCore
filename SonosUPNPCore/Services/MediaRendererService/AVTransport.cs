@@ -729,7 +729,7 @@ namespace SonosUPnP.Services.MediaRendererService
             }
             catch (Exception ex)
             {
-                pl.ServerErrorsAdd("ParseChangeXML", ClassName, ex);
+                pl.ServerErrorsAdd("ParseChangeXML"+"   "+newState, ClassName, ex);
             }
             try
             {

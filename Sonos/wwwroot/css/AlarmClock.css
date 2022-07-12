@@ -1,11 +1,12 @@
-﻿#AlarmClockOpen{
-	position:absolute;
+﻿#AlarmClockOpen {
+	position: absolute;
 	left: 125px;
 	top: 250px;
 	Background: URL("/images/wecker.png");
-	background-size:100% 100%;
-	background-repeat:no-repeat;
+	background-size: 100% 100%;
+	background-repeat: no-repeat;
 	Background-Color: white;
+	transition: all 1s ease-in-out 0s;
 }
 #AlarmClockOpen.aktiv{
 	Background-Color: grey;

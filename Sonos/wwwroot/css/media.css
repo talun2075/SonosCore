@@ -109,8 +109,8 @@
     #CurrentPlaylistOpen {
         display: block;
         position: absolute;
-        right: 55px;
-        top: 500px;
+        left: 280px;
+        bottom: 190px;
     }
 
     #AktSongInfo {
@@ -159,12 +159,8 @@
     }
 
     #SleepModeButton {
-        bottom: auto;
-        left: auto;
-        right: 45px;
-        top: 380px;
-        height: 25px;
-        width: 25px;
+        left: 290px;
+        bottom: 260px;
     }
 
     #Volume {
@@ -176,10 +172,11 @@
         top: 440px;
         left: 20px;
     }
-
     #AlarmClockOpen {
-        top: 250px;
+        left: 220px;
+        top: 310px;
     }
+
 
     #Browse {
         top: 310px;
@@ -190,11 +187,8 @@
     }
 
     #Settings {
-        left: auto;
-        right: 100px;
-        top: 380px;
-        height: 25px;
-        width: 25px;
+        bottom: 230px;
+        left: 220px;
     }
 
     #BewertungN {
@@ -229,8 +223,8 @@
     }
 
     #Shuffle {
-        left: 220px;
-        top: 310px;
+        top: 245px;
+        left: 120px;
     }
 
     #Repeat {
@@ -393,7 +387,10 @@
     }
 
     .roomname {
-        width: 100px;
+        width: 120px;
+    }
+    .startdate{
+        width: 80px;
     }
 
     #AlarmClock {

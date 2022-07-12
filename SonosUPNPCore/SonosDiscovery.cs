@@ -167,7 +167,13 @@ namespace SonosUPnP
                 {
                     try
                     {
-                        SonosPlayer pl1 = Players.FirstOrDefault(x => x.SoftwareGeneration == SoftwareGeneration.ZG1);
+                        //take only non Ikea Player. They have a Sync Bug and different ListAlarms
+                        SonosPlayer pl1 = Players.FirstOrDefault(x => x.SoftwareGeneration == SoftwareGeneration.ZG1 && (x.Device.FriendlyName.Contains("Play") || x.Device.FriendlyName.Contains("Conn")));
+                        if(pl1 == null)
+                        {
+                            //Fallback
+                            pl1 = Players.FirstOrDefault(x => x.SoftwareGeneration == SoftwareGeneration.ZG1);
+                        }
                         if (pl1 != null)
                         {
                             ZoneSwGen1.ZoneProperties.CurrentSonosTime = await pl1.AlarmClock?.GetTimeNow();
