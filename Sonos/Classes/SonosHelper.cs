@@ -43,7 +43,7 @@ namespace Sonos.Classes
 
         internal static List<SonosCheckChangesObject> sccoList = new ();
         internal static readonly List<SonosBrowseList> ChildGenrelist = new();
-        public static Logging Logger { get; set; } = new(new LoggerWrapperConfig() { ConfigName = "Sonos", TraceFileName ="trace.txt", ErrorFileName = "Error.txt" });
+        public static Logging Logger { get; set; } = new(new LoggerWrapperConfig() { ConfigName = "Sonos", TraceFileName ="trace.txt", ErrorFileName = "Errors.txt" });
         public static IConfiguration Configuration { get; set; }
         #endregion Klassenvariablen
         #region private Methoden

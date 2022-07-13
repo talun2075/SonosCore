@@ -1,5 +1,6 @@
 ﻿using SonosUPnP.DataClasses;
 using SonosUPNPCore.Enums;
+using SonosUPNPCore.Props;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -373,13 +374,13 @@ namespace SonosUPnP.Props
         #endregion Queue
         #region Methoden
 
-        internal static TimeSpan ParseDuration(string value)
+        internal SonosTimeSpan ParseDuration(string value)
         {
             if (TimeSpan.TryParse(value, out TimeSpan pd))
             {
-                return pd;
+                return new SonosTimeSpan(pd);
             }
-            return TimeSpan.FromSeconds(0);
+            return new SonosTimeSpan();
         }
         #endregion Methoden
 

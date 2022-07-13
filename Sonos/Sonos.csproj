@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <UserSecretsId>e1023846-370e-427a-aeff-529594faac84</UserSecretsId>
   </PropertyGroup>
 

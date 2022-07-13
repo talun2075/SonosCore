@@ -16,7 +16,8 @@ namespace Sonos.Controllers
         public static String ChildName { get; set; }
         public static List<SonosItem> ChildPlaylistButtonsIDs { get; set; } = new();
         public static Boolean IsRunning { get; set; } = false;
-        public static Dictionary<String, List<String>> RandomItems { get; set; } = new();
+        //public static Dictionary<String, List<String>> RandomItems { get; set; } = new();
+        public static Dictionary<String, Dictionary<String, List<String>>> RandomPlaylistItems { get; set; } = new();
         #endregion Props
 
 
@@ -111,8 +112,8 @@ namespace Sonos.Controllers
             SonosItem playlist = ChildPlaylistButtonsIDs.FirstOrDefault(x => x.Title == id);
 
             if (playlist == null) return null;
-            if(playlist.Title.Contains("Random"))
-                RandomItems.Clear();
+                
+            RandomPlaylistItems.Clear();
             //Browse
             var browsedplaylist = await player.ContentDirectory.Browse(playlist.ContainerID);
             var browseduritoadd = await player.ContentDirectory.Browse(containerid, 0, 1, SonosEnums.BrowseFlagData.BrowseMetadata);
@@ -193,7 +194,11 @@ namespace Sonos.Controllers
             try
             {
                 var player = await GetChild();
-                if (RandomItems.Count == 0)
+                var randomitems = new Dictionary<String, List<String>>();
+                if(RandomPlaylistItems.ContainsKey(_playlist))
+                    randomitems = RandomPlaylistItems[_playlist];
+
+                if (randomitems.Count == 0)
                 {
                    
                     SonosItem playlist = ChildPlaylistButtonsIDs.FirstOrDefault(x => x.Title == _playlist);
@@ -203,27 +208,28 @@ namespace Sonos.Controllers
                     foreach (var item in browsedplaylist.Result)
                     {
                         var lis = new List<string>();
-                        if (!RandomItems.ContainsKey(item.Artist))
+                        if (!randomitems.ContainsKey(item.Artist))
                         {
                             lis.Add(item.Album);
                         }
                         else
                         {
-                            lis = RandomItems[item.Artist];
+                            lis = randomitems[item.Artist];
                         }
                         if (!lis.Contains(item.Album))
                         {
                             lis.Add(item.Album);
                         }
-                        RandomItems[item.Artist] = lis;
+                        randomitems[item.Artist] = lis;
                     }
                 }
+                RandomPlaylistItems[_playlist] = randomitems;
                 Random rand = new Random();
                 List<SonosItem> ItemstoPlay = new();
-                foreach (var artist in RandomItems.Keys)
+                foreach (var artist in randomitems.Keys)
                 {
                     var selectedartist = SonosHelper.ChildGenrelist.FirstOrDefault(x => x.Artist == artist);
-                    var countartist = RandomItems[artist].Count;
+                    var countartist = randomitems[artist].Count;
                     for (int i = 0; i < countartist; i++)
                     {
                         var nextrand = rand.Next(0, selectedartist.Childs.Count-1);
@@ -249,7 +255,67 @@ namespace Sonos.Controllers
             }
 
         }
-        
+        //public async Task<Boolean> Randombackup(string _playlist, int volume)
+        //{
+        //    try
+        //    {
+        //        var player = await GetChild();
+        //        if (RandomItems.Count == 0)
+        //        {
+
+        //            SonosItem playlist = ChildPlaylistButtonsIDs.FirstOrDefault(x => x.Title == _playlist);
+        //            if (playlist == null) return false;
+        //            //Browse
+        //            var browsedplaylist = await player.ContentDirectory.Browse(playlist.ContainerID);
+        //            foreach (var item in browsedplaylist.Result)
+        //            {
+        //                var lis = new List<string>();
+        //                if (!RandomItems.ContainsKey(item.Artist))
+        //                {
+        //                    lis.Add(item.Album);
+        //                }
+        //                else
+        //                {
+        //                    lis = RandomItems[item.Artist];
+        //                }
+        //                if (!lis.Contains(item.Album))
+        //                {
+        //                    lis.Add(item.Album);
+        //                }
+        //                RandomItems[item.Artist] = lis;
+        //            }
+        //        }
+        //        Random rand = new Random();
+        //        List<SonosItem> ItemstoPlay = new();
+        //        foreach (var artist in RandomItems.Keys)
+        //        {
+        //            var selectedartist = SonosHelper.ChildGenrelist.FirstOrDefault(x => x.Artist == artist);
+        //            var countartist = RandomItems[artist].Count;
+        //            for (int i = 0; i < countartist; i++)
+        //            {
+        //                var nextrand = rand.Next(0, selectedartist.Childs.Count - 1);
+        //                var t = selectedartist.Childs[nextrand];
+        //                ItemstoPlay.Add(t);
+        //            }
+        //        }
+        //        await player.AVTransport.RemoveAllTracksFromQueue();
+        //        foreach (var item in ItemstoPlay)
+        //        {
+        //            await player.AVTransport.AddURIToQueue(item);
+        //        }
+        //        await player.RenderingControl.GetVolume();
+        //        if (player.PlayerProperties.Volume != volume)
+        //            await player.RenderingControl.SetVolume(volume);
+
+        //        await player.AVTransport.Play();
+        //        return true;
+        //    }
+        //    catch
+        //    {
+        //        return false;
+        //    }
+
+        //}
         #endregion Methods
     }
 

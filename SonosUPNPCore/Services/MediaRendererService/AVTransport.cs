@@ -126,610 +126,832 @@ namespace SonosUPnP.Services.MediaRendererService
             }
             try
             {
-                //InstanceID
-                var iids = instance.Attribute("val").Value;
-                if (int.TryParse(iids, out int iid))
+                try
                 {
-                    if (pl.PlayerProperties.InstanceID != iid)
+                    //InstanceID
+                    var iids = instance.Attribute("val").Value;
+                    if (int.TryParse(iids, out int iid))
                     {
-                        pl.PlayerProperties.InstanceID = iid;
-                    }
-                }
-                //SleepTimerverarbeiten
-                XElement sleepTimerGene = instance.Element(nsnext + "SleepTimerGeneration");
-                if (sleepTimerGene != null)
-                {
-                    var stgstring = sleepTimerGene.Attribute("val").Value;
-                    var trystate = int.TryParse(stgstring, out int stg);
-                    //Hier wurde der SleepTimer geändert
-                    if (trystate && (pl.PlayerProperties.SleepTimerRunning == false && stg > 0 || pl.PlayerProperties.SleepTimerRunning && stg <= 0))
-                    {
-                        pl.PlayerProperties.SleepTimerGeneration = stgstring;
-                        pl.PlayerProperties.SleepTimerRunning = stg > 0;
-                        if (LastChangeDates[SonosEnums.EventingEnums.SleepTimerRunning].Ticks == 0)
+                        if (pl.PlayerProperties.InstanceID != iid)
                         {
-                            LastChangeDates[SonosEnums.EventingEnums.SleepTimerRunning] = DateTime.Now;
-                        }
-                        else
-                        {
-                            ManuellStateChange(SonosEnums.EventingEnums.SleepTimerRunning, DateTime.Now);
+                            pl.PlayerProperties.InstanceID = iid;
                         }
                     }
                 }
-
+                catch (Exception ex)
+                {
+                    pl.ServerErrorsAdd("ParseChangeXML:Instance", ClassName, ex);
+                }
+                try
+                {
+                    //SleepTimerverarbeiten
+                    XElement sleepTimerGene = instance.Element(nsnext + "SleepTimerGeneration");
+                    if (sleepTimerGene != null)
+                    {
+                        var stgstring = sleepTimerGene.Attribute("val").Value;
+                        var trystate = int.TryParse(stgstring, out int stg);
+                        //Hier wurde der SleepTimer geändert
+                        if (trystate && (pl.PlayerProperties.SleepTimerRunning == false && stg > 0 || pl.PlayerProperties.SleepTimerRunning && stg <= 0))
+                        {
+                            pl.PlayerProperties.SleepTimerGeneration = stgstring;
+                            pl.PlayerProperties.SleepTimerRunning = stg > 0;
+                            if (LastChangeDates[SonosEnums.EventingEnums.SleepTimerRunning].Ticks == 0)
+                            {
+                                LastChangeDates[SonosEnums.EventingEnums.SleepTimerRunning] = DateTime.Now;
+                            }
+                            else
+                            {
+                                ManuellStateChange(SonosEnums.EventingEnums.SleepTimerRunning, DateTime.Now);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    pl.ServerErrorsAdd("ParseChangeXML:SleepTimerGeneration", ClassName, ex);
+                }
                 if (instance.Element(ns + "TransportState") == null)
                 {
                     return;
                 }
-
-                //Fademode
-                XElement currentCrossfadeMode = instance.Element(ns + "CurrentCrossfadeMode");
-                if (currentCrossfadeMode != null)
+                try
                 {
-                    string t = currentCrossfadeMode.Attribute("val").Value;
-                    if (pl.PlayerProperties.CurrentCrossFadeMode == true && t != "1" || pl.PlayerProperties.CurrentCrossFadeMode == false && t == "1" || pl.PlayerProperties.CurrentCrossFadeMode == null)
+                    //Fademode
+                    XElement currentCrossfadeMode = instance.Element(ns + "CurrentCrossfadeMode");
+                    if (currentCrossfadeMode != null)
                     {
-                        pl.PlayerProperties.CurrentCrossFadeMode = t == "1";
-                        if (LastChangeDates[SonosEnums.EventingEnums.CurrentCrossFadeMode].Ticks == 0)
+                        string t = currentCrossfadeMode.Attribute("val").Value;
+                        if (pl.PlayerProperties.CurrentCrossFadeMode == true && t != "1" || pl.PlayerProperties.CurrentCrossFadeMode == false && t == "1" || pl.PlayerProperties.CurrentCrossFadeMode == null)
                         {
-                            LastChangeDates[SonosEnums.EventingEnums.CurrentCrossFadeMode] = DateTime.Now;
-                        }
-                        else
-                        {
-                            ManuellStateChange(SonosEnums.EventingEnums.CurrentCrossFadeMode, DateTime.Now);
-                        }
-                    }
-                }
-                //Transportstate
-                XElement transportStatElement = instance.Element(ns + "TransportState");
-                if (transportStatElement != null)
-                {
-                    var ts = transportStatElement.Attribute("val").Value;
-                    if (Enum.TryParse(ts, out SonosEnums.TransportState tsenum))
-                    {
-                        //Transportstate konnte korrekt gepraste werden
-                        if (pl.PlayerProperties.TransportState != tsenum)
-                        {
-                            Debug.WriteLine(pl.Name+ " Transportstate wechsel:"+tsenum);
-                            pl.PlayerProperties.TransportState = tsenum;
-                            if (LastChangeDates[SonosEnums.EventingEnums.TransportState].Ticks == 0)
+                            pl.PlayerProperties.CurrentCrossFadeMode = t == "1";
+                            if (LastChangeDates[SonosEnums.EventingEnums.CurrentCrossFadeMode].Ticks == 0)
                             {
-                                LastChangeDates[SonosEnums.EventingEnums.TransportState] = DateTime.Now;
+                                LastChangeDates[SonosEnums.EventingEnums.CurrentCrossFadeMode] = DateTime.Now;
                             }
                             else
                             {
-                                ManuellStateChange(SonosEnums.EventingEnums.TransportState, DateTime.Now);
+                                ManuellStateChange(SonosEnums.EventingEnums.CurrentCrossFadeMode, DateTime.Now);
                             }
                         }
                     }
                 }
-                //Playmode
-                XElement currentPlayModeElement = instance.Element(ns + "CurrentPlayMode");
-                if (currentPlayModeElement != null)
+                catch (Exception ex)
                 {
-                    string tcpm = currentPlayModeElement.Attribute("val").Value;
-                    if (Enum.TryParse(tcpm, out SonosEnums.PlayModes tcpmenum) && pl.PlayerProperties.CurrentPlayMode != tcpmenum)
+                    pl.ServerErrorsAdd("ParseChangeXML:CurrentCrossfadeMode", ClassName, ex);
+                }
+                try
+                {
+                    //Transportstate
+                    XElement transportStatElement = instance.Element(ns + "TransportState");
+                    if (transportStatElement != null)
                     {
-                        pl.PlayerProperties.CurrentPlayMode = tcpmenum;
-                        if (LastChangeDates[SonosEnums.EventingEnums.CurrentPlayMode].Ticks == 0)
+                        var ts = transportStatElement.Attribute("val").Value;
+                        if (Enum.TryParse(ts, out SonosEnums.TransportState tsenum))
                         {
-                            LastChangeDates[SonosEnums.EventingEnums.CurrentPlayMode] = DateTime.Now;
-                        }
-                        else
-                        {
-                            ManuellStateChange(SonosEnums.EventingEnums.CurrentPlayMode, DateTime.Now);
+                            //Transportstate konnte korrekt gepraste werden
+                            if (pl.PlayerProperties.TransportState != tsenum)
+                            {
+                                Debug.WriteLine(pl.Name + " Transportstate wechsel:" + tsenum);
+                                pl.PlayerProperties.TransportState = tsenum;
+                                if (LastChangeDates[SonosEnums.EventingEnums.TransportState].Ticks == 0)
+                                {
+                                    LastChangeDates[SonosEnums.EventingEnums.TransportState] = DateTime.Now;
+                                }
+                                else
+                                {
+                                    ManuellStateChange(SonosEnums.EventingEnums.TransportState, DateTime.Now);
+                                }
+                            }
                         }
                     }
                 }
-                //NumberofTRacks
-                XElement numberOfTracksElement = instance.Element(ns + "NumberOfTracks");
-                if (numberOfTracksElement != null)
+                catch (Exception ex)
                 {
-                    if (int.TryParse(numberOfTracksElement.Attribute("val").Value, out int not))
+                    pl.ServerErrorsAdd("ParseChangeXML:Transportstate", ClassName, ex);
+                }
+                try
+                {
+                    //Playmode
+                    XElement currentPlayModeElement = instance.Element(ns + "CurrentPlayMode");
+                    if (currentPlayModeElement != null)
                     {
-                        if (pl.PlayerProperties.NumberOfTracks != not)
+                        string tcpm = currentPlayModeElement.Attribute("val").Value;
+                        if (Enum.TryParse(tcpm, out SonosEnums.PlayModes tcpmenum) && pl.PlayerProperties.CurrentPlayMode != tcpmenum)
                         {
-                            pl.PlayerProperties.NumberOfTracks = not;
-                            if (LastChangeDates[SonosEnums.EventingEnums.NumberOfTracks].Ticks == 0)
+                            pl.PlayerProperties.CurrentPlayMode = tcpmenum;
+                            if (LastChangeDates[SonosEnums.EventingEnums.CurrentPlayMode].Ticks == 0)
                             {
-                                LastChangeDates[SonosEnums.EventingEnums.NumberOfTracks] = DateTime.Now;
+                                LastChangeDates[SonosEnums.EventingEnums.CurrentPlayMode] = DateTime.Now;
                             }
                             else
                             {
-                                ManuellStateChange(SonosEnums.EventingEnums.NumberOfTracks, DateTime.Now);
+                                ManuellStateChange(SonosEnums.EventingEnums.CurrentPlayMode, DateTime.Now);
                             }
                         }
                     }
                 }
-                //CurrentSection
-                XElement currentSection = instance.Element(ns + "CurrentSection");
-                if (currentSection != null)
+                catch (Exception ex)
                 {
-                    var tctd = currentSection.Attribute("val").Value;
-                    if (pl.PlayerProperties.CurrentSection != tctd)
-                    {
-                        pl.PlayerProperties.CurrentSection = tctd;
-                        if (LastChangeDates[SonosEnums.EventingEnums.CurrentSection].Ticks == 0)
-                        {
-                            LastChangeDates[SonosEnums.EventingEnums.CurrentSection] = DateTime.Now;
-                        }
-                        else
-                        {
-                            ManuellStateChange(SonosEnums.EventingEnums.CurrentSection, DateTime.Now);
-                        }
-                    }
+                    pl.ServerErrorsAdd("ParseChangeXML:CurrentPlayMode", ClassName, ex);
                 }
-                //PlaybackStorageMedium
-                XElement playbackStorageMedium = instance.Element(ns + "PlaybackStorageMedium");
-                if (playbackStorageMedium != null)
+                try
                 {
-                    if (Enum.TryParse(playbackStorageMedium.Attribute("val").Value, out SonosEnums.PlaybackStorageMedium psm) && pl.PlayerProperties.PlaybackStorageMedium != psm)
+                    //NumberofTRacks
+                    XElement numberOfTracksElement = instance.Element(ns + "NumberOfTracks");
+                    if (numberOfTracksElement != null)
                     {
-                        pl.PlayerProperties.PlaybackStorageMedium = psm;
-                        if (LastChangeDates[SonosEnums.EventingEnums.PlaybackStorageMedium].Ticks == 0)
+                        if (int.TryParse(numberOfTracksElement.Attribute("val").Value, out int not))
                         {
-                            LastChangeDates[SonosEnums.EventingEnums.PlaybackStorageMedium] = DateTime.Now;
-                        }
-                        else
-                        {
-                            ManuellStateChange(SonosEnums.EventingEnums.PlaybackStorageMedium, DateTime.Now);
-                        }
-                    }
-                }
-                //AVTransportURI
-                XElement AVTransportURI = instance.Element(ns + "AVTransportURI");
-                if (AVTransportURI != null)
-                {
-                    var tctd = AVTransportURI.Attribute("val").Value;
-                    if (pl.PlayerProperties.AVTransportURI != tctd)
-                    {
-                        pl.PlayerProperties.AVTransportURI = tctd;
-                        if (LastChangeDates[SonosEnums.EventingEnums.AVTransportURI].Ticks == 0)
-                        {
-                            LastChangeDates[SonosEnums.EventingEnums.AVTransportURI] = DateTime.Now;
-                        }
-                        else
-                        {
-                            ManuellStateChange(SonosEnums.EventingEnums.AVTransportURI, DateTime.Now);
-                        }
-                    }
-                }
-                //AVTransportURIMetaData
-                XElement AVTransportURIMetaData = instance.Element(ns + "AVTransportURIMetaData");
-                if (AVTransportURIMetaData != null)
-                {
-                    var tctd = AVTransportURIMetaData.Attribute("val").Value;
-                    if (pl.PlayerProperties.AVTransportURIMetaData != tctd)
-                    {
-                        pl.PlayerProperties.AVTransportURIMetaData = tctd;
-                        if (LastChangeDates[SonosEnums.EventingEnums.AVTransportURIMetaData].Ticks == 0)
-                        {
-                            LastChangeDates[SonosEnums.EventingEnums.AVTransportURIMetaData] = DateTime.Now;
-                        }
-                        else
-                        {
-                            ManuellStateChange(SonosEnums.EventingEnums.AVTransportURIMetaData, DateTime.Now);
-                        }
-                    }
-                }
-                //NextAVTransportURI
-                XElement NextAVTransportURI = instance.Element(ns + "NextAVTransportURI");
-                if (NextAVTransportURI != null)
-                {
-                    var tctd = NextAVTransportURI.Attribute("val").Value;
-                    if (pl.PlayerProperties.NextAVTransportURI != tctd)
-                    {
-                        pl.PlayerProperties.NextAVTransportURI = tctd;
-                        if (LastChangeDates[SonosEnums.EventingEnums.NextAVTransportURI].Ticks == 0)
-                        {
-                            LastChangeDates[SonosEnums.EventingEnums.NextAVTransportURI] = DateTime.Now;
-                        }
-                        else
-                        {
-                            ManuellStateChange(SonosEnums.EventingEnums.NextAVTransportURI, DateTime.Now);
-                        }
-                    }
-                }
-                //NextAVTransportURIMetaData
-                XElement NextAVTransportURIMetaData = instance.Element(ns + "NextAVTransportURIMetaData");
-                if (NextAVTransportURIMetaData != null)
-                {
-                    var tctd = NextAVTransportURIMetaData.Attribute("val").Value;
-                    if (pl.PlayerProperties.NextAVTransportURIMetaData != tctd)
-                    {
-                        pl.PlayerProperties.NextAVTransportURIMetaData = tctd;
-                        if (LastChangeDates[SonosEnums.EventingEnums.NextAVTransportURIMetaData].Ticks == 0)
-                        {
-                            LastChangeDates[SonosEnums.EventingEnums.NextAVTransportURIMetaData] = DateTime.Now;
-                        }
-                        else
-                        {
-                            ManuellStateChange(SonosEnums.EventingEnums.NextAVTransportURIMetaData, DateTime.Now);
-                        }
-                    }
-                }
-                //CurrentTransportActions
-                XElement CurrentTransportActions = instance.Element(ns + "CurrentTransportActions");
-                if (CurrentTransportActions != null)
-                {
-                    var tctd = CurrentTransportActions.Attribute("val").Value;
-                    if (tctd.Contains(","))
-                    {
-                        pl.PlayerProperties.CurrentTransportActions = tctd.Split(',').Select(x => x.Trim()).ToList();
-                    }
-                    else
-                    {
-                        if (!pl.PlayerProperties.CurrentTransportActions.Contains(tctd))
-                        {
-                            pl.PlayerProperties.CurrentTransportActions.Add(tctd);
-                        }
-                    }
-                }
-                //TransportPlaySpeed
-                XElement TransportPlaySpeed = instance.Element(ns + "TransportPlaySpeed");
-                if (TransportPlaySpeed != null)
-                {
-                    var tctd = TransportPlaySpeed.Attribute("val").Value;
-                    if (pl.PlayerProperties.TransportPlaySpeed != tctd)
-                    {
-                        pl.PlayerProperties.TransportPlaySpeed = tctd;
-                        if (LastChangeDates[SonosEnums.EventingEnums.TransportPlaySpeed].Ticks == 0)
-                        {
-                            LastChangeDates[SonosEnums.EventingEnums.TransportPlaySpeed] = DateTime.Now;
-                        }
-                        else
-                        {
-                            ManuellStateChange(SonosEnums.EventingEnums.TransportPlaySpeed, DateTime.Now);
-                        }
-                    }
-                }
-                //CurrentMediaDuration
-                XElement CurrentMediaDuration = instance.Element(ns + "CurrentMediaDuration");
-                if (CurrentMediaDuration != null)
-                {
-                    var tctd = CurrentMediaDuration.Attribute("val").Value;
-                    if (pl.PlayerProperties.CurrentMediaDuration != tctd)
-                    {
-                        pl.PlayerProperties.CurrentMediaDuration = tctd;
-                        if (LastChangeDates[SonosEnums.EventingEnums.CurrentMediaDuration].Ticks == 0)
-                        {
-                            LastChangeDates[SonosEnums.EventingEnums.CurrentMediaDuration] = DateTime.Now;
-                        }
-                        else
-                        {
-                            ManuellStateChange(SonosEnums.EventingEnums.CurrentMediaDuration, DateTime.Now);
-                        }
-                    }
-                }
-                //RecordStorageMedium
-                XElement RecordStorageMedium = instance.Element(ns + "RecordStorageMedium");
-                if (RecordStorageMedium != null)
-                {
-                    var tctd = RecordStorageMedium.Attribute("val").Value;
-                    if (pl.PlayerProperties.RecordStorageMedium != tctd)
-                    {
-                        pl.PlayerProperties.RecordStorageMedium = tctd;
-                        if (LastChangeDates[SonosEnums.EventingEnums.RecordStorageMedium].Ticks == 0)
-                        {
-                            LastChangeDates[SonosEnums.EventingEnums.RecordStorageMedium] = DateTime.Now;
-                        }
-                        else
-                        {
-                            ManuellStateChange(SonosEnums.EventingEnums.RecordStorageMedium, DateTime.Now);
-                        }
-                    }
-                }
-                //PossiblePlaybackStorageMedia
-                XElement PossiblePlaybackStorageMedia = instance.Element(ns + "PossiblePlaybackStorageMedia");
-                if (PossiblePlaybackStorageMedia != null)
-                {
-                    var tctd = PossiblePlaybackStorageMedia.Attribute("val").Value;
-                    if (pl.PlayerProperties.PossiblePlaybackStorageMedia != tctd)
-                    {
-                        pl.PlayerProperties.PossiblePlaybackStorageMedia = tctd;
-                        if (LastChangeDates[SonosEnums.EventingEnums.PossiblePlaybackStorageMedia].Ticks == 0)
-                        {
-                            LastChangeDates[SonosEnums.EventingEnums.PossiblePlaybackStorageMedia] = DateTime.Now;
-                        }
-                        else
-                        {
-                            ManuellStateChange(SonosEnums.EventingEnums.PossiblePlaybackStorageMedia, DateTime.Now);
-                        }
-                    }
-                }
-                //PossibleRecordStorageMedia
-                XElement PossibleRecordStorageMedia = instance.Element(ns + "PossibleRecordStorageMedia");
-                if (PossibleRecordStorageMedia != null)
-                {
-                    var tctd = PossibleRecordStorageMedia.Attribute("val").Value;
-                    if (pl.PlayerProperties.PossibleRecordStorageMedia != tctd)
-                    {
-                        pl.PlayerProperties.PossibleRecordStorageMedia = tctd;
-                        if (LastChangeDates[SonosEnums.EventingEnums.PossibleRecordStorageMedia].Ticks == 0)
-                        {
-                            LastChangeDates[SonosEnums.EventingEnums.PossibleRecordStorageMedia] = DateTime.Now;
-                        }
-                        else
-                        {
-                            ManuellStateChange(SonosEnums.EventingEnums.PossibleRecordStorageMedia, DateTime.Now);
-                        }
-                    }
-                }
-                //RecordMediumWriteStatus
-                XElement RecordMediumWriteStatus = instance.Element(ns + "RecordMediumWriteStatus");
-                if (RecordMediumWriteStatus != null)
-                {
-                    var tctd = RecordMediumWriteStatus.Attribute("val").Value;
-                    if (pl.PlayerProperties.RecordMediumWriteStatus != tctd)
-                    {
-                        pl.PlayerProperties.RecordMediumWriteStatus = tctd;
-                        if (LastChangeDates[SonosEnums.EventingEnums.RecordMediumWriteStatus].Ticks == 0)
-                        {
-                            LastChangeDates[SonosEnums.EventingEnums.RecordMediumWriteStatus] = DateTime.Now;
-                        }
-                        else
-                        {
-                            ManuellStateChange(SonosEnums.EventingEnums.RecordMediumWriteStatus, DateTime.Now);
-                        }
-                    }
-                }
-                //CurrentRecordQualityMode
-                XElement CurrentRecordQualityMode = instance.Element(ns + "CurrentRecordQualityMode");
-                if (CurrentRecordQualityMode != null)
-                {
-                    var tctd = CurrentRecordQualityMode.Attribute("val").Value;
-                    if (pl.PlayerProperties.CurrentRecordQualityMode != tctd)
-                    {
-                        pl.PlayerProperties.CurrentRecordQualityMode = tctd;
-                        if (LastChangeDates[SonosEnums.EventingEnums.CurrentRecordQualityMode].Ticks == 0)
-                        {
-                            LastChangeDates[SonosEnums.EventingEnums.CurrentRecordQualityMode] = DateTime.Now;
-                        }
-                        else
-                        {
-                            ManuellStateChange(SonosEnums.EventingEnums.CurrentRecordQualityMode, DateTime.Now);
-                        }
-                    }
-                }
-                //PossibleRecordQualityModes
-                XElement PossibleRecordQualityModes = instance.Element(ns + "PossibleRecordQualityModes");
-                if (PossibleRecordQualityModes != null)
-                {
-                    var tctd = PossibleRecordQualityModes.Attribute("val").Value;
-                    if (pl.PlayerProperties.PossibleRecordQualityModes != tctd)
-                    {
-                        pl.PlayerProperties.PossibleRecordQualityModes = tctd;
-                        if (LastChangeDates[SonosEnums.EventingEnums.PossibleRecordQualityModes].Ticks == 0)
-                        {
-                            LastChangeDates[SonosEnums.EventingEnums.PossibleRecordQualityModes] = DateTime.Now;
-                        }
-                        else
-                        {
-                            ManuellStateChange(SonosEnums.EventingEnums.PossibleRecordQualityModes, DateTime.Now);
-                        }
-                    }
-                }
-                //EnqueuedTransportURI
-                XElement EnqueuedTransportURI = instance.Element(nsnext + "EnqueuedTransportURI");
-                if (EnqueuedTransportURI != null)
-                {
-                    var tctd = EnqueuedTransportURI.Attribute("val").Value;
-                    if (pl.PlayerProperties.EnqueuedTransportURI != tctd)
-                    {
-                        pl.PlayerProperties.EnqueuedTransportURI = tctd;
-                        if (LastChangeDates[SonosEnums.EventingEnums.EnqueuedTransportURI].Ticks == 0)
-                        {
-                            LastChangeDates[SonosEnums.EventingEnums.EnqueuedTransportURI] = DateTime.Now;
-                        }
-                        else
-                        {
-                            ManuellStateChange(SonosEnums.EventingEnums.EnqueuedTransportURI, DateTime.Now);
-                        }
-                    }
-                }
-                //EnqueuedTransportURIMetaData
-                XElement EnqueuedTransportURIMetaData = instance.Element(nsnext + "EnqueuedTransportURIMetaData");
-                if (EnqueuedTransportURIMetaData != null)
-                {
-                    var tctd = EnqueuedTransportURIMetaData.Attribute("val").Value;
-                    if (pl.PlayerProperties.EnqueuedTransportURIMetaDataString != tctd)
-                    {
-                        pl.PlayerProperties.EnqueuedTransportURIMetaDataString = tctd;
-                        pl.PlayerProperties.EnqueuedTransportURIMetaData = SonosItem.ParseSingleItem(tctd);
-                        if (LastChangeDates[SonosEnums.EventingEnums.EnqueuedTransportURIMetaData].Ticks == 0)
-                        {
-                            LastChangeDates[SonosEnums.EventingEnums.EnqueuedTransportURIMetaData] = DateTime.Now;
-                        }
-                        else
-                        {
-                            ManuellStateChange(SonosEnums.EventingEnums.EnqueuedTransportURIMetaData, DateTime.Now);
-                        }
-                    }
-                }
-                //CurrentValidPlayModes
-                XElement CurrentValidPlayModes = instance.Element(nsnext + "CurrentValidPlayModes");
-                if (CurrentValidPlayModes != null)
-                {
-                    var tctd = CurrentValidPlayModes.Attribute("val").Value;
-                    if (tctd.Contains(","))
-                    {
-                        pl.PlayerProperties.CurrentValidPlayModes = tctd.Split(',').Select(x => x.Trim()).ToList();
-                    }
-                    else
-                    {
-                        if (!pl.PlayerProperties.CurrentValidPlayModes.Contains(tctd))
-                        {
-                            pl.PlayerProperties.CurrentValidPlayModes.Add(tctd);
-                        }
-                    }
-                }
-                //MuseSessions
-                XElement MuseSessions = instance.Element(nsnext + "MuseSessions");
-                if (MuseSessions != null)
-                {
-                    var tctd = MuseSessions.Attribute("val").Value;
-                    if (pl.PlayerProperties.MuseSessions != tctd)
-                    {
-                        pl.PlayerProperties.MuseSessions = tctd;
-                        if (LastChangeDates[SonosEnums.EventingEnums.MuseSessions].Ticks == 0)
-                        {
-                            LastChangeDates[SonosEnums.EventingEnums.MuseSessions] = DateTime.Now;
-                        }
-                        else
-                        {
-                            ManuellStateChange(SonosEnums.EventingEnums.MuseSessions, DateTime.Now);
-                        }
-                    }
-                }
-                //DirectControlClientID
-                XElement DirectControlClientID = instance.Element(nsnext + "DirectControlClientID");
-                if (DirectControlClientID != null)
-                {
-                    var tctd = DirectControlClientID.Attribute("val").Value;
-                    if (pl.PlayerProperties.DirectControlClientID != tctd)
-                    {
-                        pl.PlayerProperties.DirectControlClientID = tctd;
-                        if (LastChangeDates[SonosEnums.EventingEnums.DirectControlClientID].Ticks == 0)
-                        {
-                            LastChangeDates[SonosEnums.EventingEnums.DirectControlClientID] = DateTime.Now;
-                        }
-                        else
-                        {
-                            ManuellStateChange(SonosEnums.EventingEnums.DirectControlClientID, DateTime.Now);
-                        }
-                    }
-                }
-                //DirectControlIsSuspended
-                XElement DirectControlIsSuspended = instance.Element(nsnext + "DirectControlIsSuspended");
-                if (DirectControlIsSuspended != null)
-                {
-                    var tctd = DirectControlIsSuspended.Attribute("val").Value;
-                    if (pl.PlayerProperties.DirectControlIsSuspended != tctd)
-                    {
-                        pl.PlayerProperties.DirectControlIsSuspended = tctd;
-                        if (LastChangeDates[SonosEnums.EventingEnums.DirectControlIsSuspended].Ticks == 0)
-                        {
-                            LastChangeDates[SonosEnums.EventingEnums.DirectControlIsSuspended] = DateTime.Now;
-                        }
-                        else
-                        {
-                            ManuellStateChange(SonosEnums.EventingEnums.DirectControlIsSuspended, DateTime.Now);
-                        }
-                    }
-                }
-                //DirectControlAccountID
-                XElement DirectControlAccountID = instance.Element(nsnext + "DirectControlAccountID");
-                if (DirectControlAccountID != null)
-                {
-                    var tctd = DirectControlAccountID.Attribute("val").Value;
-                    if (pl.PlayerProperties.DirectControlAccountID != tctd)
-                    {
-                        pl.PlayerProperties.DirectControlAccountID = tctd;
-                        if (LastChangeDates[SonosEnums.EventingEnums.DirectControlAccountID].Ticks == 0)
-                        {
-                            LastChangeDates[SonosEnums.EventingEnums.DirectControlAccountID] = DateTime.Now;
-                        }
-                        else
-                        {
-                            ManuellStateChange(SonosEnums.EventingEnums.DirectControlAccountID, DateTime.Now);
-                        }
-                    }
-                }
-                //AlarmRunning
-                XElement AlarmRunning = instance.Element(nsnext + "AlarmRunning");
-                if (AlarmRunning != null)
-                {
-                    var tctd = AlarmRunning.Attribute("val").Value;
-                    if (Boolean.TryParse(tctd, out bool ar))
-                    {
-                        if (pl.PlayerProperties.AlarmRunning != ar)
-                        {
-                            pl.PlayerProperties.AlarmRunning = ar;
-                            if (LastChangeDates[SonosEnums.EventingEnums.AlarmRunning].Ticks == 0)
+                            if (pl.PlayerProperties.NumberOfTracks != not)
                             {
-                                LastChangeDates[SonosEnums.EventingEnums.AlarmRunning] = DateTime.Now;
+                                pl.PlayerProperties.NumberOfTracks = not;
+                                if (LastChangeDates[SonosEnums.EventingEnums.NumberOfTracks].Ticks == 0)
+                                {
+                                    LastChangeDates[SonosEnums.EventingEnums.NumberOfTracks] = DateTime.Now;
+                                }
+                                else
+                                {
+                                    ManuellStateChange(SonosEnums.EventingEnums.NumberOfTracks, DateTime.Now);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    pl.ServerErrorsAdd("ParseChangeXML:NumberofTracks", ClassName, ex);
+                }
+                try
+                {
+                    //CurrentSection
+                    XElement currentSection = instance.Element(ns + "CurrentSection");
+                    if (currentSection != null)
+                    {
+                        var tctd = currentSection.Attribute("val").Value;
+                        if (pl.PlayerProperties.CurrentSection != tctd)
+                        {
+                            pl.PlayerProperties.CurrentSection = tctd;
+                            if (LastChangeDates[SonosEnums.EventingEnums.CurrentSection].Ticks == 0)
+                            {
+                                LastChangeDates[SonosEnums.EventingEnums.CurrentSection] = DateTime.Now;
                             }
                             else
                             {
-                                ManuellStateChange(SonosEnums.EventingEnums.AlarmRunning, DateTime.Now);
+                                ManuellStateChange(SonosEnums.EventingEnums.CurrentSection, DateTime.Now);
                             }
                         }
                     }
                 }
-                //SnoozeRunning
-                XElement SnoozeRunning = instance.Element(nsnext + "SnoozeRunning");
-                if (SnoozeRunning != null)
+                catch (Exception ex)
                 {
-                    var tctd = SnoozeRunning.Attribute("val").Value;
-                    if (Boolean.TryParse(tctd, out bool sr))
+                    pl.ServerErrorsAdd("ParseChangeXML:CurrentSection", ClassName, ex);
+                }
+                try
+                {
+                    //PlaybackStorageMedium
+                    XElement playbackStorageMedium = instance.Element(ns + "PlaybackStorageMedium");
+                    if (playbackStorageMedium != null)
                     {
-                        if (pl.PlayerProperties.SnoozeRunning != sr)
+                        if (Enum.TryParse(playbackStorageMedium.Attribute("val").Value, out SonosEnums.PlaybackStorageMedium psm) && pl.PlayerProperties.PlaybackStorageMedium != psm)
                         {
-                            pl.PlayerProperties.SnoozeRunning = sr;
-                            if (LastChangeDates[SonosEnums.EventingEnums.SnoozeRunning].Ticks == 0)
+                            pl.PlayerProperties.PlaybackStorageMedium = psm;
+                            if (LastChangeDates[SonosEnums.EventingEnums.PlaybackStorageMedium].Ticks == 0)
                             {
-                                LastChangeDates[SonosEnums.EventingEnums.SnoozeRunning] = DateTime.Now;
+                                LastChangeDates[SonosEnums.EventingEnums.PlaybackStorageMedium] = DateTime.Now;
                             }
                             else
                             {
-                                ManuellStateChange(SonosEnums.EventingEnums.SnoozeRunning, DateTime.Now);
+                                ManuellStateChange(SonosEnums.EventingEnums.PlaybackStorageMedium, DateTime.Now);
                             }
                         }
                     }
                 }
-                //RestartPending
-                XElement RestartPending = instance.Element(nsnext + "RestartPending");
-                if (RestartPending != null)
+                catch (Exception ex)
                 {
-                    var tctd = RestartPending.Attribute("val").Value;
-                    if (Boolean.TryParse(tctd, out bool rp))
+                    pl.ServerErrorsAdd("ParseChangeXML:PlaybackStorageMedium", ClassName, ex);
+                }
+                try
+                {
+                    //AVTransportURI
+                    XElement AVTransportURI = instance.Element(ns + "AVTransportURI");
+                    if (AVTransportURI != null)
                     {
-                        if (pl.PlayerProperties.RestartPending != rp)
+                        var tctd = AVTransportURI.Attribute("val").Value;
+                        if (pl.PlayerProperties.AVTransportURI != tctd)
                         {
-                            pl.PlayerProperties.RestartPending = rp;
-                            if (LastChangeDates[SonosEnums.EventingEnums.RestartPending].Ticks == 0)
+                            pl.PlayerProperties.AVTransportURI = tctd;
+                            if (LastChangeDates[SonosEnums.EventingEnums.AVTransportURI].Ticks == 0)
                             {
-                                LastChangeDates[SonosEnums.EventingEnums.RestartPending] = DateTime.Now;
+                                LastChangeDates[SonosEnums.EventingEnums.AVTransportURI] = DateTime.Now;
                             }
                             else
                             {
-                                ManuellStateChange(SonosEnums.EventingEnums.RestartPending, DateTime.Now);
+                                ManuellStateChange(SonosEnums.EventingEnums.AVTransportURI, DateTime.Now);
                             }
                         }
                     }
                 }
-                //Wenn NextTrack aktiviert ist, diesen durchlaufen lassen und entsprechend anzeigen
-                XElement nextTrackMetaData = instance.Element(nsnext + "NextTrackMetaData");
-                if (nextTrackMetaData != null)
+                catch (Exception ex)
                 {
-                    string b = nextTrackMetaData.Attribute("val").Value;
-                    if (pl.PlayerProperties.NextTrack.MetaData != b)
+                    pl.ServerErrorsAdd("ParseChangeXML:AvTransportUri", ClassName, ex);
+                }
+                try
+                {
+                    //AVTransportURIMetaData
+                    XElement AVTransportURIMetaData = instance.Element(ns + "AVTransportURIMetaData");
+                    if (AVTransportURIMetaData != null)
                     {
-                        SonosItem tnext = new();
-                        if (!String.IsNullOrEmpty(b))
+                        var tctd = AVTransportURIMetaData.Attribute("val").Value;
+                        if (pl.PlayerProperties.AVTransportURIMetaData != tctd)
                         {
-                            tnext = SonosItem.ParseSingleItem(b);
-                        }
-                        if (pl.PlayerProperties.NextTrack == null || pl.PlayerProperties.NextTrack.Title != tnext.Title || pl.PlayerProperties.NextTrack.Artist != tnext.Artist)
-                        {
-                            pl.PlayerProperties.NextTrack = tnext;
-                            pl.PlayerProperties.NextTrack.MetaData = b;
-                            if (LastChangeDates[SonosEnums.EventingEnums.NextTrack].Ticks == 0)
+                            pl.PlayerProperties.AVTransportURIMetaData = tctd;
+                            if (LastChangeDates[SonosEnums.EventingEnums.AVTransportURIMetaData].Ticks == 0)
                             {
-                                LastChangeDates[SonosEnums.EventingEnums.NextTrack] = DateTime.Now;
+                                LastChangeDates[SonosEnums.EventingEnums.AVTransportURIMetaData] = DateTime.Now;
                             }
                             else
                             {
-                                ManuellStateChange(SonosEnums.EventingEnums.NextTrack, DateTime.Now);
+                                ManuellStateChange(SonosEnums.EventingEnums.AVTransportURIMetaData, DateTime.Now);
                             }
                         }
                     }
+                }
+                catch (Exception ex)
+                {
+                    pl.ServerErrorsAdd("ParseChangeXML:AvTransportUriMeta", ClassName, ex);
+                }
+                try
+                {
+                    //NextAVTransportURI
+                    XElement NextAVTransportURI = instance.Element(ns + "NextAVTransportURI");
+                    if (NextAVTransportURI != null)
+                    {
+                        var tctd = NextAVTransportURI.Attribute("val").Value;
+                        if (pl.PlayerProperties.NextAVTransportURI != tctd)
+                        {
+                            pl.PlayerProperties.NextAVTransportURI = tctd;
+                            if (LastChangeDates[SonosEnums.EventingEnums.NextAVTransportURI].Ticks == 0)
+                            {
+                                LastChangeDates[SonosEnums.EventingEnums.NextAVTransportURI] = DateTime.Now;
+                            }
+                            else
+                            {
+                                ManuellStateChange(SonosEnums.EventingEnums.NextAVTransportURI, DateTime.Now);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    pl.ServerErrorsAdd("ParseChangeXML:NextAvTransporturi", ClassName, ex);
+                }
+                try
+                {
+                    //NextAVTransportURIMetaData
+                    XElement NextAVTransportURIMetaData = instance.Element(ns + "NextAVTransportURIMetaData");
+                    if (NextAVTransportURIMetaData != null)
+                    {
+                        var tctd = NextAVTransportURIMetaData.Attribute("val").Value;
+                        if (pl.PlayerProperties.NextAVTransportURIMetaData != tctd)
+                        {
+                            pl.PlayerProperties.NextAVTransportURIMetaData = tctd;
+                            if (LastChangeDates[SonosEnums.EventingEnums.NextAVTransportURIMetaData].Ticks == 0)
+                            {
+                                LastChangeDates[SonosEnums.EventingEnums.NextAVTransportURIMetaData] = DateTime.Now;
+                            }
+                            else
+                            {
+                                ManuellStateChange(SonosEnums.EventingEnums.NextAVTransportURIMetaData, DateTime.Now);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    pl.ServerErrorsAdd("ParseChangeXML:NextAvTransportUriMeta", ClassName, ex);
+                }
+                try
+                {
+                    //CurrentTransportActions
+                    XElement CurrentTransportActions = instance.Element(ns + "CurrentTransportActions");
+                    if (CurrentTransportActions != null)
+                    {
+                        var tctd = CurrentTransportActions.Attribute("val").Value;
+                        if (tctd.Contains(","))
+                        {
+                            pl.PlayerProperties.CurrentTransportActions = tctd.Split(',').Select(x => x.Trim()).ToList();
+                        }
+                        else
+                        {
+                            if (!pl.PlayerProperties.CurrentTransportActions.Contains(tctd))
+                            {
+                                pl.PlayerProperties.CurrentTransportActions.Add(tctd);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    pl.ServerErrorsAdd("ParseChangeXML:CurrentTransportActions", ClassName, ex);
+                }
+                try
+                {
+                    //TransportPlaySpeed
+                    XElement TransportPlaySpeed = instance.Element(ns + "TransportPlaySpeed");
+                    if (TransportPlaySpeed != null)
+                    {
+                        var tctd = TransportPlaySpeed.Attribute("val").Value;
+                        if (pl.PlayerProperties.TransportPlaySpeed != tctd)
+                        {
+                            pl.PlayerProperties.TransportPlaySpeed = tctd;
+                            if (LastChangeDates[SonosEnums.EventingEnums.TransportPlaySpeed].Ticks == 0)
+                            {
+                                LastChangeDates[SonosEnums.EventingEnums.TransportPlaySpeed] = DateTime.Now;
+                            }
+                            else
+                            {
+                                ManuellStateChange(SonosEnums.EventingEnums.TransportPlaySpeed, DateTime.Now);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    pl.ServerErrorsAdd("ParseChangeXML:TransportPlaySpeed", ClassName, ex);
+                }
+                try
+                {
+                    //CurrentMediaDuration
+                    XElement CurrentMediaDuration = instance.Element(ns + "CurrentMediaDuration");
+                    if (CurrentMediaDuration != null)
+                    {
+                        var tctd = CurrentMediaDuration.Attribute("val").Value;
+                        if (pl.PlayerProperties.CurrentMediaDuration != tctd)
+                        {
+                            pl.PlayerProperties.CurrentMediaDuration = tctd;
+                            if (LastChangeDates[SonosEnums.EventingEnums.CurrentMediaDuration].Ticks == 0)
+                            {
+                                LastChangeDates[SonosEnums.EventingEnums.CurrentMediaDuration] = DateTime.Now;
+                            }
+                            else
+                            {
+                                ManuellStateChange(SonosEnums.EventingEnums.CurrentMediaDuration, DateTime.Now);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    pl.ServerErrorsAdd("ParseChangeXML:CurrentMediaDuration", ClassName, ex);
+                }
+                try
+                {
+                    //RecordStorageMedium
+                    XElement RecordStorageMedium = instance.Element(ns + "RecordStorageMedium");
+                    if (RecordStorageMedium != null)
+                    {
+                        var tctd = RecordStorageMedium.Attribute("val").Value;
+                        if (pl.PlayerProperties.RecordStorageMedium != tctd)
+                        {
+                            pl.PlayerProperties.RecordStorageMedium = tctd;
+                            if (LastChangeDates[SonosEnums.EventingEnums.RecordStorageMedium].Ticks == 0)
+                            {
+                                LastChangeDates[SonosEnums.EventingEnums.RecordStorageMedium] = DateTime.Now;
+                            }
+                            else
+                            {
+                                ManuellStateChange(SonosEnums.EventingEnums.RecordStorageMedium, DateTime.Now);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    pl.ServerErrorsAdd("ParseChangeXML:RecordStorageMedium", ClassName, ex);
+                }
+                try
+                {
+                    //PossiblePlaybackStorageMedia
+                    XElement PossiblePlaybackStorageMedia = instance.Element(ns + "PossiblePlaybackStorageMedia");
+                    if (PossiblePlaybackStorageMedia != null)
+                    {
+                        var tctd = PossiblePlaybackStorageMedia.Attribute("val").Value;
+                        if (pl.PlayerProperties.PossiblePlaybackStorageMedia != tctd)
+                        {
+                            pl.PlayerProperties.PossiblePlaybackStorageMedia = tctd;
+                            if (LastChangeDates[SonosEnums.EventingEnums.PossiblePlaybackStorageMedia].Ticks == 0)
+                            {
+                                LastChangeDates[SonosEnums.EventingEnums.PossiblePlaybackStorageMedia] = DateTime.Now;
+                            }
+                            else
+                            {
+                                ManuellStateChange(SonosEnums.EventingEnums.PossiblePlaybackStorageMedia, DateTime.Now);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    pl.ServerErrorsAdd("ParseChangeXML:PossiblePlaybackStorageMedia", ClassName, ex);
+                }
+                try
+                {
+                    //PossibleRecordStorageMedia
+                    XElement PossibleRecordStorageMedia = instance.Element(ns + "PossibleRecordStorageMedia");
+                    if (PossibleRecordStorageMedia != null)
+                    {
+                        var tctd = PossibleRecordStorageMedia.Attribute("val").Value;
+                        if (pl.PlayerProperties.PossibleRecordStorageMedia != tctd)
+                        {
+                            pl.PlayerProperties.PossibleRecordStorageMedia = tctd;
+                            if (LastChangeDates[SonosEnums.EventingEnums.PossibleRecordStorageMedia].Ticks == 0)
+                            {
+                                LastChangeDates[SonosEnums.EventingEnums.PossibleRecordStorageMedia] = DateTime.Now;
+                            }
+                            else
+                            {
+                                ManuellStateChange(SonosEnums.EventingEnums.PossibleRecordStorageMedia, DateTime.Now);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    pl.ServerErrorsAdd("ParseChangeXML:PossibleRecordStorageMedia", ClassName, ex);
+                }
+                try
+                {
+                    //RecordMediumWriteStatus
+                    XElement RecordMediumWriteStatus = instance.Element(ns + "RecordMediumWriteStatus");
+                    if (RecordMediumWriteStatus != null)
+                    {
+                        var tctd = RecordMediumWriteStatus.Attribute("val").Value;
+                        if (pl.PlayerProperties.RecordMediumWriteStatus != tctd)
+                        {
+                            pl.PlayerProperties.RecordMediumWriteStatus = tctd;
+                            if (LastChangeDates[SonosEnums.EventingEnums.RecordMediumWriteStatus].Ticks == 0)
+                            {
+                                LastChangeDates[SonosEnums.EventingEnums.RecordMediumWriteStatus] = DateTime.Now;
+                            }
+                            else
+                            {
+                                ManuellStateChange(SonosEnums.EventingEnums.RecordMediumWriteStatus, DateTime.Now);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    pl.ServerErrorsAdd("ParseChangeXML:RecordMediumWriteStatus", ClassName, ex);
+                }
+                try
+                {
+                    //CurrentRecordQualityMode
+                    XElement CurrentRecordQualityMode = instance.Element(ns + "CurrentRecordQualityMode");
+                    if (CurrentRecordQualityMode != null)
+                    {
+                        var tctd = CurrentRecordQualityMode.Attribute("val").Value;
+                        if (pl.PlayerProperties.CurrentRecordQualityMode != tctd)
+                        {
+                            pl.PlayerProperties.CurrentRecordQualityMode = tctd;
+                            if (LastChangeDates[SonosEnums.EventingEnums.CurrentRecordQualityMode].Ticks == 0)
+                            {
+                                LastChangeDates[SonosEnums.EventingEnums.CurrentRecordQualityMode] = DateTime.Now;
+                            }
+                            else
+                            {
+                                ManuellStateChange(SonosEnums.EventingEnums.CurrentRecordQualityMode, DateTime.Now);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    pl.ServerErrorsAdd("ParseChangeXML:CurrentRecordQualityMode", ClassName, ex);
+                }
+                try
+                {
+                    //PossibleRecordQualityModes
+                    XElement PossibleRecordQualityModes = instance.Element(ns + "PossibleRecordQualityModes");
+                    if (PossibleRecordQualityModes != null)
+                    {
+                        var tctd = PossibleRecordQualityModes.Attribute("val").Value;
+                        if (pl.PlayerProperties.PossibleRecordQualityModes != tctd)
+                        {
+                            pl.PlayerProperties.PossibleRecordQualityModes = tctd;
+                            if (LastChangeDates[SonosEnums.EventingEnums.PossibleRecordQualityModes].Ticks == 0)
+                            {
+                                LastChangeDates[SonosEnums.EventingEnums.PossibleRecordQualityModes] = DateTime.Now;
+                            }
+                            else
+                            {
+                                ManuellStateChange(SonosEnums.EventingEnums.PossibleRecordQualityModes, DateTime.Now);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    pl.ServerErrorsAdd("ParseChangeXML:PossibleRecordQualityModes", ClassName, ex);
+                }
+                try
+                {
+                    //EnqueuedTransportURI
+                    XElement EnqueuedTransportURI = instance.Element(nsnext + "EnqueuedTransportURI");
+                    if (EnqueuedTransportURI != null)
+                    {
+                        var tctd = EnqueuedTransportURI.Attribute("val").Value;
+                        if (pl.PlayerProperties.EnqueuedTransportURI != tctd)
+                        {
+                            pl.PlayerProperties.EnqueuedTransportURI = tctd;
+                            if (LastChangeDates[SonosEnums.EventingEnums.EnqueuedTransportURI].Ticks == 0)
+                            {
+                                LastChangeDates[SonosEnums.EventingEnums.EnqueuedTransportURI] = DateTime.Now;
+                            }
+                            else
+                            {
+                                ManuellStateChange(SonosEnums.EventingEnums.EnqueuedTransportURI, DateTime.Now);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    pl.ServerErrorsAdd("ParseChangeXML:EnqueuedTransportUri", ClassName, ex);
+                }
+                try
+                {
+                    //EnqueuedTransportURIMetaData
+                    XElement EnqueuedTransportURIMetaData = instance.Element(nsnext + "EnqueuedTransportURIMetaData");
+                    if (EnqueuedTransportURIMetaData != null)
+                    {
+                        var tctd = EnqueuedTransportURIMetaData.Attribute("val").Value;
+                        if (pl.PlayerProperties.EnqueuedTransportURIMetaDataString != tctd)
+                        {
+                            pl.PlayerProperties.EnqueuedTransportURIMetaDataString = tctd;
+                            pl.PlayerProperties.EnqueuedTransportURIMetaData = SonosItem.ParseSingleItem(tctd);
+                            if (LastChangeDates[SonosEnums.EventingEnums.EnqueuedTransportURIMetaData].Ticks == 0)
+                            {
+                                LastChangeDates[SonosEnums.EventingEnums.EnqueuedTransportURIMetaData] = DateTime.Now;
+                            }
+                            else
+                            {
+                                ManuellStateChange(SonosEnums.EventingEnums.EnqueuedTransportURIMetaData, DateTime.Now);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    pl.ServerErrorsAdd("ParseChangeXML:EnqueuedTransportUriMetaData", ClassName, ex);
+                }
+                try
+                {
+                    //CurrentValidPlayModes
+                    XElement CurrentValidPlayModes = instance.Element(nsnext + "CurrentValidPlayModes");
+                    if (CurrentValidPlayModes != null)
+                    {
+                        var tctd = CurrentValidPlayModes.Attribute("val").Value;
+                        if (tctd.Contains(","))
+                        {
+                            pl.PlayerProperties.CurrentValidPlayModes = tctd.Split(',').Select(x => x.Trim()).ToList();
+                        }
+                        else
+                        {
+                            if (!pl.PlayerProperties.CurrentValidPlayModes.Contains(tctd))
+                            {
+                                pl.PlayerProperties.CurrentValidPlayModes.Add(tctd);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    pl.ServerErrorsAdd("ParseChangeXML:CurrentValidPlayModes", ClassName, ex);
+                }
+                try
+                {
+                    //MuseSessions
+                    XElement MuseSessions = instance.Element(nsnext + "MuseSessions");
+                    if (MuseSessions != null)
+                    {
+                        var tctd = MuseSessions.Attribute("val").Value;
+                        if (pl.PlayerProperties.MuseSessions != tctd)
+                        {
+                            pl.PlayerProperties.MuseSessions = tctd;
+                            if (LastChangeDates[SonosEnums.EventingEnums.MuseSessions].Ticks == 0)
+                            {
+                                LastChangeDates[SonosEnums.EventingEnums.MuseSessions] = DateTime.Now;
+                            }
+                            else
+                            {
+                                ManuellStateChange(SonosEnums.EventingEnums.MuseSessions, DateTime.Now);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    pl.ServerErrorsAdd("ParseChangeXML:MuseSessions", ClassName, ex);
+                }
+                try
+                {
+                    //DirectControlClientID
+                    XElement DirectControlClientID = instance.Element(nsnext + "DirectControlClientID");
+                    if (DirectControlClientID != null)
+                    {
+                        var tctd = DirectControlClientID.Attribute("val").Value;
+                        if (pl.PlayerProperties.DirectControlClientID != tctd)
+                        {
+                            pl.PlayerProperties.DirectControlClientID = tctd;
+                            if (LastChangeDates[SonosEnums.EventingEnums.DirectControlClientID].Ticks == 0)
+                            {
+                                LastChangeDates[SonosEnums.EventingEnums.DirectControlClientID] = DateTime.Now;
+                            }
+                            else
+                            {
+                                ManuellStateChange(SonosEnums.EventingEnums.DirectControlClientID, DateTime.Now);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    pl.ServerErrorsAdd("ParseChangeXML:DirectControlClientID", ClassName, ex);
+                }
+                try
+                {
+                    //DirectControlIsSuspended
+                    XElement DirectControlIsSuspended = instance.Element(nsnext + "DirectControlIsSuspended");
+                    if (DirectControlIsSuspended != null)
+                    {
+                        var tctd = DirectControlIsSuspended.Attribute("val").Value;
+                        if (pl.PlayerProperties.DirectControlIsSuspended != tctd)
+                        {
+                            pl.PlayerProperties.DirectControlIsSuspended = tctd;
+                            if (LastChangeDates[SonosEnums.EventingEnums.DirectControlIsSuspended].Ticks == 0)
+                            {
+                                LastChangeDates[SonosEnums.EventingEnums.DirectControlIsSuspended] = DateTime.Now;
+                            }
+                            else
+                            {
+                                ManuellStateChange(SonosEnums.EventingEnums.DirectControlIsSuspended, DateTime.Now);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    pl.ServerErrorsAdd("ParseChangeXML:DirectControlIsSuspended", ClassName, ex);
+                }
+                try
+                {
+                    //DirectControlAccountID
+                    XElement DirectControlAccountID = instance.Element(nsnext + "DirectControlAccountID");
+                    if (DirectControlAccountID != null)
+                    {
+                        var tctd = DirectControlAccountID.Attribute("val").Value;
+                        if (pl.PlayerProperties.DirectControlAccountID != tctd)
+                        {
+                            pl.PlayerProperties.DirectControlAccountID = tctd;
+                            if (LastChangeDates[SonosEnums.EventingEnums.DirectControlAccountID].Ticks == 0)
+                            {
+                                LastChangeDates[SonosEnums.EventingEnums.DirectControlAccountID] = DateTime.Now;
+                            }
+                            else
+                            {
+                                ManuellStateChange(SonosEnums.EventingEnums.DirectControlAccountID, DateTime.Now);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    pl.ServerErrorsAdd("ParseChangeXML:DirectControlAccountId", ClassName, ex);
+                }
+                try
+                {
+                    //AlarmRunning
+                    XElement AlarmRunning = instance.Element(nsnext + "AlarmRunning");
+                    if (AlarmRunning != null)
+                    {
+                        var tctd = AlarmRunning.Attribute("val").Value;
+                        if (Boolean.TryParse(tctd, out bool ar))
+                        {
+                            if (pl.PlayerProperties.AlarmRunning != ar)
+                            {
+                                pl.PlayerProperties.AlarmRunning = ar;
+                                if (LastChangeDates[SonosEnums.EventingEnums.AlarmRunning].Ticks == 0)
+                                {
+                                    LastChangeDates[SonosEnums.EventingEnums.AlarmRunning] = DateTime.Now;
+                                }
+                                else
+                                {
+                                    ManuellStateChange(SonosEnums.EventingEnums.AlarmRunning, DateTime.Now);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    pl.ServerErrorsAdd("ParseChangeXML:AlarmRunnig", ClassName, ex);
+                }
+                try
+                {
+                    //SnoozeRunning
+                    XElement SnoozeRunning = instance.Element(nsnext + "SnoozeRunning");
+                    if (SnoozeRunning != null)
+                    {
+                        var tctd = SnoozeRunning.Attribute("val").Value;
+                        if (Boolean.TryParse(tctd, out bool sr))
+                        {
+                            if (pl.PlayerProperties.SnoozeRunning != sr)
+                            {
+                                pl.PlayerProperties.SnoozeRunning = sr;
+                                if (LastChangeDates[SonosEnums.EventingEnums.SnoozeRunning].Ticks == 0)
+                                {
+                                    LastChangeDates[SonosEnums.EventingEnums.SnoozeRunning] = DateTime.Now;
+                                }
+                                else
+                                {
+                                    ManuellStateChange(SonosEnums.EventingEnums.SnoozeRunning, DateTime.Now);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    pl.ServerErrorsAdd("ParseChangeXML:SnoozeRunning", ClassName, ex);
+                }
+                try
+                {
+                    //RestartPending
+                    XElement RestartPending = instance.Element(nsnext + "RestartPending");
+                    if (RestartPending != null)
+                    {
+                        var tctd = RestartPending.Attribute("val").Value;
+                        if (Boolean.TryParse(tctd, out bool rp))
+                        {
+                            if (pl.PlayerProperties.RestartPending != rp)
+                            {
+                                pl.PlayerProperties.RestartPending = rp;
+                                if (LastChangeDates[SonosEnums.EventingEnums.RestartPending].Ticks == 0)
+                                {
+                                    LastChangeDates[SonosEnums.EventingEnums.RestartPending] = DateTime.Now;
+                                }
+                                else
+                                {
+                                    ManuellStateChange(SonosEnums.EventingEnums.RestartPending, DateTime.Now);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    pl.ServerErrorsAdd("ParseChangeXML:RestartPending", ClassName, ex);
+                }
+                try
+                {
+                    //Wenn NextTrack aktiviert ist, diesen durchlaufen lassen und entsprechend anzeigen
+                    XElement nextTrackMetaData = instance.Element(nsnext + "NextTrackMetaData");
+                    if (nextTrackMetaData != null)
+                    {
+                        string b = nextTrackMetaData.Attribute("val").Value;
+                        if (pl.PlayerProperties.NextTrack.MetaData != b)
+                        {
+                            SonosItem tnext = new();
+                            if (!String.IsNullOrEmpty(b))
+                            {
+                                tnext = SonosItem.ParseSingleItem(b);
+                            }
+                            if (pl.PlayerProperties.NextTrack == null || pl.PlayerProperties.NextTrack.Title != tnext.Title || pl.PlayerProperties.NextTrack.Artist != tnext.Artist)
+                            {
+                                pl.PlayerProperties.NextTrack = tnext;
+                                pl.PlayerProperties.NextTrack.MetaData = b;
+                                if (LastChangeDates[SonosEnums.EventingEnums.NextTrack].Ticks == 0)
+                                {
+                                    LastChangeDates[SonosEnums.EventingEnums.NextTrack] = DateTime.Now;
+                                }
+                                else
+                                {
+                                    ManuellStateChange(SonosEnums.EventingEnums.NextTrack, DateTime.Now);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    pl.ServerErrorsAdd("ParseChangeXML:NextTrackMetaData", ClassName, ex);
                 }
 
             }
             catch (Exception ex)
             {
-                pl.ServerErrorsAdd("ParseChangeXML"+"   "+newState, ClassName, ex);
+                pl.ServerErrorsAdd("ParseChangeXML", ClassName, ex);
             }
             try
             {
@@ -775,16 +997,16 @@ namespace SonosUPnP.Services.MediaRendererService
                         }
                     }
                 }
-                ////CurrentTRackDuration
-                //XElement currentTrackDurationElement = instance.Element(ns + "CurrentTrackDuration");
-                //if (currentTrackDurationElement != null)
-                //{
-                //    var tctd = pl.PlayerProperties.ParseDuration(currentTrackDurationElement.Attribute("val").Value);
-                //    if (pl.PlayerProperties.CurrentTrack.Duration.ToString() != tctd.ToString())
-                //    {
-                //        pl.PlayerProperties.CurrentTrack.Duration = tctd;
-                //    }
-                //}
+                //CurrentTRackDuration
+                XElement currentTrackDurationElement = instance.Element(ns + "CurrentTrackDuration");
+                if (currentTrackDurationElement != null)
+                {
+                    var tctd = pl.PlayerProperties.ParseDuration(currentTrackDurationElement.Attribute("val").Value);
+                    if (pl.PlayerProperties.CurrentTrack.Duration.ToString() != tctd.ToString())
+                    {
+                        pl.PlayerProperties.CurrentTrack.Duration = tctd;
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -904,7 +1126,7 @@ namespace SonosUPnP.Services.MediaRendererService
         /// <param name="AddAtIndex"></param>
         /// <param name="InstanceID"></param>
         /// <returns>Anzahl zugefügter Tracks</returns>
-        public async Task<QueueData> AddURIToSavedQueue(string ObjectID, UInt32 UpdateID, string EnqueuedURI, string EnqueuedURIMetaData, UInt32 AddAtIndex = 0, UInt32 InstanceID=0)
+        public async Task<QueueData> AddURIToSavedQueue(string ObjectID, UInt32 UpdateID, string EnqueuedURI, string EnqueuedURIMetaData, UInt32 AddAtIndex = 0, UInt32 InstanceID = 0)
         {
             var arguments = new UPnPArgument[9];
             arguments[0] = new UPnPArgument("InstanceID", InstanceID);
@@ -1661,9 +1883,10 @@ namespace SonosUPnP.Services.MediaRendererService
                 }
                 if (unit == SonosEnums.SeekUnit.REL_TIME && pl.PlayerProperties.TransportState != SonosEnums.TransportState.PLAYING)
                 {
-                    if(TimeSpan.TryParse(position, out TimeSpan see)) { 
-                    pl.PlayerProperties.CurrentTrack.RelTime = new SonosTimeSpan(see);
-                    ManuellStateChange(SonosEnums.EventingEnums.RelTime, DateTime.Now);
+                    if (TimeSpan.TryParse(position, out TimeSpan see))
+                    {
+                        pl.PlayerProperties.CurrentTrack.RelTime = new SonosTimeSpan(see);
+                        ManuellStateChange(SonosEnums.EventingEnums.RelTime, DateTime.Now);
                     }
                 }
                 return true;
