@@ -437,7 +437,7 @@ namespace SonosUPnP.Services.MediaRendererService
                     if (CurrentTransportActions != null)
                     {
                         var tctd = CurrentTransportActions.Attribute("val").Value;
-                        if (tctd.Contains(","))
+                        if (tctd.Contains(','))
                         {
                             pl.PlayerProperties.CurrentTransportActions = tctd.Split(',').Select(x => x.Trim()).ToList();
                         }
@@ -679,17 +679,18 @@ namespace SonosUPnP.Services.MediaRendererService
                 {
                     pl.ServerErrorsAdd("ParseChangeXML:EnqueuedTransportUri", ClassName, ex);
                 }
+                string enqueuedTransportURIMetaDataValue = String.Empty;
                 try
                 {
                     //EnqueuedTransportURIMetaData
                     XElement EnqueuedTransportURIMetaData = instance.Element(nsnext + "EnqueuedTransportURIMetaData");
                     if (EnqueuedTransportURIMetaData != null)
                     {
-                        var tctd = EnqueuedTransportURIMetaData.Attribute("val").Value;
-                        if (pl.PlayerProperties.EnqueuedTransportURIMetaDataString != tctd)
+                        enqueuedTransportURIMetaDataValue = EnqueuedTransportURIMetaData.Attribute("val").Value;
+                        if (pl.PlayerProperties.EnqueuedTransportURIMetaDataString != enqueuedTransportURIMetaDataValue)
                         {
-                            pl.PlayerProperties.EnqueuedTransportURIMetaDataString = tctd;
-                            pl.PlayerProperties.EnqueuedTransportURIMetaData = SonosItem.ParseSingleItem(tctd);
+                            pl.PlayerProperties.EnqueuedTransportURIMetaDataString = enqueuedTransportURIMetaDataValue;
+                            pl.PlayerProperties.EnqueuedTransportURIMetaData = SonosItem.ParseSingleItem(enqueuedTransportURIMetaDataValue);
                             if (LastChangeDates[SonosEnums.EventingEnums.EnqueuedTransportURIMetaData].Ticks == 0)
                             {
                                 LastChangeDates[SonosEnums.EventingEnums.EnqueuedTransportURIMetaData] = DateTime.Now;
@@ -703,7 +704,7 @@ namespace SonosUPnP.Services.MediaRendererService
                 }
                 catch (Exception ex)
                 {
-                    pl.ServerErrorsAdd("ParseChangeXML:EnqueuedTransportUriMetaData", ClassName, ex);
+                    pl.ServerErrorsAdd("ParseChangeXML:EnqueuedTransportUriMetaData MetaData:"+ enqueuedTransportURIMetaDataValue, ClassName, ex);
                 }
                 try
                 {
@@ -712,7 +713,7 @@ namespace SonosUPnP.Services.MediaRendererService
                     if (CurrentValidPlayModes != null)
                     {
                         var tctd = CurrentValidPlayModes.Attribute("val").Value;
-                        if (tctd.Contains(","))
+                        if (tctd.Contains(','))
                         {
                             pl.PlayerProperties.CurrentValidPlayModes = tctd.Split(',').Select(x => x.Trim()).ToList();
                         }

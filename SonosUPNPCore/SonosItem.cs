@@ -173,35 +173,6 @@ namespace SonosUPnP
                 {
                     try
                     {
-                        //    var track = new SonosItem();
-                        //    var resElement = item.Element(ns + "res");
-                        //    if (resElement != null)
-                        //    {
-                        //        track.Uri = resElement.Value;
-                        //        track.ProtocolInfo = resElement.Attribute("protocolInfo").Value;
-                        //        TimeSpan tsres;
-                        //        var du = TimeSpan.TryParse(resElement.Attribute("duration").Value, out tsres);
-                        //        track.Duration = tsres;
-                        //    }
-                        //    track.ItemID = item.Attribute("id").Value;
-                        //    track.ParentID = item.Attribute("parentID").Value;
-                        //    track.MetaData = (string)item.Element(r + "resMD");
-                        //    var taau = (string)item.Element(upnp + "albumArtURI");
-                        //    track.AlbumArtURI = String.IsNullOrEmpty(taau) ? String.Empty : taau;
-                        //    track.ClassType = (string)item.Element(upnp + "class");
-                        //    var tal = (string)item.Element(upnp + "album");
-                        //    track.Album = String.IsNullOrEmpty(tal) ? String.Empty : tal;
-                        //    var tar = (string)item.Element(dc + "creator");
-                        //    if (string.IsNullOrEmpty(tar))
-                        //    {
-                        //        tar = (string)item.Element(upnp + "artist");
-                        //    }
-                        //    track.Artist = String.IsNullOrEmpty(tar) ? String.Empty : tar;
-                        //    //Title | Wenn Streamcontent vorhanden, dann wird radio abgespielt und der Titel ist falsch. 
-                        //    track.StreamContent = (string)item.Element(r + "streamContent");
-                        //    string tti = (string)item.Element(dc + "title");
-                        //    track.Title = String.IsNullOrEmpty(tti) ? String.Empty : tti;
-                        //    track.Description = (string)item.Element(r + "description") ?? String.Empty;
                         list.Add(ParseItem(item));
                     }
                     catch
