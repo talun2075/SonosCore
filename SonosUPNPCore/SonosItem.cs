@@ -2,6 +2,7 @@ using MP3File;
 using SonosUPNPCore.Props;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Linq;
 
@@ -164,6 +165,7 @@ namespace SonosUPnP
         /// <returns></returns>
         public static SonosItem ParseSingleItem(string xmlString)
         {
+            SonosItem returnval = new();
             if (!string.IsNullOrEmpty(xmlString) && xmlString != SonosConstants.NotImplemented)
             {
                 var xml = XElement.Parse(xmlString);
@@ -181,9 +183,13 @@ namespace SonosUPnP
                     }
                     break;
                 }
-                return list[0];
+
+                if (list.Any())
+                {
+                    returnval= list.FirstOrDefault();
+                }
             }
-            return new SonosItem();
+            return returnval;
         }
 
         public static SonosItem ParseItem(XElement item)

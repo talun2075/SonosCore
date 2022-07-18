@@ -71,15 +71,18 @@ namespace Sonos.Controllers
             //neue Idee
             SonosPlayer player = await GetChild();
             var playlistsToUse = await player.ContentDirectory.Browse(SonosConstants.SQ);
-            foreach (SonosItem sonosItem in playlistsToUse.Result)
+            lock (ChildPlaylistButtonsIDs)
             {
-                var temptitle = sonosItem.Title.ToLower();
-                if (temptitle.StartsWith("zzz" + ChildName.ToLower()))
+                foreach (SonosItem sonosItem in playlistsToUse.Result)
                 {
-                    var sonosfromlist = ChildPlaylistButtonsIDs.FirstOrDefault(x => x.Title.ToLower() == temptitle);
-                    if (sonosfromlist == null)
+                    var temptitle = sonosItem.Title.ToLower();
+                    if (temptitle.StartsWith("zzz" + ChildName.ToLower()))
                     {
-                        ChildPlaylistButtonsIDs.Add(sonosItem);
+                        var sonosfromlist = ChildPlaylistButtonsIDs.FirstOrDefault(x => x.Title.ToLower() == temptitle);
+                        if (sonosfromlist == null)
+                        {
+                            ChildPlaylistButtonsIDs.Add(sonosItem);
+                        }
                     }
                 }
             }
@@ -194,10 +197,19 @@ namespace Sonos.Controllers
         {
             try
             {
+                if (!await SonosHelper.CheckSonosLiving())
+                {
+                    throw new Exception("Sonos was Not init without errors");
+                }
+
                 var player = await GetChild();
                 var randomitems = new Dictionary<String, List<String>>();
                 if(RandomPlaylistItems.ContainsKey(_playlist))
                     randomitems = RandomPlaylistItems[_playlist];
+                if (!SonosHelper.ChildGenrelist.Any())
+                {
+                    await Start();
+                }
 
                 if (randomitems.Count == 0)
                 {

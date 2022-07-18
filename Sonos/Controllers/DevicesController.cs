@@ -60,16 +60,11 @@ namespace Sonos.Controllers
             return SonosHelper.Sonos.Players;
         }
         [HttpGet("test")]
-        public async Task<SonosPlayer> Test()
+        public async Task<Boolean> Test()
         {
-            if (SonosHelper.Sonos == null || SonosHelper.Sonos.Players.Count == 0)
-            {
-                await SonosHelper.Initialisierung();
-            }
-            // SonosHelper.RemoveCoordinatorFromZonePlayerList();
-            if (SonosHelper.Sonos == null) return null;
-            var pl = SonosHelper.Sonos.Players.FirstOrDefault();
-            return pl;
+            string t = "<DIDL-Lite xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\" xmlns:r=\"urn:schemas-rinconnetworks-com:metadata-1-0/\" xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\"><container id=\"SQ:90\" parentID=\"SQ:\" restricted=\"true\"><dc:title>zzzIanButton3</dc:title><res protocolInfo=\"file:*:audio/mpegurl:*\">file:///jffs/settings/savedqueues.rsq#90</res><upnp:class>object.container.playlistContainer</upnp:class><upnp:albumArtURI>/getaa?u=x-file-cifs%3a%2f%2fNAS%2fMusik%2fHoerspiele%2fYakari%2f01.03%2520Kleiner%2520Donner%2520rei%25c3%259ft%2520aus%2fKapitel%252001%2520001%2520Kleiner%2520Donner%2520rei%25c3%259ft%2520aus.mp3&amp;v=4877</upnp:albumArtURI><upnp:albumArtURI>/getaa?u=x-file-cifs%3a%2f%2fNAS%2fMusik%2fHoerspiele%2fYakari%2f01.03%2520Kleiner%2520Donner%2520rei%25c3%259ft%2520aus%2fKapitel%252003%2520001%2520Kleiner%2520Donner%2520rei%25c3%259ft%2520aus.mp3&amp;v=4877</upnp:albumArtURI><upnp:albumArtURI>/getaa?u=x-file-cifs%3a%2f%2fNAS%2fMusik%2fHoerspiele%2fYakari%2f01.04%2520Im%2520Land%2520der%2520W%25c3%25b6lfe%2fKapitel%252001%2520001%2520Im%2520Land%2520der%2520W%25c3%25b6lfe.mp3&amp;v=4877</upnp:albumArtURI><upnp:albumArtURI>/getaa?u=x-file-cifs%3a%2f%2fNAS%2fMusik%2fHoerspiele%2fYakari%2f01.04%2520Im%2520Land%2520der%2520W%25c3%25b6lfe%2fKapitel%252003%2520001%2520Im%2520Land%2520der%2520W%25c3%25b6lfe.mp3&amp;v=4877</upnp:albumArtURI></container></DIDL-Lite>";
+            SonosItem.ParseSingleItem(t);
+            return true;
         }
         /// <summary>
         /// Liefert einen definierten Player

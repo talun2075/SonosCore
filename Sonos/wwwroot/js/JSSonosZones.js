@@ -76,7 +76,7 @@ function SonosZonesObject() {
                             playinternal = "Pause";
                         }
                         var image = '<img class="deviceIcon" src="' + SonosPlayers[p].playerProperties.icon + '">';
-                        $('<div class="groupdevicewrapper"><div id="' + SonosPlayers[p].uuid + '" class="device' + aktdev + '" onclick="SetDevice(\'' + uuid + '\');"><p>' + image + SonosPlayers[uuid].name + '</p>' + SonosZones.GetCordinatedPlayerasStringFormat(zone) + '</div><img id="deviceplayinggif_' + uuid + '" class="deviceplayinggif" ' + playstateimg + ' src="/images/playing.gif"><div id="GroupDevice_' + uuid + '" onclick="SetDeviceGroupFor(\'' + uuid + '\')" class="groupdeviceclass">&nbsp;&nbsp;Gruppe&nbsp;(' + SonosPlayers[uuid].SoftwareGeneration +')&nbsp;</div><div class="groupdeviceclass groupdeviceclassplay ' + playclass+'" onclick="SonosPlayers[\'' + uuid + '\'].SendTransportState(\'' + playinternal + '\');" id="' + uuid + '_GroupPlayState"></div></div>').appendTo(SoDo.devicesWrapper);
+                        $('<div class="groupdevicewrapper"><div id="' + SonosPlayers[p].uuid + '" class="device' + aktdev + '" onclick="SetDevice(\'' + uuid + '\');"><p>' + image + SonosPlayers[uuid].name + '</p>' + SonosZones.GetCordinatedPlayerasStringFormat(zone) + '</div><img id="deviceplayinggif_' + uuid + '" class="deviceplayinggif" ' + playstateimg + ' src="/images/playing.gif"><div id="GroupDevice_' + uuid + '" onclick="SetDeviceGroupFor(\'' + uuid + '\')" class="groupdeviceclass">&nbsp;&nbsp;Gruppe&nbsp;(' + SonosPlayers[uuid].SoftwareGeneration + ')&nbsp;</div><div class="groupdeviceclass groupdeviceclassplay ' + playclass + '" onclick="SonosPlayers[\'' + uuid + '\'].SendTransportState(\'' + playinternal + '\');" id="' + uuid + '_GroupPlayState"></div></div>').appendTo(SoDo.devicesWrapper);
                         zcounter++;
                     }
                 }
@@ -358,7 +358,7 @@ function SonosZonesObject() {
                 button.removeClass("active");
             }
         }
-        
+
         //Device Play
         $("#" + uuid).next('img').css("opacity", op);
         button.attr("onClick", "SonosPlayers['" + uuid + "'].SendTransportState('" + playinternal + "')");
@@ -414,9 +414,12 @@ function SonosZonesObject() {
             if (SoDo.runtimeSlider.is(":hidden")) {
                 SoDo.runtimeSlider.show();
             }
-            SoDo.runtimeSlider.slider("option", "max", curt.duration.totalSeconds);
-            SoDo.runtimeSlider.slider("option", "value", curt.relTime.totalSeconds);
-            //let reltimedom = curt.relTime.totalSeconds.toString().toHHMMSS();
+            if (curt.duration !== null) {
+                SoDo.runtimeSlider.slider("option", "max", curt.duration.totalSeconds);
+            }
+            if (curt.relTime !== null) {
+                SoDo.runtimeSlider.slider("option", "value", curt.relTime.totalSeconds);
+            }
             let reltimedom = curt.relTime.stringWithoutZeroHours;
             if (SoDo.runtimeRelTime.html() !== reltimedom) {
                 SoDo.runtimeRelTime.html(reltimedom);
@@ -569,7 +572,7 @@ function SonosZonesObject() {
     this.RenderPlaylist = function (uuid) {
         if (typeof SonosPlayers[uuid] === "undefined") return;
         //Neu wegen Stream
-        if (SonosZones.CheckStreamShowElements(uuid)){
+        if (SonosZones.CheckStreamShowElements(uuid)) {
             SonosPlayers[uuid].playlist.RenderPlaylist(SonosPlayers[uuid], false);
         } else {
             if ($(".currentplaylist").length > 0) {
@@ -653,15 +656,15 @@ function SonosZonesObject() {
             }
             var seap = " - ";
             var text = "";
-                if (SonosZones.CheckStringIsNullOrEmpty(player.playerProperties.nextTrack.artist) || SonosZones.CheckStringIsNullOrEmpty(player.playerProperties.nextTrack.title)) {
-                    seap = '';
-                }
+            if (SonosZones.CheckStringIsNullOrEmpty(player.playerProperties.nextTrack.artist) || SonosZones.CheckStringIsNullOrEmpty(player.playerProperties.nextTrack.title)) {
+                seap = '';
+            }
             if (!SonosZones.CheckStringIsNullOrEmpty(player.playerProperties.nextTrack.artist)) {
                 text = player.playerProperties.nextTrack.artist + seap;
-                }
+            }
             if (!SonosZones.CheckStringIsNullOrEmpty(player.playerProperties.nextTrack.title)) {
                 text = text + player.playerProperties.nextTrack.title;
-                }
+            }
             if (SoDo.nextTitle.text() !== text) {
                 SoDo.nextTitle.text(text);
             }
@@ -678,13 +681,13 @@ function SonosZonesObject() {
                 var albumart = 'http://' + player.playerProperties.baseUrl + player.playerProperties.nextTrack.albumArtURI;
                 if (!player.playerProperties.nextTrack.albumArtURI.startsWith("/getaa")) {
                     albumart = player.playerProperties.nextTrack.albumArtURI;
-                } 
+                }
                 if (SoDo.nextcover.attr("src") !== albumart) {
                     SoDo.nextcover.attr("src", albumart);
                 }
                 UpdateImageOnErrors();
             }
-            
+
         } else {
             if (SoDo.nextSongWrapper.is(":visible")) {
                 SoDo.nextSongWrapper.hide();
@@ -913,7 +916,7 @@ function SonosZonesObject() {
             document.addEventListener(evtname, SonosZones.VisibilityChange);
         }
     };
-    this.VisibilityChange = function() {
+    this.VisibilityChange = function () {
         if (SoVa.VisibilityProperty === "unknowing") return;
         if (document[SoVa.VisibilityProperty]) {
             //hidden somit Events komplett deaktivieren

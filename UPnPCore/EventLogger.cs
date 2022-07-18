@@ -30,8 +30,7 @@ namespace OpenSource.Utilities
     /// </summary>
     public sealed class EventLogger
     {
-        public delegate void EventHandler(EventLogEntryType LogType, object origin, string StackTrace, string LogMessage);
-        public static event EventHandler OnEvent;
+
         public static bool EnabledTrace = false;
         public static bool Enabled = true;
         public static bool ShowAll = false;
@@ -72,7 +71,6 @@ namespace OpenSource.Utilities
                             //continue
                         }
                     }
-                    OnEvent?.Invoke(LogType, sender, trace.ToString(), information);
                 }
             }
         }
@@ -91,25 +89,26 @@ namespace OpenSource.Utilities
         {
             try
             {
-                string name = exception.GetType().FullName;
-                string message = exception.Message;
-                Exception t = exception;
-                int i = 0;
-                while (t.InnerException != null)
-                {
-                    t = t.InnerException;
-                    name += " : " + t.GetType().FullName;
-                    // message = t.Message;
-                    // NKIDD - ADDED
-                    message += "\r\n\r\nInnerException #" + i + ":\r\nMessage: " + t.Message + "\r\nSource: " + t.Source +
-                               "\r\nStackTrace: " + t.StackTrace;
-                    i++;
-                }
-
-                name += "\r\n\r\n Additional Info: " + additional + "\r\n" + message;
-
                 if (Enabled)
                 {
+                    string name = exception.GetType().FullName;
+                    string message = exception.Message;
+                    Exception t = exception;
+                    int i = 0;
+                    while (t.InnerException != null)
+                    {
+                        t = t.InnerException;
+                        name += " : " + t.GetType().FullName;
+                        // message = t.Message;
+                        // NKIDD - ADDED
+                        message += "\r\n\r\nInnerException #" + i + ":\r\nMessage: " + t.Message + "\r\nSource: " + t.Source +
+                                   "\r\nStackTrace: " + t.StackTrace;
+                        i++;
+                    }
+
+                    name += "\r\n\r\n Additional Info: " + additional + "\r\n" + message;
+
+
                     if (Logger != null)
                     {
                         try
@@ -122,7 +121,6 @@ namespace OpenSource.Utilities
                             var k = ex.Message;
                         }
                     }
-                    OnEvent?.Invoke(EventLogEntryType.Error, exception.Source, exception.StackTrace, name);
                 }
             }
             catch
