@@ -440,6 +440,7 @@ namespace Sonos.Classes
         /// <returns></returns>
         public static Boolean IsSonosTargetGroupExist(SonosPlayer primaray, List<string> listOfPlayers)
         {
+            if(primaray == null) return false;
             if (!primaray.PlayerProperties.GroupCoordinatorIsLocal) return false;
             //Liste der vorhandenen Player durchlaufen
             if ((primaray.PlayerProperties.ZoneGroupTopology_ZonePlayerUUIDsInGroup.Count - 1) != listOfPlayers.Count) return false;

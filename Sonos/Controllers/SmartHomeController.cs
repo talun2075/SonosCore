@@ -109,13 +109,22 @@ namespace Sonos.Controllers
                 //Alles ins Wohnzimmer legen.
                 SonosPlayer primaryplayer = await SonosHelper.GetPlayerbyName(SonosConstants.WohnzimmerName);
                 if (primaryplayer == null)
+                {
                     SonosHelper.Logger.ServerErrorsAdd("GroundFloorOn:Primary", new Exception("primaryplayer konnten nicht ermittelt werden"), "SmartHomeWrapper");
+                    return false;
+                }
                 SonosPlayer secondaryplayer = await SonosHelper.GetPlayerbyName(SonosConstants.EsszimmerName);
                 if (secondaryplayer == null)
+                {
                     SonosHelper.Logger.ServerErrorsAdd("GroundFloorOn:secondaryplayer", new Exception("secondaryplayer konnte nicht ermittelt werden"), "SmartHomeWrapper");
+                    return false;
+                }
                 SonosPlayer thirdplayer = await SonosHelper.GetPlayerbyName(SonosConstants.KücheName);
                 if (thirdplayer == null)
+                {
                     SonosHelper.Logger.ServerErrorsAdd("GroundFloorOn:thirdplayer", new Exception("thirdplayer konnte nicht ermittelt werden."), "SmartHomeWrapper");
+                    return false;
+                }
                 if (SonosHelper.IsSonosTargetGroupExist(primaryplayer, new List<string> { secondaryplayer.UUID, thirdplayer.UUID }))
                 {
                     try
