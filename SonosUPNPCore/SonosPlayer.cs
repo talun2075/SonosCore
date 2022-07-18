@@ -39,8 +39,8 @@ namespace SonosUPnP
         /// <summary>
         /// Die erlaubten services aus der Web.config
         /// </summary>
-        private readonly List<SonosEnums.Services> serviceEnums = new ();
-        private readonly List<SonosEnums.EventingEnums> IgnoreEvent = new () { SonosEnums.EventingEnums.LastChangedPlayState, SonosEnums.EventingEnums.ThirdPartyMediaServersX, SonosEnums.EventingEnums.SettingsReplicationState };
+        private readonly List<SonosEnums.Services> serviceEnums = new();
+        private readonly List<SonosEnums.EventingEnums> IgnoreEvent = new() { SonosEnums.EventingEnums.LastChangedPlayState, SonosEnums.EventingEnums.ThirdPartyMediaServersX, SonosEnums.EventingEnums.SettingsReplicationState };
         [NonSerialized]
         private readonly Logging Logger;
         public SonosPlayer(List<SonosEnums.Services> se, Boolean uSubscriptions = true, Logging log = null)
@@ -360,7 +360,7 @@ namespace SonosUPnP
                         PlayerInfo po = await AVTransport.GetPositionInfo();
                         if (!po.IsEmpty)
                         {
-                            SonosItem checkcurrent = new ();
+                            SonosItem checkcurrent = new();
                             if (!string.IsNullOrEmpty(po.TrackMetaData) && po.TrackMetaData != SonosConstants.NotImplemented)
                             {
                                 checkcurrent = SonosItem.ParseSingleItem(po.TrackMetaData);
@@ -571,11 +571,11 @@ namespace SonosUPnP
         }
         #endregion Public Methoden
         #region Eigenschaften
-        [DataMember(Name= "Name")]
+        [DataMember(Name = "Name")]
         public string Name { get; set; }
-        [DataMember(Name= "UUID")]
+        [DataMember(Name = "UUID")]
         public string UUID { get; set; }
-        [DataMember(Name= "LastChange")]
+        [DataMember(Name = "LastChange")]
         public DateTime LastChange { get; set; }
 
         [DataMember(Name = "SoftwareGeneration")]
@@ -590,7 +590,7 @@ namespace SonosUPnP
         /// <summary>
         /// Rating Filter für das durchsuchen. Ist der Filter aktiv, wird dieser genommen um beim Browsen Songs zu filtern.
         /// </summary>
-        [DataMember(Name= "RatingFilter")]
+        [DataMember(Name = "RatingFilter")]
         public SonosRatingFilter RatingFilter { get; set; } = new SonosRatingFilter();
         [JsonIgnore]
         public SystemProperties SystemProperties { get; private set; }
@@ -622,7 +622,7 @@ namespace SonosUPnP
         public MusicServices MusicServices { get; private set; }
         [JsonIgnore]
         public AudioIn AudioIn { get; private set; }
-        [DataMember(Name= "Name")]
+        [DataMember(Name = "Name")]
         public PlayerProperties PlayerProperties { get; set; } = new PlayerProperties();
         /// <summary>
         /// Unbekannt
@@ -670,8 +670,6 @@ namespace SonosUPnP
             SonosEnums.EventingEnums ev = (SonosEnums.EventingEnums)sender;
             if (IgnoreEvent.Contains(ev)) return;
             LastChange = DateTime.Now;
-            Player_Changed(sender, e);
-            Debug.WriteLine("Player:" + e.Name + " EventType:" + ev.ToString());
             try
             {
 
@@ -688,6 +686,12 @@ namespace SonosUPnP
             catch (Exception ex)
             {
                 var k = ex.Message;
+            }
+            if (ev == SonosEnums.EventingEnums.CurrentTrack)
+            {
+                PlayerProperties.CurrentTrack = await SonosItemHelper.CheckItemForStreaming(PlayerProperties.CurrentTrack, this);
+                if (!PlayerProperties.CurrentTrack.Stream)
+                    PlayerProperties.CurrentTrack.FillMP3AndItemFromHDD();
             }
             if (ev == SonosEnums.EventingEnums.QueueChanged)
             {
@@ -710,11 +714,13 @@ namespace SonosUPnP
                     if (PlayerProperties.TransportState == SonosEnums.TransportState.PLAYING)
                     {
                         PlayerProperties.TransportState = SonosEnums.TransportState.PAUSED_PLAYBACK;
-                        LastChange = DateTime.Now;
                         Player_Changed(SonosEnums.EventingEnums.TransportState, e);
+                        return;
                     }
                 }
             }
+            Player_Changed(sender, e);
+            Debug.WriteLine("Player:" + e.Name + " EventType:" + ev.ToString());
         }
         /// <summary>
         /// Liefert regelmäßig in die EventQueue die Dauer eines Songs. 
@@ -819,7 +825,7 @@ namespace SonosUPnP
                 }
                 if (serviceEnums.Contains(SonosEnums.Services.GroupManagement))
                 {
-                    List<SonosEnums.EventingEnums> ee = new () { SonosEnums.EventingEnums.GroupCoordinatorIsLocal, SonosEnums.EventingEnums.ResetVolumeAfter, SonosEnums.EventingEnums.VirtualLineInGroupID, SonosEnums.EventingEnums.VolumeAVTransportURI };
+                    List<SonosEnums.EventingEnums> ee = new() { SonosEnums.EventingEnums.GroupCoordinatorIsLocal, SonosEnums.EventingEnums.ResetVolumeAfter, SonosEnums.EventingEnums.VirtualLineInGroupID, SonosEnums.EventingEnums.VolumeAVTransportURI };
                     GroupManagement.SubscripeToEvents(ee);
                 }
                 if (serviceEnums.Contains(SonosEnums.Services.DeviceProperties))

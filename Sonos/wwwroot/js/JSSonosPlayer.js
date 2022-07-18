@@ -348,8 +348,10 @@ function SonosPlayer(_uuid, _name,_swgen) {
                         }
                     }
                     if (!SonosZones.CheckStringIsNullOrEmpty(curt.streamContent)) {
-                        if (SoDo.aktArtist.text() !== curt.streamContent) {
-                            SoDo.aktArtist.text(curt.streamContent);
+                        //description / title
+                        let streamcontent = curt.artist + " (" + curt.streamContent + ":" + etu.description + "/" + etu.title + ")";
+                        if (SoDo.aktArtist.text() !== streamcontent) {
+                            SoDo.aktArtist.text(streamcontent);
                         }
                     } else {
                         if (!SonosZones.CheckStringIsNullOrEmpty(etu.artist)) {

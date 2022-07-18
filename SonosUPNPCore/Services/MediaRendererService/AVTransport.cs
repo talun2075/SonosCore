@@ -704,7 +704,7 @@ namespace SonosUPnP.Services.MediaRendererService
                 }
                 catch (Exception ex)
                 {
-                    pl.ServerErrorsAdd("ParseChangeXML:EnqueuedTransportUriMetaData MetaData:"+ enqueuedTransportURIMetaDataValue, ClassName, ex);
+                    pl.ServerErrorsAdd("ParseChangeXML:EnqueuedTransportUriMetaData MetaData:" + enqueuedTransportURIMetaDataValue, ClassName, ex);
                 }
                 try
                 {
@@ -965,11 +965,8 @@ namespace SonosUPnP.Services.MediaRendererService
                 }
                 if (!string.IsNullOrEmpty(ctmdevalue) && pl.PlayerProperties.CurrentTrack.MetaData != ctmdevalue)
                 {
-                    var tct = SonosItem.ParseSingleItem(ctmdevalue);
-                    //Neu Wegen Stream
-                    //pl.PlayerProperties.CurrentTrack = await SonosItemHelper.CheckItemForStreaming(tct, pl);
-                    if (!pl.PlayerProperties.CurrentTrack.Stream)
-                        pl.PlayerProperties.CurrentTrack.FillMP3AndItemFromHDD();
+                    //<r:streamContent></r:streamContent><r:radioShowMd></r:radioShowMd><r:streamInfo>bd:0,sr:0,c:0,l:0,d:0</r:streamInfo>//todo: schauen, was sich dahinter versteckt. Evtl. Streaming ja/nein
+                    pl.PlayerProperties.CurrentTrack = SonosItem.ParseSingleItem(ctmdevalue);
                     pl.PlayerProperties.CurrentTrack.MetaData = ctmdevalue;
                     if (LastChangeDates[SonosEnums.EventingEnums.CurrentTrack].Ticks == 0)
                     {
@@ -979,34 +976,6 @@ namespace SonosUPnP.Services.MediaRendererService
                     {
                         ManuellStateChange(SonosEnums.EventingEnums.CurrentTrack, DateTime.Now);
                     }
-                    //CurrentTrackNumber
-                    XElement currentTrackNumberElement = instance.Element(ns + "CurrentTrack");
-                    if (currentTrackNumberElement != null)
-                    {
-                        var tctn = currentTrackNumberElement.Attribute("val").Value;
-                        if (int.TryParse(tctn, out int ctn) && pl.PlayerProperties.CurrentTrackNumber != ctn)
-                        {
-                            pl.PlayerProperties.CurrentTrackNumber = ctn;
-                            if (LastChangeDates[SonosEnums.EventingEnums.CurrentTrackNumber].Ticks == 0)
-                            {
-                                LastChangeDates[SonosEnums.EventingEnums.CurrentTrackNumber] = DateTime.Now;
-                            }
-                            else
-                            {
-                                ManuellStateChange(SonosEnums.EventingEnums.CurrentTrackNumber, DateTime.Now);
-                            }
-                        }
-                    }
-                }
-                //CurrentTRackDuration
-                XElement currentTrackDurationElement = instance.Element(ns + "CurrentTrackDuration");
-                if (currentTrackDurationElement != null)
-                {
-                    var tctd = pl.PlayerProperties.ParseDuration(currentTrackDurationElement.Attribute("val").Value);
-                    if (pl.PlayerProperties.CurrentTrack.Duration.ToString() != tctd.ToString())
-                    {
-                        pl.PlayerProperties.CurrentTrack.Duration = tctd;
-                    }
                 }
             }
             catch (Exception ex)
@@ -1014,6 +983,44 @@ namespace SonosUPnP.Services.MediaRendererService
                 SonosItem xyz = new() { Artist = "leer" };
                 pl.PlayerProperties.CurrentTrack = xyz;
                 pl.ServerErrorsAdd("ParseChangeXMLCurrentTrack", ClassName, ex);
+            }
+            try
+            {
+                //CurrentTrackNumber
+                XElement currentTrackNumberElement = instance.Element(ns + "CurrentTrack");
+                if (currentTrackNumberElement != null)
+                {
+                    var tctn = currentTrackNumberElement.Attribute("val").Value;
+                    if (int.TryParse(tctn, out int ctn) && pl.PlayerProperties.CurrentTrackNumber != ctn)
+                    {
+                        pl.PlayerProperties.CurrentTrackNumber = ctn;
+                        if (LastChangeDates[SonosEnums.EventingEnums.CurrentTrackNumber].Ticks == 0)
+                        {
+                            LastChangeDates[SonosEnums.EventingEnums.CurrentTrackNumber] = DateTime.Now;
+                        }
+                        else
+                        {
+                            ManuellStateChange(SonosEnums.EventingEnums.CurrentTrackNumber, DateTime.Now);
+                        }
+                    }
+                }
+
+                ////CurrentTRackDuration
+                //XElement currentTrackDurationElement = instance.Element(ns + "CurrentTrackDuration");
+                //if (currentTrackDurationElement != null)
+                //{
+                //    var tctd = pl.PlayerProperties.ParseDuration(currentTrackDurationElement.Attribute("val").Value);
+                //    if (pl.PlayerProperties.CurrentTrack.Duration.ToString() != tctd.ToString())
+                //    {
+                //        pl.PlayerProperties.CurrentTrack.Duration = tctd;
+                //    }
+                //}
+            }
+            catch (Exception ex)
+            {
+                SonosItem xyz = new() { Artist = "leer" };
+                pl.PlayerProperties.CurrentTrack = xyz;
+                pl.ServerErrorsAdd("CurrentTrackNumber", ClassName, ex);
             }
         }
 

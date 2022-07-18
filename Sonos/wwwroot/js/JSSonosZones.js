@@ -266,12 +266,8 @@ function SonosZonesObject() {
         if (curtr.stream && this.CheckStringIsNullOrEmpty(curtr.protocolInfo)) return false //CurrentTrack ist noch leer.
         if (this.CheckStringIsNullOrEmpty(etu)) return false; //Stream aber keine Daten.
         if (etu.classType === "object.item.audioItem.audioBroadcast" || etu.protocolInfo.startsWith("http-get")) return false //Radio || UPNP Set wie durch MediaMonkey
-        //console.log("Zeige StreamElementsAn");
         return true;//alles andere 
         //Ende New
-
-        //return s !== null && typeof s !== "undefined" && s.stream === true && (s.streamContent !== "Dienst" || (s.streamContent === "Dienst" && s.classType === "object.item.audioItem.audioBroadcast")) && s.streamContent !== "Apple";
-
     };
     this.CheckMP3IsEmpty = function (s) {
         return s.album === "" && s.artist == "" && s.pfad === "" && s.titel === "";
@@ -395,10 +391,11 @@ function SonosZonesObject() {
             }
             uuid = this.ActiveZoneUUID;
         }
-        var player = SonosPlayers[uuid];
+        let player = SonosPlayers[uuid];
+        let curt = player.playerProperties.currentTrack;
         if (typeof player === "undefined") return;
 
-        if (!this.CheckStreamShowElements(uuid)) {
+        if (!this.CheckStreamShowElements(uuid) && (curt.duration === null || curt.duration.totalSeconds === 0)) {
             if (SoDo.runtimeCurrentSong.is(":visible")) {
                 SoDo.runtimeCurrentSong.hide();
             }
@@ -407,7 +404,6 @@ function SonosZonesObject() {
             }
         } else {
             //Hier nun die Erweiterung machen. Um mit Stunden und Minuten zu Arbeiten
-            var curt = player.playerProperties.currentTrack;
             if (SoDo.runtimeCurrentSong.is(":hidden")) {
                 SoDo.runtimeCurrentSong.show();
             }
@@ -584,23 +580,6 @@ function SonosZonesObject() {
         }
         //Ende Neu wegen Stream
         return;
-        //if (SonosPlayers[uuid].playlist.CheckToRender(SonosPlayers[uuid]) && (SonosPlayers[uuid].playerProperties.currentTrack.classType !== "object.item.audioItem.audioBroadcast" || SonosPlayers[uuid].playerProperties.currentTrack.classType !== "")) {
-        //    if (SonosPlayers[uuid].playerProperties.currentTrack.streamContent === "Dienst" || SonosPlayers[uuid].playerProperties.currentTrack.streamContent === "Apple") {
-        //        SonosPlayers[uuid].playlist.RenderPlaylist(SonosPlayers[uuid], false);
-        //    } else {
-        //        SonosPlayers[uuid].playlist.RenderPlaylist(SonosPlayers[uuid], SonosPlayers[uuid].playerProperties.currentTrack.stream);
-        //    }
-        //} else {
-        //    //Hier nun Stream Prüfen
-        //    if (SonosZones.CheckStreamShowElements(SonosPlayers[uuid].playerProperties.currentTrack)) {
-        //        if ($(".currentplaylist").length > 0) {
-        //            $(".currentplaylist").remove();
-        //        }
-        //        if (SoDo.playlistLoader.is(":visible")) {
-        //            SoDo.playlistLoader.slideUp();
-        //        }
-        //    }
-        //}
     };//done
     this.RenderPlaylistCounter = function (uuid) {
         if (typeof SonosPlayers[uuid] === "undefined") return;
@@ -623,26 +602,6 @@ function SonosZonesObject() {
                 SoDo.playlistTotal.html(SonosPlayers[uuid].playerProperties.numberOfTracks);
             }
         }
-
-        //Ende Neu wegen Stream
-        //if (SonosPlayers[uuid].playerProperties.playlist.totalMatches === 0 || SonosPlayers[uuid].playerProperties.playlist.playListItems.length === 0 || SonosPlayers[uuid].playerProperties.playlist.playListItems[0].album === "leer" || SonosZones.CheckStreamShowElements(SonosPlayers[uuid].currentTrack)) {
-        //    if (SoDo.playlistCount.is(":visible")) {
-        //        SoDo.playlistCount.hide();
-        //    }
-        //} else {
-        //    if (SoDo.playlistCount.is(":hidden")) {
-        //        SoDo.playlistCount.show();
-        //    }
-        //    if (parseInt(SoDo.playlistAkt.html()) !== SonosPlayers[uuid].playerProperties.currentTrackNumber) {
-        //        SoDo.playlistAkt.html(SonosPlayers[uuid].playerProperties.currentTrackNumber);
-        //    }
-        //    if (SonosPlayers[uuid].playerProperties.numberOfTracks == 0 && SonosPlayers[uuid].playerProperties.playlist.playListItems.length > 0) {
-        //        SonosPlayers[uuid].playerProperties.numberOfTracks = SonosPlayers[uuid].playerProperties.playlist.playListItems.length;
-        //    }
-        //    if (parseInt(SoDo.playlistTotal.html()) !== SonosPlayers[uuid].playerProperties.numberOfTracks) {
-        //        SoDo.playlistTotal.html(SonosPlayers[uuid].playerProperties.numberOfTracks);
-        //    }
-        //}
 
     };//done
     this.RenderNextTrack = function (uuid) {
