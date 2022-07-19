@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <Reference Include="HomeLoggingCore">
-      <HintPath>..\..\CommonCore\HomeCommon\HomeLoggingCore\bin\Debug\net5.0\HomeLoggingCore.dll</HintPath>
+      <HintPath>..\..\CommonCore\HomeCommon\HomeLoggingCore\bin\Debug\net6.0\HomeLoggingCore.dll</HintPath>
     </Reference>
   </ItemGroup>
 
