@@ -286,6 +286,7 @@ namespace OSTL.UPnP
         //    }
         //}
         public String IconURI { get; private set; } = String.Empty;
+        public String IconName { get; private set; } = String.Empty;
         //public Image Icon2
         //{
         //    get
@@ -2533,6 +2534,7 @@ namespace OSTL.UPnP
 
                 if (iurl != null && d.BaseURL != null)
                 {
+                    d.IconName = iurl.Substring(iurl.LastIndexOf("/")+1);
                     if (iurl.ToUpper().StartsWith("HTTP://") == false)
                     {
                         if (iurl.StartsWith("/"))

@@ -25,6 +25,7 @@ namespace SonosUPnP
         private string OnZoneGroupStateChangedValue = String.Empty;
         public event EventHandler<SonosPlayer> PlayerChange = delegate { };
         public event EventHandler<SonosDiscovery> GlobalSonosChange = delegate { };
+        Dictionary<string, string> _icons = new();
         private readonly Boolean useSubscriptions = true;
         private ZonePerSoftwareGeneration ZoneSwGen1;
         private ZonePerSoftwareGeneration ZoneSwGen2;
@@ -36,8 +37,10 @@ namespace SonosUPnP
         private readonly Logging Logger;
         #endregion Klassenvariablen
         #region Public Methoden
-        public SonosDiscovery(Boolean _useSubscriptions = true, List<SonosEnums.Services> allowedServices = null, Logging log = null)
+        public SonosDiscovery(Boolean _useSubscriptions = true, List<SonosEnums.Services> allowedServices = null, Logging log = null, Dictionary<string, string> icons = null)
         {
+            if(icons != null)
+                _icons = icons;
             useSubscriptions = _useSubscriptions;
             if (allowedServices != null)
                 serviceEnums = allowedServices;
@@ -349,37 +352,17 @@ namespace SonosUPnP
             }
             //define needed vars
             List<KeyValuePair<string, string>> customfields;
-            //String name;
             String swgen = String.Empty;
-            //String uuid;
-            //String locat;
             try
             {
                 customfields = device.GetCustomFieldsFromDescription("urn:schemas-upnp-org:device-1-0");
-                //name = customfields.FirstOrDefault(x => x.Key == "roomName").Value;
                 swgen = customfields.FirstOrDefault(x => x.Key == "swGen").Value;
-                //uuid = device.UniqueDeviceName;
-                //locat = device.LocationURL;
                 // okay, we will try and notify the players that they have been found now.
                 var player = Players.FirstOrDefault(p => p.UUID == device.UniqueDeviceName);
                 if (player != null)
                 {
                     player.SetDevice(device);
                 }
-                else
-                {
-                    //player = new SonosPlayer(serviceEnums, useSubscriptions, Logger)
-                    //{
-                    //    Name = name,
-                    //    SoftwareGeneration = Convert.ToInt32(swgen),
-                    //    UUID = uuid,
-                    //    DeviceLocation = new Uri(locat),
-                    //    ControlPoint = ControlPoint
-                    //};
-                    //Players.Add(player);
-                    //player.SetDevice(device);
-                }
-
             }
             catch (Exception ex)
             {
@@ -548,7 +531,7 @@ namespace SonosUPnP
             {
                 foreach (var playerXml in list)
                 {
-                    var player = new SonosPlayer(serviceEnums, useSubscriptions, Logger)
+                    var player = new SonosPlayer(serviceEnums, useSubscriptions,_icons, Logger)
                     {
                         Name = (string)playerXml.Attribute("ZoneName"),
                         UUID = (string)playerXml.Attribute("UUID"),
@@ -667,7 +650,7 @@ namespace SonosUPnP
                         swgen = customfields.FirstOrDefault(x => x.Key == "swGen").Value;
                         uuid = device.UniqueDeviceName;
                         locat = device.LocationURL;
-                        pl = new SonosPlayer(serviceEnums, useSubscriptions, Logger)
+                        pl = new SonosPlayer(serviceEnums, useSubscriptions,_icons, Logger)
                         {
                             Name = name,
                             UUID = uuid,

@@ -11,6 +11,8 @@ using System.Threading;
 using System.Linq;
 using SonosUPNPCore.Enums;
 using System.Net;
+using Microsoft.AspNetCore.Hosting;
+using System.IO;
 
 namespace Sonos.Classes
 {
@@ -27,7 +29,7 @@ namespace Sonos.Classes
         /// <summary>
         /// Liste mir allen Server Errors.
         /// </summary>
-        internal static Dictionary<String, String> serverErrors = new ();
+        internal static Dictionary<String, String> serverErrors = new();
         /// <summary>
         /// Zeitpunkt, wann sich das letzt mal etwas an Zonen oder Anzahl Player geändert hat.
         /// </summary>
@@ -41,9 +43,9 @@ namespace Sonos.Classes
         /// </summary>
         internal static List<SonosEnums.Services> ServiceEnums { get; private set; }
 
-        internal static List<SonosCheckChangesObject> sccoList = new ();
+        internal static List<SonosCheckChangesObject> sccoList = new();
         internal static readonly List<SonosBrowseList> ChildGenrelist = new();
-        public static Logging Logger { get; set; } = new(new LoggerWrapperConfig() { ConfigName = "Sonos", TraceFileName ="trace.txt", ErrorFileName = "Errors.txt" });
+        public static Logging Logger { get; set; } = new(new LoggerWrapperConfig() { ConfigName = "Sonos", TraceFileName = "trace.txt", ErrorFileName = "Errors.txt" });
         public static IConfiguration Configuration { get; set; }
         #endregion Klassenvariablen
         #region private Methoden
@@ -72,8 +74,8 @@ namespace Sonos.Classes
                     if (Enum.TryParse(allowedservices.Trim(), out SonosEnums.Services se))
                         ServiceEnums.Add(se);
                 }
-                //Logger = new Logging();
-                Sonos = new SonosDiscovery(usesubscriptions, ServiceEnums,Logger);
+                var playericons = GetLocalPlayerIcons();
+                Sonos = new SonosDiscovery(usesubscriptions, ServiceEnums, Logger,playericons);//todo: Icon Bilder laden
                 await Task.Run(() =>
                 {
                     lock (Sonos)
@@ -103,6 +105,36 @@ namespace Sonos.Classes
                 return false;
             }
         }
+
+        private static Dictionary<string, string> GetLocalPlayerIcons()
+        {
+            Dictionary<string, string> retval = new();
+            try
+            {
+                var root = Configuration.GetValue<string>(WebHostDefaults.ContentRootKey);
+                //"Z:\\Entwicklung\\SonosCore\\Sonos"
+                var path = root + @"\\wwwroot\\images\\player";
+                var playerimages = Directory.GetFiles(path);
+                var url = "/images/player/";
+                foreach (var item in playerimages)
+                {
+                    //cut path
+                    string imagename = item.Substring(item.LastIndexOf("\\") + 1);
+                    if (!retval.ContainsKey(imagename))
+                    {
+                        retval.Add(imagename, url+ imagename);
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                var t = ex;
+            }
+            return retval;
+
+
+        }
+
         private static Boolean ScanPort(string ipwithport)
         {
             if (string.IsNullOrEmpty(ipwithport) || !ipwithport.Contains(":")) return true;
@@ -113,7 +145,7 @@ namespace Sonos.Classes
             IPAddress ipa = IPAddress.Parse(ip);
             try
             {
-                System.Net.Sockets.Socket sock = new (System.Net.Sockets.AddressFamily.InterNetwork,System.Net.Sockets.SocketType.Stream,System.Net.Sockets.ProtocolType.Tcp);
+                System.Net.Sockets.Socket sock = new(System.Net.Sockets.AddressFamily.InterNetwork, System.Net.Sockets.SocketType.Stream, System.Net.Sockets.ProtocolType.Tcp);
                 sock.Connect(ipa, portno);
 
                 if (sock.Connected == true) // Port is in use and connection is successful
@@ -131,7 +163,7 @@ namespace Sonos.Classes
         {
             foreach (var item in sp)
             {
-                 await CheckPlayerForHashImages(item);
+                await CheckPlayerForHashImages(item);
             }
             return true;
         }
@@ -206,7 +238,7 @@ namespace Sonos.Classes
                     break;
                 }
             }
-            if(usetimer) //Timer um sich selber aufzurfuen alle 30 Minuten, wenn das einmal passiert ist.
+            if (usetimer) //Timer um sich selber aufzurfuen alle 30 Minuten, wenn das einmal passiert ist.
 #pragma warning disable CS4014 // Da auf diesen Aufruf nicht gewartet wird, wird die Ausführung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt.
                 _ = new Timer(state => CheckAllPlayerReachable(true), null, TimeSpan.FromMinutes(30), TimeSpan.FromMilliseconds(-1));
 #pragma warning restore CS4014 // Da auf diesen Aufruf nicht gewartet wird, wird die Ausführung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt.
@@ -261,8 +293,8 @@ namespace Sonos.Classes
             if (String.IsNullOrEmpty(playerName)) return null;
             if (Sonos == null || Sonos.Players.Count == 0)
             {
-                if(Logger != null)
-                Logger.ServerErrorsAdd("GetPlayer Sonos ist Null Player:" + playerName, new Exception("Sonos ist null und wird initialisiert"));
+                if (Logger != null)
+                    Logger.ServerErrorsAdd("GetPlayer Sonos ist Null Player:" + playerName, new Exception("Sonos ist null und wird initialisiert"));
                 await InitialSonos();
                 return null;
             }
@@ -286,8 +318,8 @@ namespace Sonos.Classes
             if (String.IsNullOrEmpty(uuid)) return null;
             if (Sonos == null || Sonos.Players.Count == 0)
             {
-                if(Logger != null)
-                Logger.ServerErrorsAdd("GetPlayer Sonos ist Null Player:" + uuid, new Exception("Sonos ist null und wird initialisiert"));
+                if (Logger != null)
+                    Logger.ServerErrorsAdd("GetPlayer Sonos ist Null Player:" + uuid, new Exception("Sonos ist null und wird initialisiert"));
                 await InitialSonos();
                 return null;
             }
@@ -312,7 +344,7 @@ namespace Sonos.Classes
                 await InitialSonos();
                 return null;
             }
-            return Sonos.Players.FirstOrDefault(x=>x.SoftwareGeneration == Sonos.ZoneProperties.GetSoftwareVersionForPlaylistEntry(playlist));
+            return Sonos.Players.FirstOrDefault(x => x.SoftwareGeneration == Sonos.ZoneProperties.GetSoftwareVersionForPlaylistEntry(playlist));
         }
         /// <summary>
         /// Gibt den ersten Player einer bestimmten Softwaregen zurück
@@ -330,7 +362,7 @@ namespace Sonos.Classes
             }
             lock (Sonos.Players)
             {
-                return Sonos.Players.FirstOrDefault(x=>x.SoftwareGeneration == softgen);
+                return Sonos.Players.FirstOrDefault(x => x.SoftwareGeneration == softgen);
             }
         }
         /// <summary>
@@ -344,7 +376,7 @@ namespace Sonos.Classes
             {
                 if (sp.PlayerProperties.TransportState == SonosEnums.TransportState.TRANSITIONING)
                 {
-                    
+
                     int counter = 0;
                     while (!trans)
                     {
@@ -408,7 +440,7 @@ namespace Sonos.Classes
                 {
                     if (toCoordinatedPlayer.Contains(item)) continue;
                     var gpluu = await GetPlayerbyUuid(item);
-                        await gpluu.AVTransport.BecomeCoordinatorOfStandaloneGroup();
+                    await gpluu.AVTransport.BecomeCoordinatorOfStandaloneGroup();
                 }
                 //Player zufügen 
                 foreach (var item in toCoordinatedPlayer)
@@ -440,7 +472,7 @@ namespace Sonos.Classes
         /// <returns></returns>
         public static Boolean IsSonosTargetGroupExist(SonosPlayer primaray, List<string> listOfPlayers)
         {
-            if(primaray == null) return false;
+            if (primaray == null) return false;
             if (!primaray.PlayerProperties.GroupCoordinatorIsLocal) return false;
             //Liste der vorhandenen Player durchlaufen
             if ((primaray.PlayerProperties.ZoneGroupTopology_ZonePlayerUUIDsInGroup.Count - 1) != listOfPlayers.Count) return false;
@@ -486,8 +518,8 @@ namespace Sonos.Classes
         {
             try
             {
-                if(trace)
-                SonosHelper.Logger.TraceLog("CheckPlaylist", "Start");
+                if (trace)
+                    SonosHelper.Logger.TraceLog("CheckPlaylist", "Start");
                 if (sp.AVTransport == null) return false;
                 return sp.PlayerProperties.EnqueuedTransportURI != playlist.Uri;
 
@@ -590,7 +622,7 @@ namespace Sonos.Classes
         /// Liefert aus der ZoneProperties die Wiedergabelisten bzw. füllt diese auch bei Bedarf
         /// </summary>
         /// <returns></returns>
-        public static async  Task<List<SonosItem>> GetAllPlaylist()
+        public static async Task<List<SonosItem>> GetAllPlaylist()
         {
             if (Sonos != null && Sonos.Players != null && Sonos.Players.Count != 0)
             {

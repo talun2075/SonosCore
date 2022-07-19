@@ -32,6 +32,7 @@ namespace SonosUPnP
         [NonSerialized]
         private Timer ServiceCheckTimer;
         private Boolean ServiceInit = false;
+        private readonly Dictionary<string, string> _icons = new();
         /// <summary>
         /// nutze ich die subscriptions oder mache ich alles selber.
         /// </summary>
@@ -43,8 +44,10 @@ namespace SonosUPnP
         private readonly List<SonosEnums.EventingEnums> IgnoreEvent = new() { SonosEnums.EventingEnums.LastChangedPlayState, SonosEnums.EventingEnums.ThirdPartyMediaServersX, SonosEnums.EventingEnums.SettingsReplicationState };
         [NonSerialized]
         private readonly Logging Logger;
-        public SonosPlayer(List<SonosEnums.Services> se, Boolean uSubscriptions = true, Logging log = null)
+        public SonosPlayer(List<SonosEnums.Services> se, Boolean uSubscriptions = true, Dictionary<string, string> icons = null, Logging log = null)
         {
+            if(icons != null)
+                _icons = icons;
             useSubscription = uSubscriptions;
             serviceEnums = se;
             RelTimer = new Timer(state => RelTimeTimer(), null, 60000, Timeout.Infinite);
@@ -73,7 +76,14 @@ namespace SonosUPnP
             {
                 lock (Device)
                 {
-                    PlayerProperties.Icon = Device.IconURI;
+                    if (_icons.ContainsKey(Device.IconName))
+                    {
+                        PlayerProperties.Icon = _icons[Device.IconName];
+                    }
+                    else
+                    {
+                        PlayerProperties.Icon = Device.IconURI;
+                    }
                 }
             }
             catch
