@@ -30,6 +30,10 @@ namespace Sonos.Controllers
                 SonosPlayer pl = await SonosHelper.GetPlayerbyUuid(id);
                 if (pl == null) return false;
                 await pl.FillPlayerPropertiesDefaultsAsync(v);
+                foreach (SonosItem item in pl.PlayerProperties.Playlist.PlayListItems)
+                {
+                    await MusicPictures.UpdateItemToHashPath(item);
+                }
                 return true;
             }
             catch (Exception ex)

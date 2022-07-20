@@ -182,11 +182,7 @@ namespace Sonos.Classes
                     {
                         try
                         {
-                            if (!string.IsNullOrEmpty(item.AlbumArtURI))
-                            {
-                                var titem = await MusicPictures.UpdateItemToHashPath(item);
-                                item.AlbumArtURI = titem.AlbumArtURI;
-                            }
+                            await MusicPictures.UpdateItemToHashPath(item);
                         }
                         catch (Exception ex)
                         {
@@ -645,6 +641,10 @@ namespace Sonos.Classes
                 foreach (SonosPlayer player in Sonos.Players)
                 {
                     await player.FillPlayerPropertiesDefaultsAsync(false, true);
+                    foreach (SonosItem item in player.PlayerProperties.Playlist.PlayListItems)
+                    {
+                        await MusicPictures.UpdateItemToHashPath(item);
+                    }
                 }
                 return true;
             }
@@ -660,13 +660,6 @@ namespace Sonos.Classes
         public static async Task<Boolean> FillSonosTimeSettingStuff()
         {
             return await Sonos.GetSonosTimeStuff() && await Sonos.SetSettings();
-        }
-        /// <summary>
-        /// Füllt alle Playlisten mit Inhalt. Für den Timer. 
-        /// </summary>
-        public async static void FillAllPlaylist()
-        {
-            await Sonos.FillAllFilledPlaylists();
         }
         #endregion public Methoden
     }
