@@ -42,12 +42,7 @@ namespace Sonos.Controllers
         {
             return await Pause();
         }
-        [HttpGet("test")]
-        public async void Test()
-        {
-           await MusicPictures.GenerateDBContent();
-           await MusicPictures.GetDBContent();
-        }
+
         [HttpGet("SetVolume/{id}")]
         public async Task<Boolean> SetVolume(string id)
         {

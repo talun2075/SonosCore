@@ -332,7 +332,8 @@ namespace Sonos.Controllers
                         if (!artistchildlist.Duration.IsZero)
                         {
                             continue;
-                        } 
+                        }
+                        await MusicPictures.UpdateItemToHashPath(artistchildlist);
                         var childvalues = await SonosHelper.Sonos.ZoneMethods.Browsing(await SonosHelper.GetPlayerbySoftWareGeneration(SonosUPNPCore.Enums.SoftwareGeneration.ZG1),artistchildlist.ContainerID);
                         foreach (var item in childvalues)
                         {

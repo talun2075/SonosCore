@@ -10,11 +10,14 @@ namespace Sonos.Classes
         private static SQLiteConnection conn;
         private static SQLiteCommand cmd;
         private static SQLiteCommand rcmd;
-        private static readonly string cs = @"URI=file:"+ SonosHelper.Configuration["MusicPictureDBPath"];
+        private static string cs = @"URI=file:"+ SonosHelper.Configuration["MusicPictureDBPath"];
         public static async Task<Boolean> Open()
         {
             try
             {
+#if DEBUG
+                cs = @"URI=file:C:\\talun\\musicpictures.db";
+#endif
                 conn = new SQLiteConnection(cs);
                 await conn.OpenAsync();
                 cmd = new SQLiteCommand(conn)
@@ -39,13 +42,8 @@ namespace Sonos.Classes
 
         }
         /// <summary>
-        /// Aktualisiert ein Button in die DB
+        /// Aktualisiert Bilder in die DB
         /// </summary>
-        /// <param name="mac"></param>
-        /// <param name="name"></param>
-        /// <param name="batteryvalue"></param>
-        /// <param name="lastaction"></param>
-        /// <returns></returns>
         public static async Task<Boolean> UpdateHashes(Dictionary<string,string> pic)
         {
             try

@@ -158,7 +158,7 @@ namespace Sonos.Classes
                 return false;
             }
         }
-        private static async Task<Boolean> CheckPlayerForHashImages(IList<SonosPlayer> sp)
+        public static async Task<Boolean> CheckPlayerForHashImages(IList<SonosPlayer> sp)
         {
             foreach (var item in sp)
             {
@@ -175,26 +175,22 @@ namespace Sonos.Classes
                     props.NextTrack = await MusicPictures.UpdateItemToHashPath(props.NextTrack);
                 if (!string.IsNullOrEmpty(props.CurrentTrack.AlbumArtURI))
                     props.CurrentTrack = await MusicPictures.UpdateItemToHashPath(props.CurrentTrack);
-                if (props.Playlist.PlayListItems.Any())
+                if (!props.Playlist.IsEmpty && !props.Playlist.PlayListItemsHashChecked)
                 {
-                    foreach (SonosItem item in props.Playlist.PlayListItems)
-                    {
-                        try
+                        foreach (SonosItem item in props.Playlist.PlayListItems)
                         {
-                            if (!string.IsNullOrEmpty(item.AlbumArtURI))
+                            try
                             {
-                                var titem = await MusicPictures.UpdateItemToHashPath(item);
-                                item.AlbumArtURI = titem.AlbumArtURI;
+                                await MusicPictures.UpdateItemToHashPath(item);
+                            }
+                            catch(Exception ex)
+                            {
+                                SonosHelper.Logger.ServerErrorsAdd("CheckPlayerForHashImages item:" + item.Uri, ex, "SonosHelper");
+                                continue;
                             }
                         }
-                        catch (Exception ex)
-                        {
-                            SonosHelper.Logger.ServerErrorsAdd("CheckPlayerForHashImages item:" + item.Uri, ex, "DeviceController");
-                            continue;
-                        }
-                    }
+                        props.Playlist.PlayListItemsHashChecked = true;
                 }
-
                 return true;
             }
             catch (Exception ex)

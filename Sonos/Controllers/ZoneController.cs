@@ -36,7 +36,7 @@ namespace Sonos.Controllers
                 {
                     await SonosHelper.Sonos.SetPlaylists(true);
                 }
-                await MusicPictures.UpdateItemListToHashPath(SonosHelper.Sonos.ZoneProperties.ListOfAllPlaylist);
+                await MusicPictures.UpdateItemListToHashPath(SonosHelper.Sonos.ZoneProperties.ListOfAllPlaylist);//todo: prüfen ob hier überhaupt bilder sein können
                 return SonosHelper.Sonos.ZoneProperties.ListOfAllPlaylist;
             }
             catch (Exception x)
@@ -206,7 +206,24 @@ namespace Sonos.Controllers
             }
             return retval;
         }
-       [HttpGet("FillAllPlayerProperties")]
+        [HttpGet("CheckPlayersForHashImages")]
+        public async Task<String> CheckPlayersForHashImages()
+        {
+            string retval = "ok";
+            try
+            {
+                if (!await SonosHelper.CheckSonosLiving()) return "Checkliving Error";
+                await SonosHelper.CheckPlayerForHashImages(SonosHelper.Sonos.Players);
+            }
+            catch (Exception ex)
+            {
+                SonosHelper.Logger.ServerErrorsAdd("CheckPlayersForHashImages", ex, "ZoneController");
+                throw;
+            }
+            return retval;
+        }
+
+        [HttpGet("FillAllPlayerProperties")]
         public async Task<String> FillAllPlayerProperties()
         {
             string retval = "ok";

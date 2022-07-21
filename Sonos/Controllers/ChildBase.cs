@@ -40,11 +40,11 @@ namespace Sonos.Controllers
                 var exist = SonosHelper.ChildGenrelist.FirstOrDefault(x => x.Artist == title);
                 if (exist != null) continue;//wenn schon vorhanden einfach weiter gehen. 
 
-                if (!string.IsNullOrEmpty(item.AlbumArtURI))
-                {
-                    var titem = await MusicPictures.UpdateItemToHashPath(item);
-                    item.AlbumArtURI = titem.AlbumArtURI;
-                }
+                //if (!string.IsNullOrEmpty(item.AlbumArtURI))
+                //{
+                //    var titem = await MusicPictures.UpdateItemToHashPath(item);
+                //    item.AlbumArtURI = titem.AlbumArtURI;
+                //}
                 if (title == SonosConstants.aALL) continue;
                 var sbl = new SonosBrowseList() { Artist = title };
                 sbl.Childs = await SonosHelper.Sonos.ZoneMethods.Browsing(await GetChild(), SonosConstants.aAlbumArtist + "/" + title, false);
@@ -56,11 +56,11 @@ namespace Sonos.Controllers
                 {
                     //hier die metadaten holen um die zeit zu bekommen? 
                     var cilditemchildslist = await SonosHelper.Sonos.ZoneMethods.Browsing(await GetChild(), citem.ContainerID, false);
-                    if (!string.IsNullOrEmpty(citem.AlbumArtURI))
-                    {
-                        var titem = await MusicPictures.UpdateItemToHashPath(citem);
-                        citem.AlbumArtURI = titem.AlbumArtURI;
-                    }
+                    //if (!string.IsNullOrEmpty(citem.AlbumArtURI))
+                    //{
+                    //    var titem = await MusicPictures.UpdateItemToHashPath(citem);
+                    //    citem.AlbumArtURI = titem.AlbumArtURI;
+                    //}
                 }
                 SonosHelper.ChildGenrelist.Add(sbl);
             }

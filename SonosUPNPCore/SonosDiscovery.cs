@@ -328,6 +328,7 @@ namespace SonosUPnP
         #region Propertys
         public ZoneMethods ZoneMethods { get; set; } = new ZoneMethods();
         public DiscoveryZoneProperties ZoneProperties { get; set; }
+        public static Dictionary<string, string> MusicPictureHashes = new();
         /// <summary>
         /// Alle Geräte als Liste
         /// </summary>

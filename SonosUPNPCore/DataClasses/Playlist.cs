@@ -19,6 +19,7 @@ namespace SonosUPnP.DataClasses
                 return PlayListItems.Count == 0;
             }
         }
+        public Boolean PlayListItemsHashChecked { get; set; } = false;
         public List<SonosItem> PlayListItems { get; } = new List<SonosItem>();
         /// <summary>
         /// Referenz das als Playlist genommen wird.

@@ -142,7 +142,8 @@ namespace Sonos.Controllers
             {
                 SonosPlayer pl = await SonosHelper.GetPlayerbyUuid(id);
                 if (pl == null) return null;
-                if (pl.PlayerProperties.CurrentTrack.AlbumArtURI.StartsWith(SonosConstants.CoverHashPathForBrowser)){
+                if (pl.PlayerProperties.CurrentTrack.AlbumArtURI.StartsWith(SonosConstants.CoverHashPathForBrowser))
+                {
                     return "http://" + Request.Host.Value + pl.PlayerProperties.CurrentTrack.AlbumArtURI;
                 }
                 else
@@ -156,7 +157,7 @@ namespace Sonos.Controllers
                 throw;
             }
         }
-        
+
 
         [HttpGet("CheckPlayerPropertiesWithClient/{id}")]
         public async Task<Boolean> CheckPlayerPropertiesWithClient(string id, [FromForm] PlayerProperties v)
@@ -576,9 +577,20 @@ namespace Sonos.Controllers
             await pl.GetPlayerPlaylist(v);
             try
             {
-                foreach (SonosItem item in pl.PlayerProperties.Playlist.PlayListItems)
+                if (!pl.PlayerProperties.Playlist.IsEmpty && !pl.PlayerProperties.Playlist.PlayListItemsHashChecked)
                 {
-                    await MusicPictures.UpdateItemToHashPath(item);
+                    foreach (SonosItem item in pl.PlayerProperties.Playlist.PlayListItems)
+                    {
+                        try
+                        {
+                            await MusicPictures.UpdateItemToHashPath(item);
+                        }
+                        catch
+                        {
+                            continue;
+                        }
+                    }
+                    pl.PlayerProperties.Playlist.PlayListItemsHashChecked = true;
                 }
             }
             catch
@@ -717,7 +729,7 @@ namespace Sonos.Controllers
         /// <param name="v">Der Browsingparameter wie z.B. A: / S: / A:Artist</param>
         /// <returns></returns>
         [HttpPost("Browsing/{id}")]
-        public async Task<IList<SonosItem>> Browsing(string id,[FromForm] string v)
+        public async Task<IList<SonosItem>> Browsing(string id, [FromForm] string v)
         {
             var retval = await SonosHelper.Sonos.ZoneMethods.Browsing(await SonosHelper.GetPlayerbyUuid(id), v);
             if (retval == null) return null;
