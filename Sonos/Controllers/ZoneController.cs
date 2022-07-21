@@ -18,7 +18,7 @@ namespace Sonos.Controllers
         private Boolean getzonesRunning = false;
         public ZoneController(IConfiguration iConfig)
         {
-            SonosHelper.Configuration = iConfig;
+            SonosConstants.Configuration = iConfig;
         }
         /// <summary>
         /// Ermittelt alle Playlists, die es gibt. 

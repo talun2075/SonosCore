@@ -16,7 +16,7 @@ namespace Sonos.Controllers
         
         public IanController(IConfiguration iConfig)
         {
-            SonosHelper.Configuration = iConfig;
+            SonosConstants.Configuration = iConfig;
             ChildName = "Ian";
             ReadConfiguration();
         }

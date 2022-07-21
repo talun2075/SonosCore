@@ -2,6 +2,7 @@
 using System.Data.SQLite;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using SonosUPnP;
 
 namespace Sonos.Classes
 {
@@ -10,7 +11,7 @@ namespace Sonos.Classes
         private static SQLiteConnection conn;
         private static SQLiteCommand cmd;
         private static SQLiteCommand rcmd;
-        private static string cs = @"URI=file:"+ SonosHelper.Configuration["MusicPictureDBPath"];
+        private static string cs = @"URI=file:"+ SonosConstants.Configuration["MusicPictureDBPath"];
         public static async Task<Boolean> Open()
         {
             try

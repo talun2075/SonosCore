@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Sonos.Classes;
+using SonosUPnP;
 
 namespace Sonos.Controllers
 {
@@ -8,7 +8,7 @@ namespace Sonos.Controllers
     {
         public HomeController(IConfiguration iConfig)
         {
-            SonosHelper.Configuration = iConfig;
+            SonosConstants.Configuration = iConfig;
         }
         public ActionResult Index()
         {

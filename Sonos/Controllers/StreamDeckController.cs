@@ -19,8 +19,8 @@ namespace Sonos.Controllers
 
             try
             {
-                var rand = new Random().Next(SonosHelper.MusicPictureHashes.Count);
-                streamDeckResponse.RandomCover = "http://"+ Request.Host.Value + SonosConstants.CoverHashPathForBrowser + SonosHelper.MusicPictureHashes.ElementAt(rand).Value+ ".png";
+                var rand = new Random().Next(SonosConstants.MusicPictureHashes.Count);
+                streamDeckResponse.RandomCover = "http://"+ Request.Host.Value + SonosConstants.CoverHashPathForBrowser + SonosConstants.MusicPictureHashes.ElementAt(rand).Value+ ".png";
             }
             catch (Exception ex)
             {

@@ -1,4 +1,7 @@
-﻿namespace SonosUPnP
+﻿using Microsoft.Extensions.Configuration;
+using System.Collections.Generic;
+
+namespace SonosUPnP
 {
     public static class SonosConstants
     {
@@ -73,8 +76,6 @@
         /// Erster Wert beim Browsen
         /// </summary>
         public const string aALL = "All";
-
-        public const string MarantzUrl = "http://192.168.0.4";
         /// <summary>
         /// Nicht implementiert
         /// </summary>
@@ -90,6 +91,9 @@
 
         public const string CoverHashPathForBrowser = "/hashimages/";
 
+        public static Dictionary<string, string> MusicPictureHashes { get; set; } = new();
+
+        public static IConfiguration Configuration { get; set; }
     }
     /// <summary>
     /// Constants for Messagequeue

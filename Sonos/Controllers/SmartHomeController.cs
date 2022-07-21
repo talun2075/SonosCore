@@ -16,7 +16,7 @@ namespace Sonos.Controllers
     {
         public SmartHomeController(IConfiguration iConfig)
         {
-            SonosHelper.Configuration = iConfig;
+            SonosConstants.Configuration = iConfig;
         }
         #region Global
         [HttpGet("StoppAllPlayers")]
@@ -301,7 +301,7 @@ namespace Sonos.Controllers
                             item.AlbumArtURI = titem.AlbumArtURI;
                         }
                         if (title == SonosConstants.aALL) continue;
-                        var sbl = new SonosBrowseList() { Artist = title };
+                        SonosBrowseList sbl = new() { Artist = title };
                         sbl.Childs = await SonosHelper.Sonos.ZoneMethods.Browsing(player, SonosConstants.aAlbumArtist + "/" + title, false);
                         if (sbl.Childs.Count > 0)
                         {
@@ -345,7 +345,7 @@ namespace Sonos.Controllers
                             }
                             catch (Exception ex)
                             {
-                                //SonosHelper.Logger.ServerErrorsAdd("GetStart:Item:" + chilchilditem.ItemID, ex, ChildName + "Controller");
+                                SonosHelper.Logger.ServerErrorsAdd("FillTimeToChildGenreList:348:" + item.ItemID, ex, "SmartHomeController");
                                 continue;
                             }
                         }
@@ -361,6 +361,7 @@ namespace Sonos.Controllers
             }
             catch (Exception ex)
             {
+                SonosHelper.Logger.ServerErrorsAdd("FillTimeToChildGenreList", ex, "SmartHomeController");
                 return false;
             }
 

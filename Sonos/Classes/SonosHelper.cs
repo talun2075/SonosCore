@@ -36,8 +36,6 @@ namespace Sonos.Classes
         internal static DateTime Topologiechanged { get; set; }
         internal static Boolean WasInitialed { get; private set; }
 
-        internal static Dictionary<string, string> MusicPictureHashes = new();
-
         /// <summary>
         /// Erlaubte Services aus der Webconfig. 
         /// </summary>
@@ -46,7 +44,6 @@ namespace Sonos.Classes
         internal static List<SonosCheckChangesObject> sccoList = new();
         internal static readonly List<SonosBrowseList> ChildGenrelist = new();
         public static Logging Logger { get; set; } = new(new LoggerWrapperConfig() { ConfigName = "Sonos", TraceFileName = "trace.txt", ErrorFileName = "Errors.txt" });
-        public static IConfiguration Configuration { get; set; }
         #endregion Klassenvariablen
         #region private Methoden
         /// <summary>
@@ -57,9 +54,9 @@ namespace Sonos.Classes
             try
             {
                 //Logger.InfoLog("Sonos", "InitStart");
-                Boolean.TryParse(Configuration["UseSubscription"], out Boolean usesubscriptions);
+                Boolean.TryParse(SonosConstants.Configuration["UseSubscription"], out Boolean usesubscriptions);
                 ServiceEnums = new List<SonosEnums.Services>();
-                var allowedservices = Configuration["UseOnlyThisSubscriptions"];
+                var allowedservices = SonosConstants.Configuration["UseOnlyThisSubscriptions"];
                 if (allowedservices.Contains(","))
                 {
                     var x = allowedservices.Split(',');
@@ -111,7 +108,7 @@ namespace Sonos.Classes
             Dictionary<string, string> retval = new();
             try
             {
-                var root = Configuration.GetValue<string>(WebHostDefaults.ContentRootKey);
+                var root = SonosConstants.Configuration.GetValue<string>(WebHostDefaults.ContentRootKey);
                 var path = root + @"\\wwwroot\\images\\player";
                 var playerimages = Directory.GetFiles(path);
                 var url = "/images/player/";

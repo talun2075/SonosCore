@@ -38,7 +38,7 @@ namespace Sonos.Classes
         }
         public async static Task<Boolean> GetDBContent()
         {
-            SonosHelper.MusicPictureHashes = await DatabaseWrapper.ReadHashes();
+            SonosConstants.MusicPictureHashes = await DatabaseWrapper.ReadHashes();
             return true;
         }
         /// <summary>
@@ -72,10 +72,10 @@ namespace Sonos.Classes
         }
         public async static Task<SonosItem> UpdateItemToHashPath(SonosItem item)
         {
-            if (!SonosHelper.MusicPictureHashes.Any()) await GetDBContent();
+            if (!SonosConstants.MusicPictureHashes.Any()) await GetDBContent();
             if (string.IsNullOrEmpty(item.AlbumArtURI) || item.AlbumArtURI.StartsWith(SonosConstants.CoverHashPathForBrowser)) return item;
             var covershort = SonosItemHelper.RemoveVersionInUri(item.AlbumArtURI);
-            if(SonosHelper.MusicPictureHashes.TryGetValue(covershort, out string hash))
+            if(SonosConstants.MusicPictureHashes.TryGetValue(covershort, out string hash))
             {
                 item.AlbumArtURI = SonosConstants.CoverHashPathForBrowser + hash + ".png";
             }
@@ -136,7 +136,7 @@ namespace Sonos.Classes
         }
         private async static Task<Boolean> UpdateDB()
         {
-            SonosHelper.MusicPictureHashes = DBPathCheckSum;
+            SonosConstants.MusicPictureHashes = DBPathCheckSum;
             return await DatabaseWrapper.UpdateHashes(DBPathCheckSum);
         }
         #endregion PrivateMethoden

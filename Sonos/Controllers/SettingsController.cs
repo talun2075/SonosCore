@@ -19,7 +19,7 @@ namespace Sonos.Controllers
         #endregion Klassenvariablen
         public SettingsController(IConfiguration iConfig)
         {
-            SonosHelper.Configuration = iConfig;
+            SonosConstants.Configuration = iConfig;
         }
         #region Alarm
         /// <summary>

@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Projektmappenelemente", "Pr
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicPictures", "MusicPictures\MusicPictures.csproj", "{307C4A09-D096-4F05-9DA2-389C19BB3421}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,6 +48,14 @@ Global
 		{658241FD-1CF7-4A86-8B78-2147EEF7715C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{658241FD-1CF7-4A86-8B78-2147EEF7715C}.Release|x64.ActiveCfg = Release|Any CPU
 		{658241FD-1CF7-4A86-8B78-2147EEF7715C}.Release|x64.Build.0 = Release|Any CPU
+		{307C4A09-D096-4F05-9DA2-389C19BB3421}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{307C4A09-D096-4F05-9DA2-389C19BB3421}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{307C4A09-D096-4F05-9DA2-389C19BB3421}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{307C4A09-D096-4F05-9DA2-389C19BB3421}.Debug|x64.Build.0 = Debug|Any CPU
+		{307C4A09-D096-4F05-9DA2-389C19BB3421}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{307C4A09-D096-4F05-9DA2-389C19BB3421}.Release|Any CPU.Build.0 = Release|Any CPU
+		{307C4A09-D096-4F05-9DA2-389C19BB3421}.Release|x64.ActiveCfg = Release|Any CPU
+		{307C4A09-D096-4F05-9DA2-389C19BB3421}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
