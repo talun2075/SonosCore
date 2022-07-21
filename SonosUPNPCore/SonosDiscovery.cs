@@ -256,15 +256,14 @@ namespace SonosUPnP
             Boolean retval = false;
             if (!Players.Any())
                 return retval;
-            var pl1 = Players.First(p => p.SoftwareGeneration == SoftwareGeneration.ZG1);
-            if (ZoneProperties.TimeServer[SoftwareGeneration.ZG1] != Settings.TimeServer && pl1 != null)
+
+            if (ZoneProperties.TimeServer[SoftwareGeneration.ZG1] != Settings.TimeServer)
             {
-                retval = await pl1.AlarmClock.SetTimeServer(Settings.TimeServer);
+                retval = await Players.First(p=> p.SoftwareGeneration == SoftwareGeneration.ZG1).AlarmClock.SetTimeServer(Settings.TimeServer);
             }
-            var pl2 = Players.First(p => p.SoftwareGeneration == SoftwareGeneration.ZG2);
-            if (ZoneProperties.TimeServer[SoftwareGeneration.ZG2] != Settings.TimeServer && pl2 != null)
+            if (ZoneProperties.TimeServer[SoftwareGeneration.ZG2] != Settings.TimeServer)
             {
-                retval = await pl2.AlarmClock.SetTimeServer(Settings.TimeServer);
+                retval = await Players.First(p => p.SoftwareGeneration == SoftwareGeneration.ZG2).AlarmClock.SetTimeServer(Settings.TimeServer);
             }
             var retvalalarm = true;
             //Nach Updates die Wecker wieder richten

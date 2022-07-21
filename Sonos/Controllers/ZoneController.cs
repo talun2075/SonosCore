@@ -168,13 +168,6 @@ namespace Sonos.Controllers
             {
                 if (!await SonosHelper.CheckSonosLiving()) return "Checkliving Error";
                 await SonosHelper.Sonos.FillAllFilledPlaylists();
-                foreach (Playlist item in SonosHelper.Sonos.ZoneProperties.ListOfAllFilledPlaylist)
-                {
-                    foreach (SonosItem plitem in item.PlayListItems)
-                    {
-                        await MusicPictures.UpdateItemToHashPath(plitem);
-                    }
-                }
             }
             catch (Exception ex)
             {
