@@ -75,7 +75,7 @@ namespace Sonos.Classes
                         ServiceEnums.Add(se);
                 }
                 var playericons = GetLocalPlayerIcons();
-                Sonos = new SonosDiscovery(usesubscriptions, ServiceEnums, Logger,playericons);//todo: Icon Bilder laden
+                Sonos = new SonosDiscovery(usesubscriptions, ServiceEnums, Logger,playericons);
                 await Task.Run(() =>
                 {
                     lock (Sonos)
@@ -112,7 +112,6 @@ namespace Sonos.Classes
             try
             {
                 var root = Configuration.GetValue<string>(WebHostDefaults.ContentRootKey);
-                //"Z:\\Entwicklung\\SonosCore\\Sonos"
                 var path = root + @"\\wwwroot\\images\\player";
                 var playerimages = Directory.GetFiles(path);
                 var url = "/images/player/";
@@ -128,7 +127,7 @@ namespace Sonos.Classes
             }
             catch(Exception ex)
             {
-                var t = ex;
+                Logger.ServerErrorsAdd("GetLocalPlayerIcons", ex, "SonosHelper");
             }
             return retval;
 
