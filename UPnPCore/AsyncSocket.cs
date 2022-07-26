@@ -288,7 +288,7 @@ namespace OSTL.UPnP
             }
             catch (Exception ex)
             {
-                EventLogger.Log(ex, "AsyncSocket");
+                EventLogger.Log(ex, "AsyncSocket:AddMemberShip1:Local:"+local.Address+" MulticastAddress:"+MulticastAddress);
                 // This will only fail if the network stack does not support this
                 // Which means you are probably running Win9x
             }
@@ -299,7 +299,7 @@ namespace OSTL.UPnP
             }
             catch (Exception ex)
             {
-                EventLogger.Log(ex, "AsyncSocket");
+                EventLogger.Log(ex, "AsyncSocket:AddMemberShip2:Local:" + local.Address + " MulticastAddress:" + MulticastAddress);
                 EventLogger.Log(this, EventLogEntryType.Error, "Cannot AddMembership to IPAddress: " + MulticastAddress);
             }
             try
@@ -308,7 +308,7 @@ namespace OSTL.UPnP
             }
             catch (Exception ex)
             {
-                EventLogger.Log(ex, "AsyncSocket");
+                EventLogger.Log(ex, "AsyncSocket:AddMemberShip3:Local:" + local.Address + " MulticastAddress:" + MulticastAddress);
                 EventLogger.Log(this, EventLogEntryType.Error, "Cannot Set Multicast Interface to IPAddress: " + local.Address);
             }
         }
@@ -396,7 +396,7 @@ namespace OSTL.UPnP
             }
             catch (Exception ex)
             {
-                EventLogger.Log(ex,"AsyncSocket");
+                EventLogger.Log(ex, "AsyncSocket:HandleConnect");
             }
 
             if (IsOK && MainSocket.Connected)
@@ -433,7 +433,7 @@ namespace OSTL.UPnP
             }
             catch (Exception ex)
             {
-                EventLogger.Log(ex, "AsyncSocket");
+                EventLogger.Log(ex, "AsyncSocket:Begin");
                 src = new IPEndPoint(IPAddress.Any, 0);
             }
 
@@ -450,7 +450,7 @@ namespace OSTL.UPnP
                 }
                 catch (StopReadException ex)
                 {
-                    EventLogger.Log(ex, "AsyncSocket");
+                    EventLogger.Log(ex, "AsyncSocket:Begin2");
                     return;
                 }
                 if (StopThread != null)
@@ -476,7 +476,7 @@ namespace OSTL.UPnP
             }
             catch (Exception ex)
             {
-                EventLogger.Log(ex, "AsyncSocket");
+                EventLogger.Log(ex, "AsyncSocket:Begin3");
                 Disconnect = true;
             }
 
@@ -529,31 +529,10 @@ namespace OSTL.UPnP
                 }
                 catch (Exception ex)
                 {
-                    EventLogger.Log(ex, "AsyncSocket");
+                    EventLogger.Log(ex, "AsyncSocket:Close");
                 }
             }
         }
-        /*
-                public bool Sync_Send(byte[] buffer)
-                {
-                    return Sync_Send(buffer, 0, buffer.Length);
-                }
-
-                public bool Sync_Send(byte[] buffer, int offset, int count)
-                {
-                    if (MainSocket == null) return false;
-                    try
-                    {
-                        MainSocket.Send(buffer, offset, count, SocketFlags.None);
-                        return true;
-                    }
-                    catch (Exception e)
-                    {
-                        OpenSource.Utilities.EventLogger.Log(e);
-                        return false;
-                    }
-                }
-        */
         /// <summary>
         /// Asynchronously send bytes
         /// </summary>
@@ -636,7 +615,7 @@ namespace OSTL.UPnP
                         }
                         catch (Exception ex)
                         {
-                            EventLogger.Log(ex, "AsyncSocket");
+                            EventLogger.Log(ex, "AsyncSocket:Send");
                             EventLogger.Log(this, EventLogEntryType.Error, "Send Failure [Normal for non-pipelined connection]");
                             Disconnect = true;
                         }
@@ -702,7 +681,7 @@ namespace OSTL.UPnP
                     }
                     catch (Exception ex)
                     {
-                        EventLogger.Log(ex, "AsyncSocket");
+                        EventLogger.Log(ex, "AsyncSocket:HandleSend");
                         Disconnect = true;
                     }
                     lock (CountLock)
@@ -727,7 +706,7 @@ namespace OSTL.UPnP
                         }
                         catch (Exception ex)
                         {
-                            EventLogger.Log(ex, "AsyncSocket");
+                            EventLogger.Log(ex, "AsyncSocket:HandleSend2");
                             EventLogger.Log(this, EventLogEntryType.Error, "Send Failure [Normal for non-pipelined connection]");
                             Disconnect = true;
                         }
@@ -765,7 +744,7 @@ namespace OSTL.UPnP
             }
             catch (Exception ex)
             {
-                EventLogger.Log(ex, "AsyncSocket");
+                EventLogger.Log(ex, "AsyncSocket:HandleSend3");
             }
         }
 
@@ -793,7 +772,7 @@ namespace OSTL.UPnP
             {
                 // Socket Error
                 bool _OK = false;
-                EventLogger.Log(ex, "AsyncSocket");
+                EventLogger.Log(ex, "AsyncSocket:HandleReceive");
                 lock (this)
                 {
                     if (SentDisconnect == false)
@@ -810,8 +789,6 @@ namespace OSTL.UPnP
                 return;
             }
 
-            //			OpenSource.Utilities.EventLogger.Log(this,System.Diagnostics.EventLogEntryType.Information,"BytesRead: " + BytesReceived.ToString() + " BytesRequested: "+this.BufferReadLength.ToString());
-
             if (BytesReceived <= 0)
             {
                 Disconnect = true;
@@ -825,7 +802,7 @@ namespace OSTL.UPnP
                 }
                 catch (Exception ex)
                 {
-                    EventLogger.Log(ex, "AsyncSocket");
+                    EventLogger.Log(ex, "AsyncSocket:HandleReceive2");
                     src = new IPEndPoint(IPAddress.Any, 0);
                 }
 
@@ -843,7 +820,7 @@ namespace OSTL.UPnP
                     }
                     catch (StopReadException ex)
                     {
-                        EventLogger.Log(ex, "AsyncSocket");
+                        EventLogger.Log(ex, "AsyncSocket:HandleReceive3");
                         return;
                     }
                 }
@@ -867,7 +844,7 @@ namespace OSTL.UPnP
                     }
                     catch (StopReadException ex)
                     {
-                        EventLogger.Log(ex, "AsyncSocket");
+                        EventLogger.Log(ex, "AsyncSocket:HandleReceive4");
                         return;
                     }
                     if (StopThread != null)
@@ -915,7 +892,7 @@ namespace OSTL.UPnP
                 }
                 catch (Exception ex)
                 {
-                    EventLogger.Log(ex, "AsyncSocket");
+                    EventLogger.Log(ex, "AsyncSocket:HandleReceive5");
                     Disconnect = true;
                 }
             }

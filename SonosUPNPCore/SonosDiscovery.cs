@@ -294,7 +294,7 @@ namespace SonosUPnP
                 SonosPlayer sp2 = Players.FirstOrDefault(p => p.SoftwareGeneration == SoftwareGeneration.ZG2);
                 if (ZoneProperties.TimeServer[SoftwareGeneration.ZG2] != timeServer)
                 {
-                    if (sp1 != null)
+                    if (sp2 != null)
                         retval = await sp2.AlarmClock.SetTimeServer(timeServer);
                 }
                 else
@@ -317,7 +317,9 @@ namespace SonosUPnP
                     if (alarm.PlayMode != "NORMAL")
                     {
                         alarm.PlayMode = "NORMAL";
-                        await Players.First(x => x.UUID == alarm.RoomUUID).AlarmClock.UpdateAlarm(alarm);
+                        SonosPlayer apl = Players.FirstOrDefault(x => x.UUID == alarm.RoomUUID);
+                        if (apl != null)
+                            await apl.AlarmClock?.UpdateAlarm(alarm);
                     }
                 }
                 catch (Exception ex)
