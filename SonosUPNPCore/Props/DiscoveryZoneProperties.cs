@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using SonosConst;
 
 namespace SonosUPnP.Props
 {
@@ -263,7 +264,7 @@ namespace SonosUPnP.Props
         /// Liste aller Playlisten gefüllt mit Einträgen. (Unabhängig der Software Gen)
         /// </summary>
         [IgnoreDataMember]
-        public List<Playlist> ListOfAllFilledPlaylist { get; set; } = new List<Playlist>();
+        //public List<Playlist> ListOfAllFilledPlaylist { get; set; } = new List<Playlist>();
         /// <summary>
         /// Liste der Zonen (Unabhängig der Software Gen)
         /// </summary>

@@ -2,12 +2,16 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MusicPictures\SonosSQLiteWrapper.csproj" />
+    <PackageReference Include="System.Data.SQLite" Version="1.0.115" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\SonosConst\SonosConst.csproj" />
-    <ProjectReference Include="..\UPnPCore\UPnPCore.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -2,6 +2,7 @@
 using Sonos.Classes;
 using SonosUPnP;
 using SonosUPnP.DataClasses;
+using SonosConst;
 using System;
 using System.Linq;
 using System.Threading.Tasks;

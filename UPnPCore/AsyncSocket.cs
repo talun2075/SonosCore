@@ -288,7 +288,7 @@ namespace OSTL.UPnP
             }
             catch (Exception ex)
             {
-                EventLogger.Log(ex);
+                EventLogger.Log(ex, "AsyncSocket");
                 // This will only fail if the network stack does not support this
                 // Which means you are probably running Win9x
             }
@@ -299,7 +299,7 @@ namespace OSTL.UPnP
             }
             catch (Exception ex)
             {
-                EventLogger.Log(ex);
+                EventLogger.Log(ex, "AsyncSocket");
                 EventLogger.Log(this, EventLogEntryType.Error, "Cannot AddMembership to IPAddress: " + MulticastAddress);
             }
             try
@@ -308,7 +308,7 @@ namespace OSTL.UPnP
             }
             catch (Exception ex)
             {
-                EventLogger.Log(ex);
+                EventLogger.Log(ex, "AsyncSocket");
                 EventLogger.Log(this, EventLogEntryType.Error, "Cannot Set Multicast Interface to IPAddress: " + local.Address);
             }
         }
@@ -394,9 +394,9 @@ namespace OSTL.UPnP
                 IsOK = true;
                 //RemoteEP = MainSocket.RemoteEndPoint;
             }
-            catch (Exception x)
+            catch (Exception ex)
             {
-                EventLogger.Log(x);
+                EventLogger.Log(ex,"AsyncSocket");
             }
 
             if (IsOK && MainSocket.Connected)
@@ -433,7 +433,7 @@ namespace OSTL.UPnP
             }
             catch (Exception ex)
             {
-                EventLogger.Log(ex);
+                EventLogger.Log(ex, "AsyncSocket");
                 src = new IPEndPoint(IPAddress.Any, 0);
             }
 
@@ -450,7 +450,7 @@ namespace OSTL.UPnP
                 }
                 catch (StopReadException ex)
                 {
-                    EventLogger.Log(ex);
+                    EventLogger.Log(ex, "AsyncSocket");
                     return;
                 }
                 if (StopThread != null)
@@ -476,7 +476,7 @@ namespace OSTL.UPnP
             }
             catch (Exception ex)
             {
-                EventLogger.Log(ex);
+                EventLogger.Log(ex, "AsyncSocket");
                 Disconnect = true;
             }
 
@@ -529,7 +529,7 @@ namespace OSTL.UPnP
                 }
                 catch (Exception ex)
                 {
-                    EventLogger.Log(ex);
+                    EventLogger.Log(ex, "AsyncSocket");
                 }
             }
         }
@@ -636,7 +636,7 @@ namespace OSTL.UPnP
                         }
                         catch (Exception ex)
                         {
-                            EventLogger.Log(ex);
+                            EventLogger.Log(ex, "AsyncSocket");
                             EventLogger.Log(this, EventLogEntryType.Error, "Send Failure [Normal for non-pipelined connection]");
                             Disconnect = true;
                         }
@@ -702,7 +702,7 @@ namespace OSTL.UPnP
                     }
                     catch (Exception ex)
                     {
-                        EventLogger.Log(ex);
+                        EventLogger.Log(ex, "AsyncSocket");
                         Disconnect = true;
                     }
                     lock (CountLock)
@@ -727,7 +727,7 @@ namespace OSTL.UPnP
                         }
                         catch (Exception ex)
                         {
-                            EventLogger.Log(ex);
+                            EventLogger.Log(ex, "AsyncSocket");
                             EventLogger.Log(this, EventLogEntryType.Error, "Send Failure [Normal for non-pipelined connection]");
                             Disconnect = true;
                         }
@@ -765,7 +765,7 @@ namespace OSTL.UPnP
             }
             catch (Exception ex)
             {
-                EventLogger.Log(ex);
+                EventLogger.Log(ex, "AsyncSocket");
             }
         }
 
@@ -793,7 +793,7 @@ namespace OSTL.UPnP
             {
                 // Socket Error
                 bool _OK = false;
-                EventLogger.Log(ex);
+                EventLogger.Log(ex, "AsyncSocket");
                 lock (this)
                 {
                     if (SentDisconnect == false)
@@ -825,7 +825,7 @@ namespace OSTL.UPnP
                 }
                 catch (Exception ex)
                 {
-                    EventLogger.Log(ex);
+                    EventLogger.Log(ex, "AsyncSocket");
                     src = new IPEndPoint(IPAddress.Any, 0);
                 }
 
@@ -843,7 +843,7 @@ namespace OSTL.UPnP
                     }
                     catch (StopReadException ex)
                     {
-                        EventLogger.Log(ex);
+                        EventLogger.Log(ex, "AsyncSocket");
                         return;
                     }
                 }
@@ -867,7 +867,7 @@ namespace OSTL.UPnP
                     }
                     catch (StopReadException ex)
                     {
-                        EventLogger.Log(ex);
+                        EventLogger.Log(ex, "AsyncSocket");
                         return;
                     }
                     if (StopThread != null)
@@ -915,7 +915,7 @@ namespace OSTL.UPnP
                 }
                 catch (Exception ex)
                 {
-                    EventLogger.Log(ex);
+                    EventLogger.Log(ex, "AsyncSocket");
                     Disconnect = true;
                 }
             }

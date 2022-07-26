@@ -648,6 +648,7 @@ function SonosZonesObject() {
             }
 
         } else {
+            //todo: prüfen auf is empty und ob die playlist geladen ist, dann kann man ein nächten track anzeigen? Stream?
             if (SoDo.nextSongWrapper.is(":visible")) {
                 SoDo.nextSongWrapper.hide();
             }

@@ -138,12 +138,12 @@ namespace OSTL.UPnP
                                 try { session.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true); }
                                 catch (SocketException ex) 
                                 {
-                                    EventLogger.Log(ex);
+                                    EventLogger.Log(ex,"SSDP");
                                 }
                                 try { session.ExclusiveAddressUse = false; }
                                 catch (SocketException ex) 
                                 {
-                                    EventLogger.Log(ex);
+                                    EventLogger.Log(ex,"SSDP");
                                 }
                                 if (!Utils.IsMono()) session.Client.Bind(new IPEndPoint(addr, 1900)); else session.Client.Bind(new IPEndPoint(IPAddress.Any, 1900));
                                 session.EnableBroadcast = true;
@@ -151,7 +151,7 @@ namespace OSTL.UPnP
                                 try { session.Client.IOControl(SIO_UDP_CONNRESET, inValue, outValue); }
                                 catch (SocketException ex) 
                                 {
-                                    EventLogger.Log(ex);
+                                    EventLogger.Log(ex,"SSDP");
                                 }
                                 session.BeginReceive(OnReceiveSink, new object[] { session, new IPEndPoint(addr, ((IPEndPoint)session.Client.LocalEndPoint).Port) });
                                 sessions[addr] = session;
@@ -161,7 +161,7 @@ namespace OSTL.UPnP
                                 try { usession.Client.IOControl(SIO_UDP_CONNRESET, inValue, outValue); }
                                 catch (SocketException ex) 
                                 {
-                                    EventLogger.Log(ex);
+                                    EventLogger.Log(ex,"SSDP");
                                 }
                                 usession.BeginReceive(OnReceiveSink, new object[] { usession, new IPEndPoint(addr, ((IPEndPoint)session.Client.LocalEndPoint).Port) });
                                 usessions[addr] = usession;
@@ -173,12 +173,12 @@ namespace OSTL.UPnP
                                 try { session.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true); }
                                 catch (SocketException ex) 
                                 {
-                                    EventLogger.Log(ex);
+                                    EventLogger.Log(ex,"SSDP");
                                 }
                                 try { session.ExclusiveAddressUse = false; }
                                 catch (SocketException ex)
                                 {
-                                    EventLogger.Log(ex);
+                                    EventLogger.Log(ex,"SSDP");
                                 }
                                 if (!Utils.IsMono()) session.Client.Bind(new IPEndPoint(addr, 1900)); else session.Client.Bind(new IPEndPoint(IPAddress.IPv6Any, 1900));
                                 session.EnableBroadcast = true;
@@ -186,7 +186,7 @@ namespace OSTL.UPnP
                                 try { session.Client.IOControl(SIO_UDP_CONNRESET, inValue, outValue); }
                                 catch (SocketException ex)
                                 {
-                                    EventLogger.Log(ex);
+                                    EventLogger.Log(ex,"SSDP");
                                 }
                                 session.BeginReceive(OnReceiveSink, new object[] { session, new IPEndPoint(addr, ((IPEndPoint)session.Client.LocalEndPoint).Port) });
                                 sessions[addr] = session;
@@ -196,7 +196,7 @@ namespace OSTL.UPnP
                                 try { usession.Client.IOControl(SIO_UDP_CONNRESET, inValue, outValue); }
                                 catch (SocketException ex)
                                 {
-                                    EventLogger.Log(ex);
+                                    EventLogger.Log(ex,"SSDP");
                                 }
                                 usession.BeginReceive(OnReceiveSink, new object[] { usession, new IPEndPoint(addr, ((IPEndPoint)session.Client.LocalEndPoint).Port) });
                                 usessions[addr] = usession;
@@ -204,7 +204,7 @@ namespace OSTL.UPnP
                         }
                         catch (SocketException ex)
                         {
-                            EventLogger.Log(ex);
+                            EventLogger.Log(ex,"SSDP");
                         } // Sometimes the bind will thru an exception. In this case, we want to skip that interface and move on.
                     }
                 }
@@ -234,13 +234,13 @@ namespace OSTL.UPnP
                 }
                 catch (Exception ex)
                 {
-                    EventLogger.Log(ex);
+                    EventLogger.Log(ex,"SSDP");
                 }
                 session.BeginReceive(OnReceiveSink, args);
             }
             catch (Exception ex)
             {
-                EventLogger.Log(ex);
+                EventLogger.Log(ex,"SSDP");
                 sessions.Remove(local.Address);
             }
         }
@@ -318,7 +318,7 @@ namespace OSTL.UPnP
                     } 
                     catch (Exception ex)
                     {
-                        EventLogger.Log(ex);
+                        EventLogger.Log(ex,"SSDP");
                     }
                 }
                 OnNotify(src, msg.LocalEndPoint, locuri, Alive, USN, ST, MaxAge, msg);
@@ -370,7 +370,7 @@ namespace OSTL.UPnP
                 }
                 catch (SocketException ex)
                 {
-                    EventLogger.Log(ex);
+                    EventLogger.Log(ex,"SSDP");
                 }
             }
             else if (netinterface.AddressFamily == AddressFamily.InterNetworkV6 && netinterface.ScopeId != 0)
@@ -391,7 +391,7 @@ namespace OSTL.UPnP
                 }
                 catch (SocketException ex)
                 {
-                    EventLogger.Log(ex);
+                    EventLogger.Log(ex,"SSDP");
                 }
             }
         }
@@ -412,7 +412,7 @@ namespace OSTL.UPnP
             }
             catch (SocketException ex)
             {
-                EventLogger.Log(ex);
+                EventLogger.Log(ex,"SSDP");
             }
         }
     }

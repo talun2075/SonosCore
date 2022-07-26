@@ -25,7 +25,7 @@ namespace SonosUPnP
         private string OnZoneGroupStateChangedValue = String.Empty;
         public event EventHandler<SonosPlayer> PlayerChange = delegate { };
         public event EventHandler<SonosDiscovery> GlobalSonosChange = delegate { };
-        Dictionary<string, string> _icons = new();
+        readonly Dictionary<string, string> _icons = new();
         private readonly Boolean useSubscriptions = true;
         private ZonePerSoftwareGeneration ZoneSwGen1;
         private ZonePerSoftwareGeneration ZoneSwGen2;
@@ -179,8 +179,22 @@ namespace SonosUPnP
                         }
                         if (pl1 != null)
                         {
-                            ZoneSwGen1.ZoneProperties.CurrentSonosTime = await pl1.AlarmClock?.GetTimeNow();
-                            ZoneSwGen1.ZoneProperties.ListOfAlarms = await pl1.AlarmClock?.ListAlarms();
+                            try
+                            {
+                                ZoneSwGen1.ZoneProperties.CurrentSonosTime = await pl1.AlarmClock?.GetTimeNow();
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.ServerErrorsAdd("GetSonosTimeStuff:FillProps:CurrentSonosTime:Player:"+pl1.Name, ex, "Discovery");
+                            }
+                            try
+                            {
+                                ZoneSwGen1.ZoneProperties.ListOfAlarms = await pl1.AlarmClock?.ListAlarms();
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.ServerErrorsAdd("GetSonosTimeStuff:FillProps:ListOfAlarms:Player:" + pl1.Name, ex, "Discovery");
+                            }
                         }
                         SonosPlayer pl2 = Players.FirstOrDefault(x => x.SoftwareGeneration == SoftwareGeneration.ZG2);
                         if (pl2 != null)
@@ -193,16 +207,23 @@ namespace SonosUPnP
                     {
                         Logger.ServerErrorsAdd("GetSonosTimeStuff:FillProps", ex, "Discovery");
                     }
-                    if (ZoneProperties.ListOfAlarms.Count > 0)
+                    try
                     {
-                        foreach (Alarm al in ZoneProperties.ListOfAlarms)
+                        if (ZoneProperties.ListOfAlarms.Count > 0)
                         {
-                            SonosPlayer plfe = Players.FirstOrDefault(y => y.UUID == al.RoomUUID);
-                            if (plfe != null)
+                            foreach (Alarm al in ZoneProperties.ListOfAlarms)
                             {
-                                al.RoomName = plfe.Name;
+                                SonosPlayer plfe = Players.FirstOrDefault(y => y.UUID == al.RoomUUID);
+                                if (plfe != null)
+                                {
+                                    al.RoomName = plfe.Name;
+                                }
                             }
                         }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.ServerErrorsAdd("GetSonosTimeStuff:FillProps:ListOfAlarms:RefillRoomName", ex, "Discovery");
                     }
                 }
                 catch (Exception ex)
@@ -288,47 +309,10 @@ namespace SonosUPnP
             }
             return retval == retvalalarm;
         }
-        /// <summary>
-        /// Füllt alle vorhandene Playlisten in eine Liste um diese dann schneller bereitstellen zu können.
-        /// </summary>
-        public async Task<String> FillAllFilledPlaylists()
-        {
-            string retval = "ok";
-            if (Players.Count > 0 && ZoneProperties.ListOfAllFilledPlaylist.Count > 0)
-            {
-                try
-                {
-                    foreach (Playlist item in ZoneProperties.ListOfAllFilledPlaylist)
-                    {
-                        if (item.PlayListItems.Count == 0)
-                        {
-                            await item.FillPlaylist(Players.First());
-                        }
-                    }
-                }
-
-                catch (Exception ex)
-                {
-                    retval += " " + ex.Message;
-                }
-                foreach (var item in Players)
-                {
-                    item.AllFilledPlaylist = ZoneProperties.ListOfAllFilledPlaylist;
-                }
-            }
-            else
-            {
-                //new Timer(state => FillAllFilledPlaylists(), null, 1000, Timeout.Infinite);
-            }
-            if (retval != "ok")
-                Logger.ServerErrorsAdd("FillAllFilledPlaylists", new Exception(retval), "Discovery");
-            return retval;
-        }
         #endregion Public Methoden
         #region Propertys
         public ZoneMethods ZoneMethods { get; set; } = new ZoneMethods();
         public DiscoveryZoneProperties ZoneProperties { get; set; }
-        public static Dictionary<string, string> MusicPictureHashes = new();
         /// <summary>
         /// Alle Geräte als Liste
         /// </summary>
@@ -483,7 +467,7 @@ namespace SonosUPnP
                 {
                     //Logger.TraceLog("playlistToCurrentTrack", "EnqueuedTransportURI:" + e.PlayerProperties.EnqueuedTransportURI);
                     var playlistToCurrentTrack = ZoneProperties.PlayerPlayedPlaylist[e.UUID];
-                    if (playlistToCurrentTrack.Keys.Contains(e.PlayerProperties.EnqueuedTransportURI) && playlistToCurrentTrack[e.PlayerProperties.EnqueuedTransportURI] != e.PlayerProperties.CurrentTrackNumber && e.PlayerProperties.CurrentTrackNumber < 2 && playlistToCurrentTrack[e.PlayerProperties.EnqueuedTransportURI] > 1)
+                    if (playlistToCurrentTrack.ContainsKey(e.PlayerProperties.EnqueuedTransportURI) && playlistToCurrentTrack[e.PlayerProperties.EnqueuedTransportURI] != e.PlayerProperties.CurrentTrackNumber && e.PlayerProperties.CurrentTrackNumber < 2 && playlistToCurrentTrack[e.PlayerProperties.EnqueuedTransportURI] > 1)
                     {
                         //Logger.TraceLog("playlistToCurrentTrack", "EnqueuedTransportURI Seek. Currentracknumber: " + e.PlayerProperties.CurrentTrackNumber + " Dictionary Number: " + playlistToCurrentTrack[e.PlayerProperties.EnqueuedTransportURI]);
                         await e.AVTransport.Seek(playlistToCurrentTrack[e.PlayerProperties.EnqueuedTransportURI].ToString(), SonosEnums.SeekUnit.TRACK_NR);
@@ -491,7 +475,7 @@ namespace SonosUPnP
                     }
                     else
                     {
-                        if (!playlistToCurrentTrack.Keys.Contains(e.PlayerProperties.EnqueuedTransportURI) && (e.PlayerProperties.EnqueuedTransportURI.StartsWith("file") || e.PlayerProperties.EnqueuedTransportURI.EndsWith(".m3u") || e.PlayerProperties.EnqueuedTransportURI.StartsWith("x-rincon-playlist")))
+                        if (!playlistToCurrentTrack.ContainsKey(e.PlayerProperties.EnqueuedTransportURI) && (e.PlayerProperties.EnqueuedTransportURI.StartsWith("file") || e.PlayerProperties.EnqueuedTransportURI.EndsWith(".m3u") || e.PlayerProperties.EnqueuedTransportURI.StartsWith("x-rincon-playlist")))
                         {
                             var sonosplaylist = ZoneProperties.ListOfSonosPlaylist.FirstOrDefault(x => x.Uri == e.PlayerProperties.EnqueuedTransportURI);
                             if(sonosplaylist == null || !sonosplaylist.Title.Contains("zzz"))
@@ -505,7 +489,7 @@ namespace SonosUPnP
                     //Logger.TraceLog("playlistToCurrentTrack", "CurrentTrackNumber: " + e.PlayerProperties.CurrentTrackNumber);
                     //wenn wert vorhanden die Currentrack nummer rein setzen.
                     var ppp = ZoneProperties.PlayerPlayedPlaylist[e.UUID];
-                    if (ppp.Keys.Contains(e.PlayerProperties.EnqueuedTransportURI))
+                    if (ppp.ContainsKey(e.PlayerProperties.EnqueuedTransportURI))
                     {
                         ppp[e.PlayerProperties.EnqueuedTransportURI] = e.PlayerProperties.CurrentTrackNumber;
                     }
@@ -754,30 +738,6 @@ namespace SonosUPnP
                     ZoneSwGen2.ZoneProperties.ListOfSonosPlaylist = br.Result;
                     retval = true;
                 }
-                lock (ZoneProperties.ListOfSonosPlaylist)
-                {
-                    lock (ZoneProperties.ListOfAllFilledPlaylist)
-                    {
-                        foreach (SonosItem item in ZoneProperties.ListOfSonosPlaylist)
-                        {
-                            try
-                            {
-                                var expl = ZoneProperties.ListOfAllFilledPlaylist.FirstOrDefault(x => x.FillPlaylistObject == item.ContainerID);
-                                if (expl != null) continue;
-                                Playlist p = new()
-                                {
-                                    FillPlaylistObject = item.ContainerID,
-                                };
-                                ZoneProperties.ListOfAllFilledPlaylist.Add(p);
-                            }
-                            catch
-                            {
-                                continue;
-                            }
-                        }
-                    }
-                }
-
             }
             return retval;
         }
@@ -806,23 +766,6 @@ namespace SonosUPnP
                     var br = await sp2.ContentDirectory.Browse(BrowseObjects.ImportetPlaylist);
                     ZoneSwGen2.ZoneProperties.ListOfImportedPlaylist = br.Result;
                     retval = true;
-                }
-                foreach (SonosItem item in ZoneProperties.ListOfImportedPlaylist)
-                {
-                    try
-                    {
-                        var expl = ZoneProperties.ListOfAllFilledPlaylist.FirstOrDefault(x => x.FillPlaylistObject == item.ContainerID);
-                        if (expl != null) continue;
-                        Playlist p = new()
-                        {
-                            FillPlaylistObject = item.ContainerID
-                        };
-                        ZoneProperties.ListOfAllFilledPlaylist.Add(p);
-                    }
-                    catch
-                    {
-                        continue;
-                    }
                 }
             }
             return retval;

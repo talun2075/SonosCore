@@ -156,7 +156,7 @@ namespace OSTL.UPnP
 			}
 			catch(Exception ex)
 			{
-                EventLogger.Log(ex);
+                EventLogger.Log(ex,"HTTPMessage");
             }
 		}
 
@@ -294,7 +294,7 @@ namespace OSTL.UPnP
 				}
 				catch(Exception ex)
 				{
-                    EventLogger.Log(ex);
+					EventLogger.Log(ex, "HTTPMessage");
                     TheMessage.Version = "0.9";
 				}
 			}
@@ -352,7 +352,7 @@ namespace OSTL.UPnP
 				}
 				catch(Exception ex)
 				{
-                    EventLogger.Log(ex);
+					EventLogger.Log(ex, "HTTPMessage");
                     cl = -1;
 				}
 			}

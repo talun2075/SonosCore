@@ -9,6 +9,7 @@ using SonosUPnP.DataClasses;
 using SonosUPnP.Props;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using SonosConst;
 
 namespace Sonos.Controllers
 {
@@ -583,7 +584,7 @@ namespace Sonos.Controllers
                     {
                         try
                         {
-                            await MusicPictures.UpdateItemToHashPath(item);
+                            await SonosItemHelper.UpdateItemToHashPath(item);
                         }
                         catch
                         {
@@ -757,7 +758,7 @@ namespace Sonos.Controllers
                     if (pla.PlayerProperties.CurrentTrack != null)
                     {
                         cur = pla.PlayerProperties.CurrentTrack;
-                        await MusicPictures.UpdateItemToHashPath(cur);
+                        await SonosItemHelper.UpdateItemToHashPath(cur);
                     }
                     if (pla.AVTransport != null)
                     {
@@ -829,7 +830,7 @@ namespace Sonos.Controllers
                         if (pla.PlayerProperties.CurrentTrack.Uri.Contains(".mp4") &&
                             pla.PlayerProperties.CurrentTrack.Uri.StartsWith(SonosConstants.xsonoshttp))
                         {
-                            return await MusicPictures.UpdateItemToHashPath(pla.PlayerProperties.CurrentTrack);
+                            return await SonosItemHelper.UpdateItemToHashPath(pla.PlayerProperties.CurrentTrack);
                         }
                     }
                     catch (Exception ex)
@@ -870,7 +871,7 @@ namespace Sonos.Controllers
                         return cur;
                     }
                 }
-                return await MusicPictures.UpdateItemToHashPath(pla.PlayerProperties.CurrentTrack);
+                return await SonosItemHelper.UpdateItemToHashPath(pla.PlayerProperties.CurrentTrack);
             }
             catch (Exception ex)
             {

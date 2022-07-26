@@ -2,7 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Web;
+using SonosConst;
+using SonosSQLite;
+using System.Linq;
 
 namespace SonosUPnP
 {
@@ -160,7 +162,7 @@ namespace SonosUPnP
                         si.Artist = x.Title;
                         if (CheckRadioTitle(streaminfo.StreamContent))
                         {
-                            si.Title = streaminfo.StreamContent.Contains("|")
+                            si.Title = streaminfo.StreamContent.Contains('|')
                                 ? streaminfo.StreamContent.Split('|')[0]
                                 : streaminfo.StreamContent;
                         }
@@ -231,41 +233,18 @@ namespace SonosUPnP
                 return _uri;
             }
         }
-        /// <summary>
-        /// Entfernt vom übergebenen link die Version Parameter wie &v=xxx
-        /// Der Parameter muss am ende stehen. 
-        /// </summary>
-        /// <param name="cover"></param>
-        /// <returns></returns>
-        public static String RemoveVersionInUri(string cover)
-        {
-            if (!cover.Contains("&")) return cover;
-            var sublen = cover.Length - (cover.Length - cover.LastIndexOf("&"));
-            cover = cover.Substring(0, sublen);
-            return cover;
-        }
-        /// <summary>
-        /// Für ein Album Cover den Pfad zur Datei erstellen
-        /// </summary>
-        /// <param name="_uri"></param>
-        /// <returns></returns>
-        public static String AlbumArtToFile(string _uri)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(_uri)) return String.Empty;
-                _uri = HttpUtility.UrlDecode(_uri);
-                _uri = Uri.UnescapeDataString(_uri);
-                _uri = _uri.Replace("getaa?u="+SonosConstants.xfilecifs, "");
-                _uri = RemoveVersionInUri(_uri);
-                _uri = _uri.Replace("/", @"\");
-                return _uri.Replace("\\\\\\", "\\\\");
 
-            }
-            catch
+        public async static Task<SonosItem> UpdateItemToHashPath(SonosItem item)
+        {
+            if (!SonosConstants.MusicPictureHashes.Any()) await DatabaseWrapper.FillMusicPictureHashes();
+            if (string.IsNullOrEmpty(item.AlbumArtURI) || item.AlbumArtURI.StartsWith(SonosConstants.CoverHashPathForBrowser)) return item;
+            var covershort = SonosConstants.RemoveVersionInUri(item.AlbumArtURI);
+            if (SonosConstants.MusicPictureHashes.TryGetValue(covershort, out string hash))
             {
-                return _uri;
+                item.AlbumArtURI = SonosConstants.CoverHashPathForBrowser + hash + ".png";
             }
+            return item;
         }
+
     }
 }

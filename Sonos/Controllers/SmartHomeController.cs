@@ -8,6 +8,7 @@ using SonosUPnP.DataClasses;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using SonosUPNPCore.Props;
+using SonosConst;
 
 namespace Sonos.Controllers
 {
@@ -297,7 +298,7 @@ namespace Sonos.Controllers
 
                         if (!string.IsNullOrEmpty(item.AlbumArtURI))
                         {
-                            var titem = await MusicPictures.UpdateItemToHashPath(item);
+                            var titem = await SonosItemHelper.UpdateItemToHashPath(item);
                             item.AlbumArtURI = titem.AlbumArtURI;
                         }
                         if (title == SonosConstants.aALL) continue;
@@ -313,7 +314,7 @@ namespace Sonos.Controllers
                             var cilditemchildslist = await SonosHelper.Sonos.ZoneMethods.Browsing(player, citem.ContainerID, false);
                             if (!string.IsNullOrEmpty(citem.AlbumArtURI))
                             {
-                                var titem = await MusicPictures.UpdateItemToHashPath(citem);
+                                var titem = await SonosItemHelper.UpdateItemToHashPath(citem);
                                 citem.AlbumArtURI = titem.AlbumArtURI;
                             }
                         }
@@ -333,7 +334,7 @@ namespace Sonos.Controllers
                         {
                             continue;
                         }
-                        await MusicPictures.UpdateItemToHashPath(artistchildlist);
+                        await SonosItemHelper.UpdateItemToHashPath(artistchildlist);
                         var childvalues = await SonosHelper.Sonos.ZoneMethods.Browsing(await SonosHelper.GetPlayerbySoftWareGeneration(SonosUPNPCore.Enums.SoftwareGeneration.ZG1),artistchildlist.ContainerID);
                         foreach (var item in childvalues)
                         {

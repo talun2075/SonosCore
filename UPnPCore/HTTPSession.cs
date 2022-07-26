@@ -548,7 +548,7 @@ namespace OSTL.UPnP
 			}
 			catch (Exception ex)
 			{
-                EventLogger.Log(ex);
+                EventLogger.Log(ex,"HttpSessions");
 			}
 
 			if (BytesRead>0)
@@ -622,7 +622,7 @@ namespace OSTL.UPnP
 							}
 							catch(Exception ex)
 							{
-                                EventLogger.Log(ex);
+                                EventLogger.Log(ex,"HttpSessions");
 							}
 						}
 					}
@@ -750,7 +750,7 @@ namespace OSTL.UPnP
 				}
 				catch(Exception ex)
 				{
-                    EventLogger.Log(ex);
+                    EventLogger.Log(ex,"HttpSessions");
 					//2ToDo: Fail This for invalid range
 				}
 				if (SObject.Length-SObject.Position<infoObj.RangeList[0].Length)
@@ -879,7 +879,7 @@ namespace OSTL.UPnP
 				}
 				catch(ObjectDisposedException ex)
 				{
-                    EventLogger.Log(ex);
+                    EventLogger.Log(ex,"HttpSessions");
 				}
 			}
 		}
@@ -1586,7 +1586,7 @@ namespace OSTL.UPnP
 			}
 			catch(Exception ex)
 			{
-                EventLogger.Log(ex);
+                EventLogger.Log(ex,"HttpSessions");
             }
 			MainSocket = null;
 		}

@@ -2,6 +2,7 @@
 using Sonos.Classes;
 using SonosUPnP;
 using SonosUPnP.DataClasses;
+using SonosConst;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -203,6 +204,7 @@ namespace Sonos.Controllers
                 }
 
                 var player = await GetChild();
+                if(player == null) return false;
                 var randomitems = new Dictionary<String, List<String>>();
                 if(RandomPlaylistItems.ContainsKey(_playlist))
                     randomitems = RandomPlaylistItems[_playlist];

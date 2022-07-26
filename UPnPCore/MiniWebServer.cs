@@ -173,12 +173,12 @@ namespace OSTL.UPnP
                 OnSessionEvent.Fire(this, WebSession);
                 WebSession.StartReading();
             }
-            catch (Exception err)
+            catch (Exception ex)
             {
-                if (err.GetType() != typeof(ObjectDisposedException))
+                if (ex.GetType() != typeof(ObjectDisposedException))
                 {
                     // Error
-                    EventLogger.Log(err);
+                    EventLogger.Log(ex,"MiniWebServer");
                 }
             }
 
@@ -188,7 +188,7 @@ namespace OSTL.UPnP
             }
             catch (Exception ex)
             {
-                EventLogger.Log(ex);
+                EventLogger.Log(ex,"MiniWebServer");
                 // Socket was closed
             }
         }

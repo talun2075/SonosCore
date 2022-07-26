@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
-using System.Collections.Generic;
+using System.Web;
 
-namespace SonosUPnP
+namespace SonosConst
 {
     public static class SonosConstants
     {
@@ -89,39 +89,49 @@ namespace SonosUPnP
         /// </summary>
         public const string SleepTimerOffValueFromServer = "00:00:00";
 
-        public const string CoverHashPathForBrowser = "/hashimages/";
+        public const string CoverHashPathForBrowser = "/hashimages/"; //todo: appconfig.json
 
         public static Dictionary<string, string> MusicPictureHashes { get; set; } = new();
 
         public static IConfiguration Configuration { get; set; }
-    }
-    /// <summary>
-    /// Constants for Messagequeue
-    /// </summary>
-    public static class SonosCheckChangesConstants
-    {
-        /// <summary>
-        /// Check Volume
-        /// </summary>
-        public const string Volume = "Volume";
-        /// <summary>
-        /// Check to SinglePlayer
-        /// </summary>
-        public const string SinglePlayer = "SinglePlayer";
-        /// <summary>
-        /// Is added to a Zone
-        /// </summary>
-        public const string AddToZone = "AddToZone";
-        /// <summary>
-        /// Is Playing
-        /// </summary>
-        public const string Playing = "Playing";
-        /// <summary>
-        /// Check the Powerstate of the Marantz AVR
-        /// </summary>
-        public const string MarantzPower = "Marantzpower";
 
-        public const string NanoleafSelectedScenario = "NanoleafSelectedScenario";
 
+        /// <summary>
+        /// Entfernt vom übergebenen link die Version Parameter wie &v=xxx
+        /// Der Parameter muss am ende stehen. 
+        /// </summary>
+        /// <param name="cover"></param>
+        /// <returns></returns>
+        public static String RemoveVersionInUri(string cover)
+        {
+            if (!cover.Contains("&")) return cover;
+            var sublen = cover.Length - (cover.Length - cover.LastIndexOf("&"));
+            cover = cover.Substring(0, sublen);
+            return cover;
+        }
+
+        /// <summary>
+        /// Für ein Album Cover den Pfad zur Datei erstellen
+        /// </summary>
+        /// <param name="_uri"></param>
+        /// <returns></returns>
+        public static String AlbumArtToFile(string _uri)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(_uri)) return String.Empty;
+                _uri = HttpUtility.UrlDecode(_uri);
+                _uri = Uri.UnescapeDataString(_uri);
+                _uri = _uri.Replace("getaa?u=" + SonosConstants.xfilecifs, "");
+                _uri = SonosConstants.RemoveVersionInUri(_uri);
+                _uri = _uri.Replace("/", @"\");
+                return _uri.Replace("\\\\\\", "\\\\");
+
+            }
+            catch
+            {
+                return _uri;
+            }
+        }
     }
 }

@@ -8,6 +8,7 @@ using SonosUPnP.Props;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using SonosConst;
 
 namespace Sonos.Controllers
 {
@@ -198,7 +199,7 @@ namespace Sonos.Controllers
             }
             catch (Exception ex)
             {
-                SonosHelper.Logger.ServerErrorsAdd("FillSonosTimeSettingStuff", ex, "ZoneController");
+                SonosHelper.Logger.ServerErrorsAdd("FillSonosTimeSettingStuff", ex, "SetrtingsController");
                 throw;
             }
             return retval;

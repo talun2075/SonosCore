@@ -213,7 +213,7 @@ namespace OSTL.UPnP
                 catch (Exception ex)
                 {
                     EventLogger.Log(this, EventLogEntryType.Error, "CP Failure: " + localaddr.ToString());
-                    EventLogger.Log(ex);
+                    EventLogger.Log(ex,"UPNPControlPoint");
                 }
             }
         }
@@ -234,7 +234,7 @@ namespace OSTL.UPnP
             }
             catch (Exception ex) 
             {
-                EventLogger.Log(ex);
+                EventLogger.Log(ex,"UPNPControlPoint");
             }
             try
             {
@@ -257,7 +257,7 @@ namespace OSTL.UPnP
             }
             catch (Exception ex)
             {
-                EventLogger.Log(ex);
+                EventLogger.Log(ex,"UPNPControlPoint");
                 msg = new HTTPMessage();
                 msg.Directive = "---";
                 msg.DirectiveObj = "---";

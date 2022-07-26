@@ -13,6 +13,8 @@ using SonosUPNPCore.Enums;
 using System.Net;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
+using SonosConst;
+using SonosSQLite;
 
 namespace Sonos.Classes
 {
@@ -53,23 +55,29 @@ namespace Sonos.Classes
         {
             try
             {
-                //Logger.InfoLog("Sonos", "InitStart");
                 Boolean.TryParse(SonosConstants.Configuration["UseSubscription"], out Boolean usesubscriptions);
                 ServiceEnums = new List<SonosEnums.Services>();
                 var allowedservices = SonosConstants.Configuration["UseOnlyThisSubscriptions"];
-                if (allowedservices.Contains(","))
+                try
                 {
-                    var x = allowedservices.Split(',');
-                    foreach (var item in x)
+                    if (allowedservices.Contains(','))
                     {
-                        if (Enum.TryParse(item.Trim(), out SonosEnums.Services se))
+                        var x = allowedservices.Split(',');
+                        foreach (var item in x)
+                        {
+                            if (Enum.TryParse(item.Trim(), out SonosEnums.Services se))
+                                ServiceEnums.Add(se);
+                        }
+                    }
+                    else
+                    {
+                        if (Enum.TryParse(allowedservices.Trim(), out SonosEnums.Services se))
                             ServiceEnums.Add(se);
                     }
                 }
-                else
+                catch(Exception ex)
                 {
-                    if (Enum.TryParse(allowedservices.Trim(), out SonosEnums.Services se))
-                        ServiceEnums.Add(se);
+                    Logger.ServerErrorsAdd("SonosHelper:InitialSonos:configurations", ex);
                 }
                 var playericons = GetLocalPlayerIcons();
                 Sonos = new SonosDiscovery(usesubscriptions, ServiceEnums, Logger,playericons);
@@ -93,12 +101,11 @@ namespace Sonos.Classes
                         }
                     }
                 });
-                //Logger.InfoLog("Sonos", "InitEnd");
                 return true;
             }
-            catch (Exception x)
+            catch (Exception ex)
             {
-                Logger.ServerErrorsAdd("SonosHelper:InitialSonos", x);
+                Logger.ServerErrorsAdd("SonosHelper:InitialSonos", ex);
                 return false;
             }
         }
@@ -133,7 +140,7 @@ namespace Sonos.Classes
 
         private static Boolean ScanPort(string ipwithport)
         {
-            if (string.IsNullOrEmpty(ipwithport) || !ipwithport.Contains(":")) return true;
+            if (string.IsNullOrEmpty(ipwithport) || !ipwithport.Contains(':')) return true;
             var splitedip = ipwithport.Split(':');
             Boolean retval = false;
             string ip = splitedip[0];
@@ -169,16 +176,16 @@ namespace Sonos.Classes
             {
                 var props = sp.PlayerProperties;
                 if (!string.IsNullOrEmpty(props.NextTrack.AlbumArtURI))
-                    props.NextTrack = await MusicPictures.UpdateItemToHashPath(props.NextTrack);
+                    props.NextTrack = await SonosItemHelper.UpdateItemToHashPath(props.NextTrack);
                 if (!string.IsNullOrEmpty(props.CurrentTrack.AlbumArtURI))
-                    props.CurrentTrack = await MusicPictures.UpdateItemToHashPath(props.CurrentTrack);
+                    props.CurrentTrack = await SonosItemHelper.UpdateItemToHashPath(props.CurrentTrack);
                 if (!props.Playlist.IsEmpty && !props.Playlist.PlayListItemsHashChecked)
                 {
                         foreach (SonosItem item in props.Playlist.PlayListItems)
                         {
                             try
                             {
-                                await MusicPictures.UpdateItemToHashPath(item);
+                                await SonosItemHelper.UpdateItemToHashPath(item);
                             }
                             catch(Exception ex)
                             {
@@ -231,9 +238,7 @@ namespace Sonos.Classes
                 }
             }
             if (usetimer) //Timer um sich selber aufzurfuen alle 30 Minuten, wenn das einmal passiert ist.
-#pragma warning disable CS4014 // Da auf diesen Aufruf nicht gewartet wird, wird die Ausführung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt.
                 _ = new Timer(state => CheckAllPlayerReachable(true), null, TimeSpan.FromMinutes(30), TimeSpan.FromMilliseconds(-1));
-#pragma warning restore CS4014 // Da auf diesen Aufruf nicht gewartet wird, wird die Ausführung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt.
             return retval;
         }
 
@@ -254,6 +259,7 @@ namespace Sonos.Classes
                 Boolean retval = false;
                 if (Sonos == null || !WasInitialed)
                 {
+                    DatabaseWrapper.Logger = Logger;
                     serverErrors.Clear();
                     sccoList.Clear();
                     retval = await InitialSonos();
@@ -288,8 +294,10 @@ namespace Sonos.Classes
                 if (Logger != null)
                     Logger.ServerErrorsAdd("GetPlayer Sonos ist Null Player:" + playerName, new Exception("Sonos ist null und wird initialisiert"));
                 await InitialSonos();
-                return null;
             }
+
+            if (Sonos == null || Sonos.Players.Count == 0) return null;
+
             lock (Sonos.Players)
             {
                 foreach (SonosPlayer sonosPlayer in Sonos.Players)
@@ -313,8 +321,8 @@ namespace Sonos.Classes
                 if (Logger != null)
                     Logger.ServerErrorsAdd("GetPlayer Sonos ist Null Player:" + uuid, new Exception("Sonos ist null und wird initialisiert"));
                 await InitialSonos();
-                return null;
             }
+            if(Sonos == null || Sonos.Players.Count == 0) return null;
             lock (Sonos.Players)
             {
                 foreach (SonosPlayer sonosPlayer in Sonos.Players)
@@ -652,13 +660,6 @@ namespace Sonos.Classes
         public static async Task<Boolean> FillSonosTimeSettingStuff()
         {
             return await Sonos.GetSonosTimeStuff() && await Sonos.SetSettings();
-        }
-        /// <summary>
-        /// Füllt alle Playlisten mit Inhalt. Für den Timer. 
-        /// </summary>
-        public async static void FillAllPlaylist()
-        {
-            await Sonos.FillAllFilledPlaylists();
         }
         #endregion public Methoden
     }

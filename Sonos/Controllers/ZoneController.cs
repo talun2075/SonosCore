@@ -4,6 +4,7 @@ using Sonos.Classes;
 using SonosUPnP;
 using SonosUPnP.DataClasses;
 using SonosUPnP.Props;
+using SonosConst;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -159,36 +160,6 @@ namespace Sonos.Controllers
                 throw;
             }
             return retval;
-        }
-       [HttpGet("FillAllFilledPlaylists")]
-        public async Task<String> FillAllFilledPlaylists()
-        {
-            string retval = "ok";
-            try
-            {
-                if (!await SonosHelper.CheckSonosLiving()) return "Checkliving Error";
-                await SonosHelper.Sonos.FillAllFilledPlaylists();
-            }
-            catch (Exception ex)
-            {
-                SonosHelper.Logger.ServerErrorsAdd("FillAllFilledPlaylists", ex, "ZoneController");
-                retval = ex.Message;
-            }
-            return retval;
-        }
-       [HttpGet("GetAllFilledPlaylists")]
-        public async Task<List<Playlist>> GetAllFilledPlaylists()
-        {
-            try
-            {
-                if (!await SonosHelper.CheckSonosLiving()) return null;
-                return SonosHelper.Sonos.ZoneProperties.ListOfAllFilledPlaylist;
-            }
-            catch (Exception ex)
-            {
-                SonosHelper.Logger.ServerErrorsAdd("GetAllFilledPlaylists", ex);
-                return new List<Playlist>();
-            }
         }
        [HttpGet("SetSettings")]
         public async Task<String> SetSettings()

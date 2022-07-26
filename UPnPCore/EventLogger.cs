@@ -74,12 +74,6 @@ namespace OpenSource.Utilities
                 }
             }
         }
-
-        public static void Log(Exception exception)
-        {
-            Log(exception, "");
-        }
-
         /// <summary>
         /// Log an exception into the system log.
         /// </summary>
@@ -114,7 +108,7 @@ namespace OpenSource.Utilities
                         try
                         {
                             if (!t.Message.Contains("The hostname could not be parsed"))
-                                Logger.ServerErrorsAdd(exception.Source, exception, "SonosUpnp");
+                                Logger.ServerErrorsAdd(exception.Source+" "+name, exception, "SonosUpnp");
                         }
                         catch (Exception ex)
                         {

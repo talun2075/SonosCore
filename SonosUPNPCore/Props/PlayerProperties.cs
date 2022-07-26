@@ -1,4 +1,6 @@
-﻿using SonosUPnP.DataClasses;
+﻿using SonosConst;
+using SonosUPnP.DataClasses;
+using SonosUPNPCore;
 using SonosUPNPCore.Enums;
 using SonosUPNPCore.Props;
 using System;

@@ -152,7 +152,7 @@ namespace OSTL.UPnP
             }
             catch (Exception ex)
             {
-                EventLogger.Log(ex);
+                EventLogger.Log(ex,"HttpRequest");
             }
         }
 
@@ -201,7 +201,7 @@ namespace OSTL.UPnP
             catch (Exception ex)
             {
                 // Could not resolve?
-                EventLogger.Log(ex);
+                EventLogger.Log(ex, "HttpRequest");
                 return;
             }
 
@@ -302,7 +302,7 @@ namespace OSTL.UPnP
                         }
                         catch (Exception ex)
                         {
-                            EventLogger.Log(ex);
+                            EventLogger.Log(ex, "HttpRequest");
                         }
                     }
                 }
@@ -443,7 +443,7 @@ namespace OSTL.UPnP
                         }
                         catch (Exception ex)
                         {
-                            EventLogger.Log(ex);
+                            EventLogger.Log(ex, "HttpRequest");
                         }
                     }
                 }
@@ -479,9 +479,9 @@ namespace OSTL.UPnP
                         ss.Send(pr);
                     }
                 }
-                catch (Exception exc)
+                catch (Exception ex)
                 {
-                    EventLogger.Log(exc);
+                    EventLogger.Log(ex,"HTTPRequest");
                 }
             }
         }

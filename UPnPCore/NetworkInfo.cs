@@ -181,7 +181,7 @@ namespace OSTL.UPnP
             }
             catch (Exception ex)
             {
-                EventLogger.Log(ex);
+                EventLogger.Log(ex,"NetworkInfo");//todo: an alle eine additional Info schreiben, die das nicht haben.
             }
             InterfacePoller.Add(this, NetworkPollSeconds);
         }
@@ -214,7 +214,7 @@ namespace OSTL.UPnP
                 }
                 catch (Exception ex) 
                 {
-                    EventLogger.Log(ex);
+                    EventLogger.Log(ex,"NetworkInfo");
                 }
             } while (true);
 

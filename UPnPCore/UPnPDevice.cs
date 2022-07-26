@@ -738,7 +738,7 @@ namespace OSTL.UPnP
             }
             catch (Exception ex)
             {
-                EventLogger.Log(ex);
+                EventLogger.Log(ex,"UPNPDevice");
             }
         }
 
@@ -771,7 +771,7 @@ namespace OSTL.UPnP
             catch (SocketException ex)
             {
                 // Cannot bind to this IPAddress, so just ignore
-                EventLogger.Log(ex);
+                EventLogger.Log(ex,"UPNPDevice");
                 EventLogger.Log(ex, "UPnPDevice: " + FriendlyName + " @" + ip.ToString());
             }
 
@@ -997,7 +997,7 @@ namespace OSTL.UPnP
             }
             catch (Exception ex)
             {
-                EventLogger.Log(ex);
+                EventLogger.Log(ex,"UPNPDevice");
             }
 
             if ((H_cb != null) || (P_cb != null))
@@ -1082,20 +1082,20 @@ namespace OSTL.UPnP
                 {
                     Response = Get(MethodData, WebSession.Source);
                 }
-                catch (UPnPCustomException ce)
+                catch (UPnPCustomException ex)
                 {
-                    EventLogger.Log(ce);
-                    Response.StatusCode = ce.ErrorCode;
-                    Response.StatusData = ce.ErrorDescription;
+                    EventLogger.Log(ex, "UPNPDevice");
+                    Response.StatusCode = ex.ErrorCode;
+                    Response.StatusData = ex.ErrorDescription;
                     WebSession.Send(Response);
                     return;
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    EventLogger.Log(e);
+                    EventLogger.Log(ex, "UPNPDevice");
                     Response.StatusCode = 500;
                     Response.StatusData = "Internal";
-                    Response.StringBuffer = e.ToString();
+                    Response.StringBuffer = ex.ToString();
                 }
                 if (Method == "HEAD")
                 {
@@ -1113,7 +1113,7 @@ namespace OSTL.UPnP
                 }
                 catch (DelayedResponseException ex)
                 {
-                    EventLogger.Log(ex);
+                    EventLogger.Log(ex,"UPNPDevice");
                     InvokerInfo.Remove(Thread.CurrentThread.GetHashCode());
                     WebSession.StopReading();
                     return;
@@ -1149,30 +1149,30 @@ namespace OSTL.UPnP
                     InvokerInfo.Remove(Thread.CurrentThread.GetHashCode());
                     return;
                 }
-                catch (UPnPTypeMismatchException tme)
+                catch (UPnPTypeMismatchException ex)
                 {
-                    EventLogger.Log(tme);
+                    EventLogger.Log(ex, "UPNPDevice");
                     Response.StatusCode = 500;
                     Response.StatusData = "Internal";
-                    Response.StringBuffer = BuildErrorBody(new UPnPCustomException(402, tme.Message));
+                    Response.StringBuffer = BuildErrorBody(new UPnPCustomException(402, ex.Message));
                     WebSession.Send(Response);
                     InvokerInfo.Remove(Thread.CurrentThread.GetHashCode());
                     return;
                 }
-                catch (UPnPStateVariable.OutOfRangeException oor)
+                catch (UPnPStateVariable.OutOfRangeException ex)
                 {
-                    EventLogger.Log(oor);
+                    EventLogger.Log(ex, "UPNPDevice");
                     Response.StatusCode = 500;
                     Response.StatusData = "Internal";
-                    Response.StringBuffer = BuildErrorBody(new UPnPCustomException(402, oor.Message));
+                    Response.StringBuffer = BuildErrorBody(new UPnPCustomException(402, ex.Message));
                     WebSession.Send(Response);
                     InvokerInfo.Remove(Thread.CurrentThread.GetHashCode());
                     return;
                 }
-                catch (TargetInvocationException tie)
+                catch (TargetInvocationException ex)
                 {
-                    Exception inner = tie.InnerException;
-                    EventLogger.Log(tie);
+                    Exception inner = ex.InnerException;
+                    EventLogger.Log(ex, "UPNPDevice");
                     while (inner.InnerException != null && (typeof(UPnPCustomException).IsInstanceOfType(inner) == false))
                     {
                         inner = inner.InnerException;
@@ -1193,16 +1193,16 @@ namespace OSTL.UPnP
                     Response.StatusData = "Internal";
                     Response.StringBuffer = BuildErrorBody(new UPnPCustomException(500, inner.ToString()));
                     WebSession.Send(Response);
-                    EventLogger.Log(inner);
+                    EventLogger.Log(inner, "UPNPDevice");
                     return;
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
                     Response.StatusCode = 500;
                     Response.StatusData = "Internal";
-                    Response.StringBuffer = BuildErrorBody(new UPnPCustomException(500, e.ToString()));
+                    Response.StringBuffer = BuildErrorBody(new UPnPCustomException(500, ex.ToString()));
                     WebSession.Send(Response);
-                    EventLogger.Log(e);
+                    EventLogger.Log(ex, "UPNPDevice");
                     return;
                 }
 
@@ -1241,12 +1241,12 @@ namespace OSTL.UPnP
                     {
                         Response2 = SubscribeEvents(ref SID, MethodData.Substring(1), CallbackURL, Timeout);
                     }
-                    catch (Exception s_exception)
+                    catch (Exception ex)
                     {
-                        EventLogger.Log(s_exception);
+                        EventLogger.Log(ex, "UPNPDevice");
                         HTTPMessage err = new();
                         err.StatusCode = 500;
-                        err.StatusData = s_exception.Message;
+                        err.StatusData = ex.Message;
                         WebSession.Send(err);
                         return;
                     }
@@ -1385,7 +1385,7 @@ namespace OSTL.UPnP
             }
             catch (Exception ex)
             {
-                EventLogger.Log(ex);
+                EventLogger.Log(ex,"UPNPDevice");
                 throw (new UPnPCustomException(404, "File Not Found"));
             }
         }
@@ -1435,7 +1435,7 @@ namespace OSTL.UPnP
                 }
                 catch (SocketException ex)
                 {
-                    EventLogger.Log(ex);
+                    EventLogger.Log(ex,"UPNPDevice");
                 }
             }
         }
@@ -1468,7 +1468,7 @@ namespace OSTL.UPnP
                 }
                 catch (Exception ex)
                 {
-                    EventLogger.Log(ex);
+                    EventLogger.Log(ex,"UPNPDevice");
                 }
             }
             Uri[] RetVal = new Uri[TList.Count];
@@ -1823,9 +1823,9 @@ namespace OSTL.UPnP
                             service.EventCallbackURL = "http://[" + RemoveIPv6Scope(InterfaceToHost.ToString()) + "]:" + mws.LocalIPEndPoint.Port.ToString() + "/" + UniqueDeviceName + "/" + service.ServiceID;
                         }
                     }
-                    catch (Exception e)
+                    catch (Exception ex)
                     {
-                        EventLogger.Log(e);
+                        EventLogger.Log(ex, "UPNPDevice");
                     }
                 }
             }
@@ -1932,7 +1932,7 @@ namespace OSTL.UPnP
         private void SetVersion(string v)
         {
             DText p = new();
-            if (!v.Contains("-", StringComparison.CurrentCulture))
+            if (!v.Contains('-', StringComparison.CurrentCulture))
             {
                 p.ATTRMARK = ".";
             }
@@ -1983,7 +1983,7 @@ namespace OSTL.UPnP
             }
             catch (Exception ex)
             {
-                EventLogger.Log(ex);
+                EventLogger.Log(ex,"UPNPDevice");
                 return (Array.Empty<HTTPMessage>());
             }
             String BaseURL;
@@ -2411,7 +2411,7 @@ namespace OSTL.UPnP
                                 }
                                 catch (Exception ex)
                                 {
-                                    EventLogger.Log(ex);
+                                    EventLogger.Log(ex,"UPNPDevice");
                                 }
                                 break;
                             case "serialNumber":

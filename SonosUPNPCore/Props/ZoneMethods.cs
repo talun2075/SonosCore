@@ -1,5 +1,7 @@
 ﻿using MP3File;
+using SonosConst;
 using SonosUPnP.DataClasses;
+using SonosUPNPCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +10,7 @@ using System.Web;
 
 namespace SonosUPnP.Props
 {
-    
+
     /// <summary>
     /// Übernimmt Verschachtelungen um den SonosPlayer zu entlasten.
     /// </summary>

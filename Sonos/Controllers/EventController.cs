@@ -11,6 +11,7 @@ using Sonos.Classes;
 using System.Collections.Generic;
 using System.Linq;
 using SonosUPNPCore.Enums;
+using SonosUPnP;
 
 namespace Sonos.Controllers
 {
@@ -160,11 +161,11 @@ namespace Sonos.Controllers
                             t.ChangedValues.Add(eventchange.ToString(), pl.PlayerProperties.CurrentTrackNumber.ToString());
                             break;
                         case SonosEnums.EventingEnums.NextTrack:
-                            await MusicPictures.UpdateItemToHashPath(pl.PlayerProperties.NextTrack);
+                            await SonosItemHelper.UpdateItemToHashPath(pl.PlayerProperties.NextTrack);
                             t.ChangedValues.Add(eventchange.ToString(), JsonSerializer.Serialize(pl.PlayerProperties.NextTrack, _jsonSerializerOptions));
                             break;
                         case SonosEnums.EventingEnums.CurrentTrack:
-                            await MusicPictures.UpdateItemToHashPath(pl.PlayerProperties.CurrentTrack);
+                            await SonosItemHelper.UpdateItemToHashPath(pl.PlayerProperties.CurrentTrack);
                             t.ChangedValues.Add(eventchange.ToString(), JsonSerializer.Serialize(pl.PlayerProperties.CurrentTrack, _jsonSerializerOptions));
                             break;
                         case SonosEnums.EventingEnums.LineInConnected:

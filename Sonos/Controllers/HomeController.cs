@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using SonosUPnP;
+using SonosConst;
 
 namespace Sonos.Controllers
 {

@@ -1,24 +1,16 @@
 ﻿using SonosUPnP;
+using SonosConst;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using SonosSQLite;
 
 namespace Sonos.Classes
 {
     public static class MusicPictures
     {
-        /*
-         generierung /artist/genres/playlists
-         bereitstellung liste mit pfaden
-         replacement
-         */
-
-        #region Klassenvariablen
-        private static readonly List<string> DBPrepareList = new();
-        private static readonly Dictionary<string, string> DBPathCheckSum = new();
-        #endregion
         #region PublicMethoden
         /// <summary>
         /// Läd artist/genres/playlistpfade und füllt DBPrepareList
@@ -32,13 +24,7 @@ namespace Sonos.Classes
             List<SonosItem> playlists = await SonosHelper.Sonos.ZoneMethods.Browsing(SonosHelper.Sonos.Players.First(), SonosConstants.aPlaylists, false);
             var allpl = genres.Union(artist).Union(playlists);
             await RunIntoList(allpl);
-            ReplaceAlbumArt();
-            await UpdateDB();
-            return true;
-        }
-        public async static Task<Boolean> GetDBContent()
-        {
-            SonosConstants.MusicPictureHashes = await DatabaseWrapper.ReadHashes();
+            await DatabaseWrapper.UpdateDB(SonosHelper.Logger);
             return true;
         }
         /// <summary>
@@ -54,7 +40,7 @@ namespace Sonos.Classes
                 {
                     try
                     {
-                        await UpdateItemToHashPath(item);
+                        await SonosItemHelper.UpdateItemToHashPath(item);
                     }
                     catch(Exception ex)
                     {
@@ -70,17 +56,7 @@ namespace Sonos.Classes
 
             return items;
         }
-        public async static Task<SonosItem> UpdateItemToHashPath(SonosItem item)
-        {
-            if (!SonosConstants.MusicPictureHashes.Any()) await GetDBContent();
-            if (string.IsNullOrEmpty(item.AlbumArtURI) || item.AlbumArtURI.StartsWith(SonosConstants.CoverHashPathForBrowser)) return item;
-            var covershort = SonosItemHelper.RemoveVersionInUri(item.AlbumArtURI);
-            if(SonosConstants.MusicPictureHashes.TryGetValue(covershort, out string hash))
-            {
-                item.AlbumArtURI = SonosConstants.CoverHashPathForBrowser + hash + ".png";
-            }
-            return item;
-        }
+        
         #endregion PublicMethoden
         #region PrivateMethoden
 
@@ -93,51 +69,13 @@ namespace Sonos.Classes
         {
             foreach (SonosItem item in lis)
             {
-                if (!string.IsNullOrEmpty(item.AlbumArtURI) && !DBPrepareList.Contains(item.AlbumArtURI))
-                    DBPrepareList.Add(item.AlbumArtURI);
+                if (!string.IsNullOrEmpty(item.AlbumArtURI) && !DatabaseWrapper.DBPrepareList.Contains(item.AlbumArtURI))
+                    DatabaseWrapper.DBPrepareList.Add(item.AlbumArtURI);
                 //Datenladen. 
                 if (!string.IsNullOrEmpty(item.ContainerID) && item.Title != SonosConstants.aALL)
                     await RunIntoList(await SonosHelper.Sonos.ZoneMethods.Browsing(SonosHelper.Sonos.Players.First(), item.ContainerID, false));
             }
             return lis;
-        }
-        /// <summary>
-        /// Durchgeht die DBPreparelist und liest die Checksum pro Cover aus.
-        /// </summary>
-        private static void ReplaceAlbumArt()
-        {
-            //übergebene liste durchlaufen und entsprechend die pfade anpassen.
-            //evtl weiter granulieren, das hier nur durchlaufen wird und in einer anderen methode die pfade angepasst wird. 
-
-            foreach (string item in DBPrepareList)
-            {
-                var cover = item;
-                var withoutVersion = SonosItemHelper.RemoveVersionInUri(cover);
-                if (!DBPathCheckSum.ContainsKey(withoutVersion))
-                {
-                    //Wert nicht vorhanden somit laden.
-                    var fixedpath = SonosItemHelper.AlbumArtToFile(cover);
-                    if (File.Exists(fixedpath))
-                    {
-                        try
-                        {
-                            if (fixedpath.EndsWith(".aiff")) continue;
-                            var hash = MP3.TagLibDelivery.GetPictureHash(fixedpath);
-                            DBPathCheckSum.Add(withoutVersion, hash);
-                        }
-                        catch(Exception ex)
-                        {
-                            SonosHelper.Logger.ServerErrorsAdd("MusicPictures.ReplaceAlbumArt:"+fixedpath, ex);
-                            continue;
-                        }
-                    }
-                }
-            }
-        }
-        private async static Task<Boolean> UpdateDB()
-        {
-            SonosConstants.MusicPictureHashes = DBPathCheckSum;
-            return await DatabaseWrapper.UpdateHashes(DBPathCheckSum);
         }
         #endregion PrivateMethoden
 

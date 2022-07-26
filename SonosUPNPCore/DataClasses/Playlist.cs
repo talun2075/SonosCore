@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SonosConst;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -54,6 +55,16 @@ namespace SonosUPnP.DataClasses
                         break; //kein Ergebnis, daher abbrechen.
                     }
                 }
+                //Nun alle HashPfade anpassen.
+                if (!IsEmpty)
+                {
+                    foreach (SonosItem item in PlayListItems)
+                    {
+                        await SonosItemHelper.UpdateItemToHashPath(item);
+                    }
+                    PlayListItemsHashChecked = true;
+                }
+
             }
             catch (Exception ex)
             {

@@ -139,9 +139,9 @@ namespace OpenSource.Utilities
 					{
 						mi.Invoke(o, args);
 					}
-					catch(Exception e)
+					catch(Exception ex)
 					{
-						EventLogger.Log(e);
+						EventLogger.Log(ex, "WeakEvent");
 					}
 				}
 				else

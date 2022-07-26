@@ -182,7 +182,7 @@ namespace OSTL.UPnP
 				}
 				catch(Exception ex)
 				{
-                    EventLogger.Log(ex);
+                    EventLogger.Log(ex,"DText");
                     return ("");
 				}
 			}

@@ -4012,9 +4012,9 @@ namespace OSTL.UPnP
                                 EventLogger.Log(this, EventLogEntryType.SuccessAudit, RetVal.ToString());
                                 StateVariables[name] = var;
                             }
-                            catch (Exception eve)
+                            catch (Exception ex)
                             {
-                                EventLogger.Log(eve);
+                                EventLogger.Log(ex,"UPNPService");
                             }
                         }
                         XMLDoc.Read();
