@@ -88,17 +88,17 @@ namespace OpenSource.Utilities
                     string name = exception.GetType().FullName;
                     string message = exception.Message;
                     Exception t = exception;
-                    int i = 0;
-                    while (t.InnerException != null)
-                    {
-                        t = t.InnerException;
-                        name += " : " + t.GetType().FullName;
-                        // message = t.Message;
-                        // NKIDD - ADDED
-                        message += "\r\n\r\nInnerException #" + i + ":\r\nMessage: " + t.Message + "\r\nSource: " + t.Source +
-                                   "\r\nStackTrace: " + t.StackTrace;
-                        i++;
-                    }
+                    //int i = 0;
+                    //while (t.InnerException != null)
+                    //{
+                    //    t = t.InnerException;
+                    //    name += " : " + t.GetType().FullName;
+                    //    // message = t.Message;
+                    //    // NKIDD - ADDED
+                    //    message += "\r\n\r\nInnerException #" + i + ":\r\nMessage: " + t.Message + "\r\nSource: " + t.Source +
+                    //               "\r\nStackTrace: " + t.StackTrace;
+                    //    i++;
+                    //}
 
                     name += "\r\n\r\n Additional Info: " + additional + "\r\n" + message;
 

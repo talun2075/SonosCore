@@ -857,7 +857,9 @@ namespace Sonos.Controllers
             {
                 if (!await SonosHelper.CheckSonosLiving()) return false;
                 SonosPlayer pl = await SonosHelper.GetPlayerbyName(playername);
-                int vol = await pl.GroupRenderingControl?.GetGroupVolume();
+                await pl.GroupRenderingControl?.GetGroupVolume();
+
+                int vol = pl.PlayerProperties.GroupRenderingControl_GroupVolume;
                 vol += volume;
                 if (vol > max)
                     vol = max;
