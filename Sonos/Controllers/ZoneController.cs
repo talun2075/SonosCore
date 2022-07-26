@@ -161,22 +161,6 @@ namespace Sonos.Controllers
             }
             return retval;
         }
-       [HttpGet("SetSettings")]
-        public async Task<String> SetSettings()
-        {
-            string retval = "ok";
-            try
-            {
-                if (!await SonosHelper.CheckSonosLiving()) return "Checkliving Error";
-                await SonosHelper.Sonos.SetSettings();
-            }
-            catch (Exception ex)
-            {
-                SonosHelper.Logger.ServerErrorsAdd("SetSettings", ex, "ZoneController");
-                throw;
-            }
-            return retval;
-        }
         [HttpGet("CheckPlayersForHashImages")]
         public async Task<String> CheckPlayersForHashImages()
         {

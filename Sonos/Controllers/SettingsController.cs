@@ -187,7 +187,22 @@ namespace Sonos.Controllers
             await SonosHelper.FillSonosTimeSettingStuff();
             return SonosHelper.Sonos?.ZoneProperties;
         }
-
+        [HttpGet("SetSettings")]
+        public async Task<String> SetSettings()
+        {
+            string retval = "ok";
+            try
+            {
+                if (!await SonosHelper.CheckSonosLiving()) return "Checkliving Error";
+                await SonosHelper.Sonos.SetSettings();
+            }
+            catch (Exception ex)
+            {
+                SonosHelper.Logger.ServerErrorsAdd("SetSettings", ex, "ZoneController");
+                throw;
+            }
+            return retval;
+        }
         [HttpGet("FillSonosTimeSettingStuff")]
         public async Task<String> FillSonosTimeSettingStuff()
         {
@@ -199,7 +214,7 @@ namespace Sonos.Controllers
             }
             catch (Exception ex)
             {
-                SonosHelper.Logger.ServerErrorsAdd("FillSonosTimeSettingStuff", ex, "SetrtingsController");
+                SonosHelper.Logger.ServerErrorsAdd("FillSonosTimeSettingStuff", ex, "SettingsController");
                 throw;
             }
             return retval;

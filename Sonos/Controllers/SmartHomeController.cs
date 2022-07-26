@@ -232,7 +232,7 @@ namespace Sonos.Controllers
         [HttpGet("GroundFloorOn")]
         public async Task<Boolean> GroundFloorOn()
         {
-           return await GroundFloorOn(SonosConstants.defaultPlaylist);
+            return await GroundFloorOn(SonosConstants.defaultPlaylist);
         }
         [HttpGet("GroundFloorOff")]
         public async Task<Boolean> GroundFloorOff()
@@ -270,7 +270,7 @@ namespace Sonos.Controllers
                 }
                 return true;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 SonosHelper.Logger.ServerErrorsAdd("GroundFloorOff:Block2", ex, "SmartHomeWrapper");
                 return false;
@@ -321,12 +321,12 @@ namespace Sonos.Controllers
                         SonosHelper.ChildGenrelist.Add(sbl);
                     }
                 }
-                
+
                 //Zeiten füllen, wenn nicht gefüllt
                 foreach (var artistlist in SonosHelper.ChildGenrelist)
                 {
 
-                    
+
                     foreach (SonosItem artistchildlist in artistlist.Childs)
                     {
                         TimeSpan tspan = new(0, 0, 0, 0);
@@ -335,14 +335,15 @@ namespace Sonos.Controllers
                             continue;
                         }
                         await SonosItemHelper.UpdateItemToHashPath(artistchildlist);
-                        var childvalues = await SonosHelper.Sonos.ZoneMethods.Browsing(await SonosHelper.GetPlayerbySoftWareGeneration(SonosUPNPCore.Enums.SoftwareGeneration.ZG1),artistchildlist.ContainerID);
+                        var childvalues = await SonosHelper.Sonos.ZoneMethods.Browsing(await SonosHelper.GetPlayerbySoftWareGeneration(SonosUPNPCore.Enums.SoftwareGeneration.ZG1), artistchildlist.ContainerID);
                         foreach (var item in childvalues)
                         {
                             try
                             {
                                 var meta = await SonosHelper.Sonos.ZoneMethods.Browsing(await SonosHelper.GetPlayerbySoftWareGeneration(SonosUPNPCore.Enums.SoftwareGeneration.ZG1), item.ItemID, false, SonosEnums.BrowseFlagData.BrowseMetadata);
-                                SonosItem metaitem = meta.Single();
-                                tspan += metaitem.Duration.TimeSpan;
+                                SonosItem metaitem = meta.FirstOrDefault();
+                                if (metaitem != null)
+                                    tspan += metaitem.Duration.TimeSpan;
                             }
                             catch (Exception ex)
                             {
@@ -350,8 +351,8 @@ namespace Sonos.Controllers
                                 continue;
                             }
                         }
-                        
-                        artistchildlist.Duration =new SonosTimeSpan(tspan);
+
+                        artistchildlist.Duration = new SonosTimeSpan(tspan);
                     }
                 }
 
@@ -382,11 +383,11 @@ namespace Sonos.Controllers
                 if (!await SonosHelper.CheckSonosLiving()) return false;
                 String selectedplaylistname = String.Empty;
                 int ix = -999;
-                List<String> RandomPlaylistList = new () { "4 Sterne", "4.5 Sterne", "5 Sterne", "Amon Armath", "Five Finger Death Punch", "Disturbed", "Foo Fighters", "Harte Gruppen", "Harte Gruppen Genre", "Herbert Grönemeyer", "I Prevail" };
+                List<String> RandomPlaylistList = new() { "4 Sterne", "4.5 Sterne", "5 Sterne", "Amon Armath", "Five Finger Death Punch", "Disturbed", "Foo Fighters", "Harte Gruppen", "Harte Gruppen Genre", "Herbert Grönemeyer", "I Prevail" };
                 try
                 {
                     //Playlist Ermitteln
-                    Random rdm = new ();
+                    Random rdm = new();
                     ix = rdm.Next(0, RandomPlaylistList.Count - 1);
                     selectedplaylistname = RandomPlaylistList[ix];
                 }
@@ -493,8 +494,8 @@ namespace Sonos.Controllers
             int max = 50;
             if (DateTime.Now.Hour > 18 || DateTime.Now.Hour < 7)
                 max = 10;
-            
-            return await GenericRoomVolume(SonosConstants.IanzimmerName,id,max);
+
+            return await GenericRoomVolume(SonosConstants.IanzimmerName, id, max);
         }
         [HttpGet("IanRoom/{id}")]
         public async Task<Boolean> IanRoom(string id)
@@ -504,7 +505,7 @@ namespace Sonos.Controllers
         [HttpGet("IanRoomNoStart/{id}")]
         public async Task<Boolean> IanRoomNoStart(string id)
         {
-            return await GenericRoomOn(id, SonosConstants.IanzimmerName, SonosConstants.IanzimmerVolume,false);
+            return await GenericRoomOn(id, SonosConstants.IanzimmerName, SonosConstants.IanzimmerVolume, false);
         }
         [HttpGet("IanRoom")]
         public async Task<Boolean> IanRoom()
@@ -562,18 +563,18 @@ namespace Sonos.Controllers
                 case "Random": //Next
 
                     int ix = -999;
-                    List<String> RandomPlaylistList = new () { "Mine", "4.5 Sterne", "5 Sterne", "Amon Armath", "Five Finger Death Punch", "Disturbed", "Foo Fighters", "Harte Gruppen", "Harte Gruppen Genre", "Herbert Grönemeyer", "I Prevail" };
+                    List<String> RandomPlaylistList = new() { "Mine", "4.5 Sterne", "5 Sterne", "Amon Armath", "Five Finger Death Punch", "Disturbed", "Foo Fighters", "Harte Gruppen", "Harte Gruppen Genre", "Herbert Grönemeyer", "I Prevail" };
                     try
                     {
                         //Playlist Ermitteln
-                        Random rdm = new ();
+                        Random rdm = new();
                         ix = rdm.Next(0, RandomPlaylistList.Count - 1);
                         selectedplaylistname = RandomPlaylistList[ix];
                     }
                     catch (Exception ex)
                     {
                         SonosHelper.Logger.ServerErrorsAdd("WorkRoomPlaylistManage:Random", ex, "SmartHomeWrapper");
-                        retval= false;
+                        retval = false;
                     }
                     break;
 
@@ -601,7 +602,7 @@ namespace Sonos.Controllers
                 string playlistToPlay = id;
                 SonosPlayer pp = await SonosHelper.GetPlayerbyName(SonosConstants.GästezimmerName);
                 if (pp == null) return false;
-                if ((string.IsNullOrEmpty(pp.PlayerProperties.AVTransportURI) || pp.PlayerProperties.AVTransportURI.StartsWith(SonosConstants.xrinconstream)) && pp.AVTransport!= null)
+                if ((string.IsNullOrEmpty(pp.PlayerProperties.AVTransportURI) || pp.PlayerProperties.AVTransportURI.StartsWith(SonosConstants.xrinconstream)) && pp.AVTransport != null)
                 {
                     await pp.AVTransport?.SetAVTransportURI(SonosConstants.xrinconqueue + pp.UUID + "#0");
                 }
@@ -675,7 +676,7 @@ namespace Sonos.Controllers
         [HttpGet("GuestRoomOff")]
         public async Task<Boolean> GuestRoomOff()
         {
-           return await GenericRoomOff(SonosConstants.GästezimmerName);
+            return await GenericRoomOff(SonosConstants.GästezimmerName);
         }
         [HttpGet("GuestRoomAudioInOn")]
         public async Task<Boolean> GuestRoomAudioInOn()
@@ -752,7 +753,7 @@ namespace Sonos.Controllers
                         if (!await SonosHelper.LoadPlaylist(playlist, pp))
                             return false;
                     }
-                 }
+                }
                 await pp.GroupRenderingControl?.GetGroupVolume();
                 if (pp.PlayerProperties.GroupRenderingControl_GroupVolume != Volume)
                 {
@@ -787,7 +788,7 @@ namespace Sonos.Controllers
             }
             catch (Exception ex)
             {
-                SonosHelper.Logger.ServerErrorsAdd("GenericRoomOff", ex,"SmarthomeController");
+                SonosHelper.Logger.ServerErrorsAdd("GenericRoomOff", ex, "SmarthomeController");
                 throw;
             }
         }
@@ -817,7 +818,7 @@ namespace Sonos.Controllers
         /// <param name="playername">Playername</param>
         /// <param name="playlist">Playlist name (Optional)</param>
         /// <returns></returns>
-        private static async Task<String> GenericToggleRoom(string playername, string playlist=null, int volume = 20)
+        private static async Task<String> GenericToggleRoom(string playername, string playlist = null, int volume = 20)
         {
             try
             {
@@ -843,14 +844,14 @@ namespace Sonos.Controllers
                     return (await GenericRoomOn(playlist, playername, volume)).ToString();
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 SonosHelper.Logger.ServerErrorsAdd("GenericToggleRoomLast", ex, "SmarthomeController");
                 return ex.Message;
             }
         }
 
-        private static async Task<Boolean> GenericRoomVolume(string playername,int volume, int max = 100)
+        private static async Task<Boolean> GenericRoomVolume(string playername, int volume, int max = 100)
         {
             try
             {
@@ -864,9 +865,9 @@ namespace Sonos.Controllers
                     vol = 1;
                 return await pl.GroupRenderingControl?.SetGroupVolume(vol);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                SonosHelper.Logger.ServerErrorsAdd("GenericRoomVolume:Volume:"+volume, ex, "SmarthomeController");
+                SonosHelper.Logger.ServerErrorsAdd("GenericRoomVolume:Volume:" + volume, ex, "SmarthomeController");
                 return false;
             }
         }

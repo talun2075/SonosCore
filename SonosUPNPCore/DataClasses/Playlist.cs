@@ -55,6 +55,20 @@ namespace SonosUPnP.DataClasses
                         break; //kein Ergebnis, daher abbrechen.
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                pl.ServerErrorsAdd("Playlist:FillPlaylist:Block1", "Playlist", ex);
+                retval = false;
+            }
+            //Eintrag in der Liste vorhanden
+            if (TotalMatches == 0 && PlayListItems.Count == 0)
+            {
+                PlayListItems.Add(new SonosItem() { Album = SonosConstants.empty, Artist = SonosConstants.empty, Title = SonosConstants.empty });
+                return false;
+            }
+            try
+            {
                 //Nun alle HashPfade anpassen.
                 if (!IsEmpty)
                 {
@@ -64,19 +78,11 @@ namespace SonosUPnP.DataClasses
                     }
                     PlayListItemsHashChecked = true;
                 }
-
             }
             catch (Exception ex)
             {
-                pl.ServerErrorsAdd("Playlist:FillPlaylist:Block1", "Playlist", ex);
+                pl.ServerErrorsAdd("Playlist:FillPlaylist:Block2", "Playlist", ex);
                 retval = false;
-            }
-
-            //Eintrag in der Liste vorhanden
-            if (TotalMatches == 0 && PlayListItems.Count == 0)
-            {
-                PlayListItems.Add(new SonosItem() { Album = SonosConstants.empty, Artist = SonosConstants.empty, Title = SonosConstants.empty });
-                return false;
             }
             return retval;
         }

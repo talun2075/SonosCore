@@ -90,7 +90,7 @@ namespace Sonos.Controllers
         }
         public async Task<SonosPlayer> GetChild()
         {
-            await SonosHelper.CheckSonosLiving();
+            if(!await SonosHelper.CheckSonosLiving()) return null;
             return await SonosHelper.GetPlayerbyName(ChildName);
         }
         public void ResetList()
@@ -257,16 +257,24 @@ namespace Sonos.Controllers
                         ItemstoPlay.Add(t);
                     }
                 }
-                await player.AVTransport.RemoveAllTracksFromQueue();
-                foreach (var item in ItemstoPlay)
+                try
                 {
-                    await player.AVTransport.AddURIToQueue(item);
-                }
-                await player.RenderingControl.GetVolume();
-                if(player.PlayerProperties.Volume != volume)
-                    await player.RenderingControl.SetVolume(volume);
+                    await player.AVTransport.RemoveAllTracksFromQueue();
+                    foreach (var item in ItemstoPlay)
+                    {
+                        await player.AVTransport.AddURIToQueue(item);
+                    }
+                    await player.RenderingControl.GetVolume();
+                    if (player.PlayerProperties.Volume != volume)
+                        await player.RenderingControl.SetVolume(volume);
 
-                await player.AVTransport.Play();
+                    await player.AVTransport.Play();
+                }
+                catch (Exception ex)
+                {
+                    SonosHelper.Logger.ServerErrorsAdd("Random:AVTransport", ex, "Childbase");
+                    return false;
+                }
                 return true;
             }
             catch(Exception ex)
