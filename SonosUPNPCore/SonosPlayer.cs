@@ -120,11 +120,11 @@ namespace SonosUPnP
         {
             try
             {
-                if (fillnew)
+                if (fillnew || loadcurrent)
                     PlayerProperties.Playlist.ResetPlaylist();
 
                 //Es gab fälle wo der Index beim initialisieren durcheinander kommt, daher eine Prüfung und löschen.
-                if (PlayerProperties.Playlist.NumberReturned == 0 && PlayerProperties.Playlist.TotalMatches == 0)
+                if (PlayerProperties.Playlist.NumberReturned == 0 && PlayerProperties.Playlist.TotalMatches == 0 && !PlayerProperties.Playlist.IsEmpty)
                 {
                     try
                     {
@@ -138,51 +138,10 @@ namespace SonosUPnP
 
                 if (PlayerProperties.Playlist.IsEmpty)
                 {
-                    if (loadcurrent || PlayerProperties.Playlist.IsEmpty)
-                    {
                         await PlayerProperties.Playlist.FillPlaylist(this);
-                    }
+                 }
                     if (!useSubscription || useSubscription && !serviceEnums.Contains(SonosEnums.Services.Queue))
                         GetPlaylistFireEvent();
-                }
-                //else
-                //{
-                //    //Playlist ist nicht leer und EnqueuedTransportURI wird befüllt
-                //    if (string.IsNullOrEmpty(PlayerProperties.EnqueuedTransportURI))
-                //    {
-                //        //hier nun currentladen und schauen, ob man das nicht vergleichen kann und dann enque zu aktualisieren.
-                //        var brcurrentpl = await ContentDirectory.Browse(BrowseObjects.CurrentPlaylist, 0, 200);
-                //        if (brcurrentpl.NumberReturned > 0 && brcurrentpl.TotalMatches > 0 && brcurrentpl.Result.Count > 0)
-                //        {
-                //            foreach (Playlist apl in AllFilledPlaylist)
-                //            {
-                //                if (apl.PlayListItems.Count > 0)
-                //                {
-                //                    if (brcurrentpl.Result[0].Uri != apl.PlayListItems[0].Uri) continue;
-                //                    //hier komme ich nur hin, wenn die gleich sind. 
-                //                    Boolean found = false;
-                //                    for (int i = 0; i < brcurrentpl.Result.Count; i++)
-                //                    {
-                //                        //alle durchlaufen
-                //                        if (brcurrentpl.Result[i].Uri != apl.PlayListItems[i].Uri)
-                //                        {
-                //                            found = false;
-                //                            break;
-                //                        }
-                //                        found = true;//hier komme ich nur hin, wenn die alle gleich sind. 
-                //                    }
-                //                    if (found)
-                //                    {
-                //                        //PlayerProperties.EnqueuedTransportURI = SonosItemHelper.ContainertoURI(apl.FillPlaylistObject, UUID);
-                //                        //LastChange = DateTime.Now;
-                //                        //Player_Changed(SonosEnums.EventingEnums.EnqueuedTransportURI, this);
-                //                        break;
-                //                    }
-                //                }
-                //            }
-                //        }
-                //    }
-                //}
             }
             catch (Exception ex)
             {

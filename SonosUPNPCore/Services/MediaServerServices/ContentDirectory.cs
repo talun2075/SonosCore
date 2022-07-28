@@ -357,6 +357,7 @@ namespace SonosUPnP.Services.MediaServerServices
         /// <returns>Browseresults. Maximal 1000. Totalnumbers und Numberreturns sind zu berücksichtigen.</returns>
         public async Task<BrowseResults> Browse(string query, int startingIndex = 0, int requestedCount = 0, SonosEnums.BrowseFlagData bfd = SonosEnums.BrowseFlagData.BrowseDirectChildren, int sleep = 50, string filter = "")
         {
+            //todo: Direkte Aufrufe auf den Wrapper in ZoneMethods legen
             var arguments = new UPnPArgument[10];
             arguments[0] = new UPnPArgument("ObjectID", query);
             arguments[1] = new UPnPArgument("BrowseFlag", bfd.ToString());

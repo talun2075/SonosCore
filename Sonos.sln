@@ -14,9 +14,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Projektmappenelemente", "Pr
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SonosSQLiteWrapper", "MusicPictures\SonosSQLiteWrapper.csproj", "{307C4A09-D096-4F05-9DA2-389C19BB3421}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SonosSQLiteWrapper", "MusicPictures\SonosSQLiteWrapper.csproj", "{307C4A09-D096-4F05-9DA2-389C19BB3421}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SonosConst", "SonosConst\SonosConst.csproj", "{E6252496-FBE0-450C-90EB-16C920B920E6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SonosConst", "SonosConst\SonosConst.csproj", "{E6252496-FBE0-450C-90EB-16C920B920E6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

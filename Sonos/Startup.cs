@@ -3,6 +3,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
+using Sonos.Classes;
+using SonosSQLiteWrapper;
+using SonosSQLiteWrapper.Interfaces;
+using HomeLogging;
 
 namespace Sonos
 {
@@ -19,6 +23,14 @@ namespace Sonos
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews().AddJsonOptions(options => options.JsonSerializerOptions.IncludeFields = true);
+            //services.AddServices(Configuration);
+
+            services
+                .AddSingleton<ILogging, Logging>()
+                .AddSingleton<IMusicPictures, MusicPictures>()
+                .AddSingleton<ISQLiteWrapper, SQLiteWrapper>();
+
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

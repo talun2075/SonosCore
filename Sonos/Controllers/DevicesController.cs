@@ -15,15 +15,13 @@ namespace Sonos.Controllers
     {
         #region Klassenvariablen
 
-        /// <summary>
-        /// Alles was von den XFile Informationen gelöscht werden muß;
-        /// </summary>
-        public static string RemoveFromUri { get; set; } = SonosConstants.xfilecifs;
         private readonly Dictionary<string, DateTime> _playersLastChange = new();
+        private IMusicPictures musicPictures;
         #endregion KlassenVariablen
-        public DevicesController(IConfiguration iConfig)
+        public DevicesController(IConfiguration iConfig, IMusicPictures imu)
         {
             SonosConstants.Configuration = iConfig;
+            musicPictures = imu;
         }
         #region Public Methoden
         /// <summary>

@@ -248,9 +248,29 @@ namespace SonosUPnP
                     SonosPlayer pl1 = Players.FirstOrDefault(x => x.SoftwareGeneration == SoftwareGeneration.ZG1);
                     SonosPlayer pl2 = Players.FirstOrDefault(x => x.SoftwareGeneration == SoftwareGeneration.ZG2);
                     if (pl1 != null)
-                        await pl1.ContentDirectory?.RefreshShareIndex();
+                    {
+                        var cd = pl1.ContentDirectory;
+                        if (cd != null)
+                        {
+                            await cd.RefreshShareIndex();
+                            while (await cd.GetShareIndexInProgress())
+                            {
+                                await Task.Delay(300);
+                            }
+                        }
+                    }
                     if (pl2 != null)
-                        await pl2.ContentDirectory?.RefreshShareIndex();
+                    {
+                        var cd = pl2.ContentDirectory;
+                        if (cd != null)
+                        {
+                            await cd.RefreshShareIndex();
+                            while (await cd.GetShareIndexInProgress())
+                            {
+                                await Task.Delay(1000);
+                            }
+                        }
+                    }
                     await SetPlaylists(true);
                     foreach (var playerdic in ZoneProperties.PlayerPlayedPlaylist)
                     {

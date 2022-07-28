@@ -17,10 +17,12 @@ namespace Sonos.Controllers
     {
         #region Klassenvariablen
         private const int newAlarmID = 99999;
+        private IMusicPictures musicPictures;
         #endregion Klassenvariablen
-        public SettingsController(IConfiguration iConfig)
+        public SettingsController(IConfiguration iConfig, IMusicPictures imu)
         {
             SonosConstants.Configuration = iConfig;
+            musicPictures = imu;
         }
         #region Alarm
         /// <summary>
@@ -232,8 +234,7 @@ namespace Sonos.Controllers
                 if (!await SonosHelper.CheckSonosLiving()) return false;
                 if (SonosHelper.Sonos.ZoneProperties.ShareIndexInProgress) return true;
                 await SonosHelper.Sonos.UpdateMusicIndex();
-                await Task.Delay(2000);
-                _ = MusicPictures.GenerateDBContent();
+                _ = await musicPictures.GenerateDBContent();
                 SonosHelper.ChildGenrelist.Clear();//Liste der Hörspiele leeren; Generieren erfolgt über Timer.
                 return SonosHelper.Sonos.ZoneProperties.ShareIndexInProgress;
             }

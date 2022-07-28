@@ -5,34 +5,80 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using SonosSQLite;
+using SonosSQLiteWrapper.Interfaces;
+using HomeLogging;
 
 namespace Sonos.Classes
 {
-    public static class MusicPictures
+    public class MusicPictures : IMusicPictures
     {
         #region PublicMethoden
-        /// <summary>
-        /// Läd artist/genres/playlistpfade und füllt DBPrepareList
-        /// Ruft Danach ReplaceAlbumArt und Update DB auf
-        /// </summary>
-        public static async Task<Boolean> GenerateDBContent()
+        private readonly ISQLiteWrapper sw;
+        private readonly List<String> CoverPaths = new();
+        private readonly ILogging _logging;
+
+        public MusicPictures(ISQLiteWrapper sQLiteWrapper, ILogging logging)
+        {
+            sw = sQLiteWrapper;
+            SonosConstants.MusicPictureHashes = sw.GetMusicPictures();
+            _logging = logging;
+        }
+
+        public async Task<Boolean> GenerateDBContent()
         {
             await SonosHelper.CheckSonosLiving();
-            List<SonosItem> genres = await SonosHelper.Sonos.ZoneMethods.Browsing(SonosHelper.Sonos.Players.First(), SonosConstants.aGenre, false);
-            List<SonosItem> artist = await SonosHelper.Sonos.ZoneMethods.Browsing(SonosHelper.Sonos.Players.First(), SonosConstants.aAlbumArtist, false);
-            List<SonosItem> playlists = await SonosHelper.Sonos.ZoneMethods.Browsing(SonosHelper.Sonos.Players.First(), SonosConstants.aPlaylists, false);
-            var allpl = genres.Union(artist).Union(playlists);
-            await RunIntoList(allpl);
-            await DatabaseWrapper.UpdateDB(SonosHelper.Logger);
+            List<SonosItem> tracks = await SonosHelper.Sonos.ZoneMethods.Browsing(SonosHelper.Sonos.Players.First(), SonosConstants.aTracks, false);
+            RunIntoList(tracks);
+            UpdateImagesToDatabase();
             return true;
+        }
+        private void UpdateImagesToDatabase()
+        {
+            var dbvalues = sw.GetMusicPictures();
+            var pathCn = dbvalues.Columns[0].ColumnName;
+            var hashCn = dbvalues.Columns[1].ColumnName;
+            Boolean changes = false;
+            foreach (string item in CoverPaths)
+            {
+                if (string.IsNullOrEmpty(item)) continue;
+                var covernoversion = SonosConstants.RemoveVersionInUri(item);
+                if (dbvalues.Rows.Contains(covernoversion)) continue;//vorhanden, daher weiter machen.
+                changes = true;
+                //GetHash
+                var fixedpath = SonosConstants.AlbumArtToFile(item);
+                string hash = "";
+                if (File.Exists(fixedpath))
+                {
+                    try
+                    {
+                        if (fixedpath.EndsWith(".aiff")) continue;
+                        hash = MP3.TagLibDelivery.GetPictureHash(fixedpath);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logging.ServerErrorsAdd("MusicPictures.ReplaceAlbumArt:" + fixedpath, ex,"MusicPictures");
+                        continue;
+                    }
+                    //insert new row
+                    var row = dbvalues.NewRow();
+                    row[pathCn] = covernoversion;
+                    row[hashCn] = hash;//Hash ermitteln
+                    dbvalues.Rows.Add(row);
+                }
+            }
+            if (changes)
+            {
+                sw.Update();
+                SonosConstants.MusicPictureHashes = sw.GetMusicPictures();
+            }
+
         }
         /// <summary>
         /// verarbeitet eine Liste von items zu Hashwerten.
         /// </summary>
         /// <param name="items"></param>
         /// <returns></returns>
-        public async static Task<List<SonosItem>> UpdateItemListToHashPath(List<SonosItem> items)
+        public async Task<List<SonosItem>> UpdateItemListToHashPath(List<SonosItem> items)
         {
             try
             {
@@ -42,40 +88,31 @@ namespace Sonos.Classes
                     {
                         await SonosItemHelper.UpdateItemToHashPath(item);
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
-                        SonosHelper.Logger.ServerErrorsAdd("UpdateItemListToHashPath", ex, "MusicPictures");
+                        _logging.ServerErrorsAdd("UpdateItemListToHashPath", ex, "MusicPictures");
                         continue;
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                SonosHelper.Logger.ServerErrorsAdd("UpdateItemListToHashPath2", ex, "MusicPictures");
+                _logging.ServerErrorsAdd("UpdateItemListToHashPath2", ex, "MusicPictures");
             }
 
             return items;
         }
-        
+
         #endregion PublicMethoden
         #region PrivateMethoden
 
-        /// <summary>
-        /// Durchläuft die Liste inkl Kindelemente und fügt SonoItems mit Cover der DBPrepareList zu.
-        /// </summary>
-        /// <param name="lis"></param>
-        /// <returns></returns>
-        private static async Task<IEnumerable<SonosItem>> RunIntoList(IEnumerable<SonosItem> lis)
+        private void RunIntoList(IEnumerable<SonosItem> lis)
         {
             foreach (SonosItem item in lis)
             {
-                if (!string.IsNullOrEmpty(item.AlbumArtURI) && !DatabaseWrapper.DBPrepareList.Contains(item.AlbumArtURI))
-                    DatabaseWrapper.DBPrepareList.Add(item.AlbumArtURI);
-                //Datenladen. 
-                if (!string.IsNullOrEmpty(item.ContainerID) && item.Title != SonosConstants.aALL)
-                    await RunIntoList(await SonosHelper.Sonos.ZoneMethods.Browsing(SonosHelper.Sonos.Players.First(), item.ContainerID, false));
+                if (!string.IsNullOrEmpty(item.AlbumArtURI) && !CoverPaths.Contains(item.AlbumArtURI))
+                    CoverPaths.Add(item.AlbumArtURI);
             }
-            return lis;
         }
         #endregion PrivateMethoden
 

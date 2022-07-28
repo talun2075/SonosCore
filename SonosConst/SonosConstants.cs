@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using System.Data;
 using System.Web;
 
 namespace SonosConst
@@ -69,6 +70,10 @@ namespace SonosConst
         /// </summary>
         public const string aAlbumArtist = "A:ALBUMARTIST";
         /// <summary>
+        /// Browsing for Tracks
+        /// </summary>
+        public const string aTracks = "A:TRACKS";
+        /// <summary>
         /// Browsen nach Playlisten
         /// </summary>
         public const string aPlaylists = "A:PLAYLISTS";
@@ -91,7 +96,8 @@ namespace SonosConst
 
         public const string CoverHashPathForBrowser = "/hashimages/"; //todo: appconfig.json
 
-        public static Dictionary<string, string> MusicPictureHashes { get; set; } = new();
+        //public static Dictionary<string, string> MusicPictureHashes { get; set; } = new();
+        public static DataTable MusicPictureHashes { get; set; } = new();
 
         public static IConfiguration Configuration { get; set; }
 
@@ -104,6 +110,7 @@ namespace SonosConst
         /// <returns></returns>
         public static String RemoveVersionInUri(string cover)
         {
+            if (string.IsNullOrEmpty(cover)) return "";
             if (!cover.Contains("&")) return cover;
             var sublen = cover.Length - (cover.Length - cover.LastIndexOf("&"));
             cover = cover.Substring(0, sublen);

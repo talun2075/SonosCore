@@ -14,7 +14,6 @@ using System.Net;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
 using SonosConst;
-using SonosSQLite;
 
 namespace Sonos.Classes
 {
@@ -259,7 +258,7 @@ namespace Sonos.Classes
                 Boolean retval = false;
                 if (Sonos == null || !WasInitialed)
                 {
-                    DatabaseWrapper.Logger = Logger;
+                    //DatabaseWrapper.Logger = Logger;
                     serverErrors.Clear();
                     sccoList.Clear();
                     retval = await InitialSonos();

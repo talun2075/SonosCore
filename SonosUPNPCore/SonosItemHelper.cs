@@ -3,8 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using SonosConst;
-using SonosSQLite;
-using System.Linq;
 
 namespace SonosUPnP
 {
@@ -236,12 +234,16 @@ namespace SonosUPnP
 
         public async static Task<SonosItem> UpdateItemToHashPath(SonosItem item)
         {
-            if (!SonosConstants.MusicPictureHashes.Any()) await DatabaseWrapper.FillMusicPictureHashes();
-            if (string.IsNullOrEmpty(item.AlbumArtURI) || item.AlbumArtURI.StartsWith(SonosConstants.CoverHashPathForBrowser)) return item;
-            var covershort = SonosConstants.RemoveVersionInUri(item.AlbumArtURI);
-            if (SonosConstants.MusicPictureHashes.TryGetValue(covershort, out string hash))
+            if (SonosConstants.MusicPictureHashes != null && SonosConstants.MusicPictureHashes.Rows.Count > 0)
             {
-                item.AlbumArtURI = SonosConstants.CoverHashPathForBrowser + hash + ".png";
+                if (string.IsNullOrEmpty(item.AlbumArtURI) || item.AlbumArtURI.StartsWith(SonosConstants.CoverHashPathForBrowser)) return item;
+                var covershort = SonosConstants.RemoveVersionInUri(item.AlbumArtURI);
+                if (SonosConstants.MusicPictureHashes.Rows.Contains(covershort))
+                {
+                    var row = SonosConstants.MusicPictureHashes.Rows.Find(covershort);
+                    var hash = row.ItemArray[1];
+                    item.AlbumArtURI = SonosConstants.CoverHashPathForBrowser + hash + ".png";
+                }
             }
             return item;
         }

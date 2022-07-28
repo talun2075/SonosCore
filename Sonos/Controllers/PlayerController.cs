@@ -16,6 +16,12 @@ namespace Sonos.Controllers
     [Route("/[controller]")]
     public class PlayerController : Controller
     {
+        private IMusicPictures musicPictures;
+        public PlayerController(IMusicPictures imu)
+        {
+            musicPictures = imu;
+        }
+        
         #region Frontend GET Fertig
         /// <summary>
         /// Füllt den übergebenen Player mit Daten. 
@@ -575,6 +581,7 @@ namespace Sonos.Controllers
         public async Task<Playlist> GetPlayerPlaylist(string id, Boolean v)
         {
             var pl = await SonosHelper.GetPlayerbyUuid(id);
+            if (pl == null) return new();
             await pl.GetPlayerPlaylist(v);
             try
             {
@@ -732,9 +739,9 @@ namespace Sonos.Controllers
         [HttpPost("Browsing/{id}")]
         public async Task<IList<SonosItem>> Browsing(string id, [FromForm] string v)
         {
-            var retval = await SonosHelper.Sonos.ZoneMethods.Browsing(await SonosHelper.GetPlayerbyUuid(id), v);
+            var retval = await SonosHelper.Sonos.ZoneMethods.Browsing(await SonosHelper.GetPlayerbyUuid(id), v,true);
             if (retval == null) return null;
-            await MusicPictures.UpdateItemListToHashPath(retval);
+            await musicPictures.UpdateItemListToHashPath(retval);
             return retval;
         }
 
@@ -1157,6 +1164,5 @@ namespace Sonos.Controllers
             }
         }
         #endregion Frontend POST Fertig
-
     }
 }

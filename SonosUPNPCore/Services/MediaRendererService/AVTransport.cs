@@ -1379,7 +1379,8 @@ namespace SonosUPnP.Services.MediaRendererService
             arguments[1] = new UPnPArgument("Actions", null);
             await Invoke("GetCurrentTransportActions", arguments, 100);
             await ServiceWaiter.WaitWhileAsync(arguments, 1, 100, 10, WaiterTypes.String);
-            return arguments[1].DataValue.ToString().Split(',').ToList();
+            pl.PlayerProperties.CurrentTransportActions = arguments[1].DataValue.ToString().Split(',').ToList();
+            return pl.PlayerProperties.CurrentTransportActions;
         }
         public async Task<DeviceCapabilities> GetDeviceCapabilities(UInt32 InstanceID = 0)
         {
@@ -1445,7 +1446,12 @@ namespace SonosUPnP.Services.MediaRendererService
             if (pl.PlayerProperties.AVTransportURI != mi.URI)
             {
                 pl.PlayerProperties.AVTransportURI = mi.URI;
-                ManuellStateChange(SonosEnums.EventingEnums.NumberOfTracks, DateTime.Now);
+                ManuellStateChange(SonosEnums.EventingEnums.AVTransportURI, DateTime.Now);
+            }
+            if (pl.PlayerProperties.NextAVTransportURI != mi.NextURI)
+            {
+                pl.PlayerProperties.NextAVTransportURI = mi.NextURI;
+                ManuellStateChange(SonosEnums.EventingEnums.NextAVTransportURI, DateTime.Now);
             }
             return mi;
         }
@@ -1576,7 +1582,7 @@ namespace SonosUPnP.Services.MediaRendererService
                     pl.PlayerProperties.TransportState = ret;
                     ManuellStateChange(SonosEnums.EventingEnums.TransportState, DateTime.Now);
                 }
-                return ret;
+                return pl.PlayerProperties.TransportState;
             }
             return SonosEnums.TransportState.UNKNOWING;
         }
@@ -1601,7 +1607,7 @@ namespace SonosUPnP.Services.MediaRendererService
                     pl.PlayerProperties.CurrentPlayMode = re;
                     ManuellStateChange(SonosEnums.EventingEnums.CurrentPlayMode, DateTime.Now);
                 }
-                return re;
+                return pl.PlayerProperties.CurrentPlayMode;
             }
             else
             {

@@ -37,7 +37,6 @@ namespace Sonos.Controllers
                 {
                     await SonosHelper.Sonos.SetPlaylists(true);
                 }
-                await MusicPictures.UpdateItemListToHashPath(SonosHelper.Sonos.ZoneProperties.ListOfAllPlaylist);//todo: prüfen ob hier überhaupt bilder sein können
                 return SonosHelper.Sonos.ZoneProperties.ListOfAllPlaylist;
             }
             catch (Exception x)

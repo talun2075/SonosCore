@@ -131,7 +131,7 @@ namespace SonosUPnP.Services.MediaRendererService
                 pl.PlayerProperties.GroupRenderingControl_GroupMute = cvalue;
                 ManuellStateChange(SonosEnums.EventingEnums.GroupMute, DateTime.Now);
             }
-            return cvalue;
+            return pl.PlayerProperties.GroupRenderingControl_GroupMute;
         }
         public async Task<int> GetGroupVolume()
         {
@@ -146,7 +146,7 @@ namespace SonosUPnP.Services.MediaRendererService
                 pl.PlayerProperties.GroupRenderingControl_GroupVolume = curvalue;
                 ManuellStateChange(SonosEnums.EventingEnums.GroupVolume, DateTime.Now);
             }
-            return curvalue;
+            return pl.PlayerProperties.GroupRenderingControl_GroupVolume;
         }
         public async Task<Boolean> SetGroupMute(Boolean DesiredMute, UInt32 InstanceID = 0)
         {
