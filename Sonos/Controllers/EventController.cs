@@ -7,11 +7,12 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using SonosUPnP.DataClasses;
-using Sonos.Classes;
 using System.Collections.Generic;
 using System.Linq;
 using SonosUPNPCore.Enums;
 using SonosUPnP;
+using HomeLogging;
+using Sonos.Classes.Interfaces;
 
 namespace Sonos.Controllers
 {
@@ -20,9 +21,14 @@ namespace Sonos.Controllers
     public class EventController : ControllerBase
     {
         private static readonly IMessageRepository _messageRepository = new MessageRepository();
-        private static int EventID = 0;
-        private static readonly Dictionary<int, RinconLastChangeItem> ListEvents = new();
-        private static readonly JsonSerializerOptions _jsonSerializerOptions = new () { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        private int EventID = 0;
+        private readonly Dictionary<int, RinconLastChangeItem> ListEvents = new();
+        private readonly JsonSerializerOptions _jsonSerializerOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        private readonly ILogging _logger;
+        public EventController(ILogging log)
+        {
+            _logger = log;
+        }
 
         /// <summary>
         /// Produce SSE
@@ -45,7 +51,7 @@ namespace Sonos.Controllers
                 try
                 {
                     // idea: https://stackoverflow.com/a/58565850/80527
-                    var json = await PrepareData(eventArgs);
+                    var json = PrepareData(eventArgs);
                     //await Response.WriteAsync($"id:{eventArgs.Notification.Aurora.SerialNo}\n", cancellationToken);
                     //await Response.WriteAsync("retry: 10000\n", cancellationToken);
                     await Response.WriteAsync($"event:sonos\n", cancellationToken);
@@ -76,12 +82,12 @@ namespace Sonos.Controllers
                 _messageRepository.NotificationEvent -= OnNotification;
             }
         }
-        private async static Task<string> PrepareData(NotificationArgs eventArgs)
+        private string PrepareData(NotificationArgs eventArgs)
         {
             try
             {
                 if (eventArgs.Notification.Player != null)
-                    return await PrepareDataForPlayer(eventArgs);
+                    return PrepareDataForPlayer(eventArgs);
 
                 return PrepareDataForDiscovery(eventArgs);
             }
@@ -98,7 +104,7 @@ namespace Sonos.Controllers
             return Task.CompletedTask;
         }
 
-        private async static Task<string> PrepareDataForPlayer(NotificationArgs eventArgs)
+        private string PrepareDataForPlayer(NotificationArgs eventArgs)
         {
             try
             {
@@ -161,11 +167,11 @@ namespace Sonos.Controllers
                             t.ChangedValues.Add(eventchange.ToString(), pl.PlayerProperties.CurrentTrackNumber.ToString());
                             break;
                         case SonosEnums.EventingEnums.NextTrack:
-                            await SonosItemHelper.UpdateItemToHashPath(pl.PlayerProperties.NextTrack);
+                            SonosItemHelper.UpdateItemToHashPath(pl.PlayerProperties.NextTrack);
                             t.ChangedValues.Add(eventchange.ToString(), JsonSerializer.Serialize(pl.PlayerProperties.NextTrack, _jsonSerializerOptions));
                             break;
                         case SonosEnums.EventingEnums.CurrentTrack:
-                            await SonosItemHelper.UpdateItemToHashPath(pl.PlayerProperties.CurrentTrack);
+                            SonosItemHelper.UpdateItemToHashPath(pl.PlayerProperties.CurrentTrack);
                             t.ChangedValues.Add(eventchange.ToString(), JsonSerializer.Serialize(pl.PlayerProperties.CurrentTrack, _jsonSerializerOptions));
                             break;
                         case SonosEnums.EventingEnums.LineInConnected:
@@ -206,7 +212,7 @@ namespace Sonos.Controllers
                             t.ChangedValues.Add(eventchange.ToString(), pl.PlayerProperties.EnqueuedTransportURI);
                             break;
                         case SonosEnums.EventingEnums.EnqueuedTransportURIMetaData:
-                            t.ChangedValues.Add(eventchange.ToString(), JsonSerializer.Serialize(pl.PlayerProperties.EnqueuedTransportURIMetaData, _jsonSerializerOptions) );
+                            t.ChangedValues.Add(eventchange.ToString(), JsonSerializer.Serialize(pl.PlayerProperties.EnqueuedTransportURIMetaData, _jsonSerializerOptions));
                             break;
                         case SonosEnums.EventingEnums.RelTime:
                             t.ChangedValues.Add(eventchange.ToString(), JsonSerializer.Serialize(pl.PlayerProperties.CurrentTrack.RelTime, _jsonSerializerOptions));
@@ -236,26 +242,25 @@ namespace Sonos.Controllers
                 }
                 catch (Exception ex)
                 {
-                    SonosHelper.Logger.ServerErrorsAdd("EventPlayerChange:Switch:eventchange:"+ eventchange.ToString()+":", ex, "EventController");
+                    _logger.ServerErrorsAdd("EventPlayerChange:Switch:eventchange:" + eventchange.ToString() + ":", ex, "EventController");
                     throw;
                 }
                 return JsonSerializer.Serialize(t, _jsonSerializerOptions);
             }
             catch (Exception ex)
             {
-                
-                SonosHelper.Logger.ServerErrorsAdd("EventPlayerChange Eventenum:" + eventArgs.Notification.EventType.ToString(), ex, "EventController");
+                _logger.ServerErrorsAdd("EventPlayerChange Eventenum:" + eventArgs.Notification.EventType.ToString(), ex, "EventController");
                 return "Fehler beim eventing";
             }
 
-            
+
         }
-        private static string PrepareDataForDiscovery(NotificationArgs eventArgs)
+        private string PrepareDataForDiscovery(NotificationArgs eventArgs)
         {
 
             var sd = eventArgs.Notification.Discovery;
             var eventchange = eventArgs.Notification.EventType;
-            RinconLastChangeItem t = new ()
+            RinconLastChangeItem t = new()
             {
                 UUID = "Discovery",
                 LastChange = DateTime.Now,

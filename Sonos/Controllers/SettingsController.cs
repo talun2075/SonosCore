@@ -1,5 +1,4 @@
-﻿using Sonos.Classes;
-using System;
+﻿using System;
 using SonosUPnP;
 using System.Linq;
 using SonosUPnP.DataClasses;
@@ -7,8 +6,8 @@ using System.Collections.Generic;
 using SonosUPnP.Props;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using SonosConst;
+using Sonos.Classes.Interfaces;
+using HomeLogging;
 
 namespace Sonos.Controllers
 {
@@ -17,12 +16,17 @@ namespace Sonos.Controllers
     {
         #region Klassenvariablen
         private const int newAlarmID = 99999;
-        private IMusicPictures musicPictures;
+        private readonly IMusicPictures musicPictures;
+        private readonly ILogging _logger;
+        private readonly ISonosHelper _sonosHelper;
+        private readonly ISonosDiscovery _sonos;
         #endregion Klassenvariablen
-        public SettingsController(IConfiguration iConfig, IMusicPictures imu)
+        public SettingsController(IMusicPictures imu, ISonosHelper sonosHelper, ILogging log, ISonosDiscovery sonos)
         {
-            SonosConstants.Configuration = iConfig;
             musicPictures = imu;
+            _logger = log;
+            _sonosHelper = sonosHelper;
+            _sonos = sonos;
         }
         #region Alarm
         /// <summary>
@@ -35,15 +39,15 @@ namespace Sonos.Controllers
         {
             try
             {
-                if (SonosHelper.Sonos.ZoneProperties.ListOfAlarms.Count == 0)
+                if (_sonos.ZoneProperties.ListOfAlarms.Count == 0)
                 {
-                    await SonosHelper.Sonos.GetSonosTimeStuff();
+                    await _sonos.GetSonosTimeStuff();
                 }
-                return SonosHelper.Sonos.ZoneProperties.ListOfAlarms;
+                return _sonos.ZoneProperties.ListOfAlarms;
             }
             catch (Exception ex)
             {
-                SonosHelper.Logger.ServerErrorsAdd("GetAlarms", ex);
+                _logger.ServerErrorsAdd("GetAlarms", ex);
                 throw;
             }
         }
@@ -58,17 +62,17 @@ namespace Sonos.Controllers
             try
             {
                 Boolean metaChange = false;
-                SonosPlayer pl = await SonosHelper.GetPlayerbyUuid(v.RoomUUID);
+                SonosPlayer pl = _sonos.GetPlayerbyUuid(v.RoomUUID);
                 if (pl == null) return false;
                 Alarm alarm = new();
                 if (v.ID != newAlarmID)
                 {
                     //Vorhandener Alarm
-                    if (SonosHelper.Sonos.ZoneProperties.ListOfAlarms.Count == 0)
+                    if (_sonos.ZoneProperties.ListOfAlarms.Count == 0)
                     {
-                        await SonosHelper.Sonos.GetSonosTimeStuff();
+                        await _sonos.GetSonosTimeStuff();
                     }
-                    Alarm knowedalarm = SonosHelper.Sonos.ZoneProperties.ListOfAlarms.FirstOrDefault(x => x.ID == v.ID);
+                    Alarm knowedalarm = _sonos.ZoneProperties.ListOfAlarms.FirstOrDefault(x => x.ID == v.ID);
                     if (knowedalarm.ContainerID != v.ContainerID) metaChange = true;
                     alarm = v;
                     if (knowedalarm == null)
@@ -97,12 +101,12 @@ namespace Sonos.Controllers
                 {
                     await pl.AlarmClock.UpdateAlarm(alarm);
                 }
-                await SonosHelper.Sonos.GetSonosTimeStuff();
+                await _sonos.GetSonosTimeStuff();
                 return true;
             }
             catch (Exception ex)
             {
-                SonosHelper.Logger.ServerErrorsAdd("SetAlarm", ex);
+                _logger.ServerErrorsAdd("SetAlarm", ex);
                 throw;
             }
         }
@@ -118,24 +122,24 @@ namespace Sonos.Controllers
             {
                 Alarm al;
                 if (!int.TryParse(v, out int alarmid)) return false;
-                if (SonosHelper.Sonos.ZoneProperties.ListOfAlarms.Count == 0)
+                if (_sonos.ZoneProperties.ListOfAlarms.Count == 0)
                 {
-                    await SonosHelper.Sonos.GetSonosTimeStuff();
+                    await _sonos.GetSonosTimeStuff();
                 }
-                al = SonosHelper.Sonos.ZoneProperties.ListOfAlarms.FirstOrDefault(alarm => alarm.ID == alarmid);//Alarm ermitteln und löschen.
+                al = _sonos.ZoneProperties.ListOfAlarms.FirstOrDefault(alarm => alarm.ID == alarmid);//Alarm ermitteln und löschen.
                 if (al == null) return false;
-                SonosPlayer pl = SonosHelper.Sonos.Players.FirstOrDefault(x => x.UUID == al.RoomUUID);
+                SonosPlayer pl = _sonos.Players.FirstOrDefault(x => x.UUID == al.RoomUUID);
                 if (await pl?.AlarmClock?.DestroyAlarm(al))
                 {
-                    SonosHelper.Sonos.ZoneProperties.ListOfAlarms.Remove(al);
-                    //SonosHelper.Sonos.GetSonosTimeStuff();
+                    _sonos.ZoneProperties.ListOfAlarms.Remove(al);
+                    //_sonos.GetSonosTimeStuff();
                     return true;
                 }
                 return false;
             }
             catch (Exception ex)
             {
-                SonosHelper.Logger.ServerErrorsAdd("DestroyAlarms", ex);
+                _logger.ServerErrorsAdd("DestroyAlarms", ex);
                 throw;
             }
         }
@@ -151,21 +155,20 @@ namespace Sonos.Controllers
         {
             try
             {
-                if (!await SonosHelper.CheckSonosLiving()) return null;
                 if (string.IsNullOrEmpty(v) || !Boolean.TryParse(v, out bool ena) || !int.TryParse(id, out int alarmind))
                 {
                     return false;
                 }
-                if (SonosHelper.Sonos.ZoneProperties.ListOfAlarms.Count == 0)
+                if (_sonos.ZoneProperties.ListOfAlarms.Count == 0)
                 {
-                    await SonosHelper.Sonos.GetSonosTimeStuff();
+                    await _sonos.GetSonosTimeStuff();
                 }
-                Alarm al = SonosHelper.Sonos.ZoneProperties.ListOfAlarms.FirstOrDefault(x => x.ID == alarmind && x.Enabled != ena);
+                Alarm al = _sonos.ZoneProperties.ListOfAlarms.FirstOrDefault(x => x.ID == alarmind && x.Enabled != ena);
                 if (al != null)
                 {
                     //Es wurde die ID gefunden und diese ist anders als aktuell benötigt
                     al.Enabled = ena;
-                    SonosPlayer pl = SonosHelper.Sonos.Players.FirstOrDefault(x => x.UUID == al.RoomUUID);
+                    SonosPlayer pl = _sonos.Players.FirstOrDefault(x => x.UUID == al.RoomUUID);
                     return await pl?.AlarmClock?.UpdateAlarm(al);
                 }
                 //ID nicht gefunden oder Zustand nicht geändert daher false
@@ -173,7 +176,7 @@ namespace Sonos.Controllers
             }
             catch (Exception ex)
             {
-                SonosHelper.Logger.ServerErrorsAdd("AlarmEnable", ex);
+                _logger.ServerErrorsAdd("AlarmEnable", ex);
                 throw;
             }
         }
@@ -185,9 +188,8 @@ namespace Sonos.Controllers
         [HttpGet("GetSonosSettings")]
         public async Task<DiscoveryZoneProperties> GetSonosSettings()
         {
-            if (!await SonosHelper.CheckSonosLiving()) throw new Exception("CheckSonosLiving Error");
-            await SonosHelper.FillSonosTimeSettingStuff();
-            return SonosHelper.Sonos?.ZoneProperties;
+            await _sonosHelper.FillSonosTimeSettingStuff();
+            return _sonos.ZoneProperties;
         }
         [HttpGet("SetSettings")]
         public async Task<String> SetSettings()
@@ -195,12 +197,11 @@ namespace Sonos.Controllers
             string retval = "ok";
             try
             {
-                if (!await SonosHelper.CheckSonosLiving()) return "Checkliving Error";
-                await SonosHelper.Sonos.SetSettings();
+                await _sonos.SetSettings();
             }
             catch (Exception ex)
             {
-                SonosHelper.Logger.ServerErrorsAdd("SetSettings", ex, "ZoneController");
+                _logger.ServerErrorsAdd("SetSettings", ex, "ZoneController");
                 throw;
             }
             return retval;
@@ -211,12 +212,11 @@ namespace Sonos.Controllers
             string retval = "ok";
             try
             {
-                if (!await SonosHelper.CheckSonosLiving()) return "Checkliving Error";
-                await SonosHelper.FillSonosTimeSettingStuff();
+                await _sonosHelper.FillSonosTimeSettingStuff();
             }
             catch (Exception ex)
             {
-                SonosHelper.Logger.ServerErrorsAdd("FillSonosTimeSettingStuff", ex, "SettingsController");
+                _logger.ServerErrorsAdd("FillSonosTimeSettingStuff", ex, "SettingsController");
                 throw;
             }
             return retval;
@@ -231,16 +231,15 @@ namespace Sonos.Controllers
         {
             try
             {
-                if (!await SonosHelper.CheckSonosLiving()) return false;
-                if (SonosHelper.Sonos.ZoneProperties.ShareIndexInProgress) return true;
-                await SonosHelper.Sonos.UpdateMusicIndex();
+                if (_sonos.ZoneProperties.ShareIndexInProgress) return true;
+                await _sonos.UpdateMusicIndex();
                 _ = await musicPictures.GenerateDBContent();
-                SonosHelper.ChildGenrelist.Clear();//Liste der Hörspiele leeren; Generieren erfolgt über Timer.
-                return SonosHelper.Sonos.ZoneProperties.ShareIndexInProgress;
+                _sonosHelper.ChildGenrelist.Clear();//Liste der Hörspiele leeren; Generieren erfolgt über Timer.
+                return _sonos.ZoneProperties.ShareIndexInProgress;
             }
             catch (Exception ex)
             {
-                SonosHelper.Logger.ServerErrorsAdd("SetUpdateMusicIndex", ex);
+                _logger.ServerErrorsAdd("SetUpdateMusicIndex", ex);
                 throw;
             }
         }
@@ -252,12 +251,12 @@ namespace Sonos.Controllers
         [HttpGet("GetUpdateIndexInProgress")]
         public Boolean? GetUpdateIndexInProgress()
         {
-            return SonosHelper.Sonos?.ZoneProperties?.ShareIndexInProgress;
+            return _sonos.ZoneProperties?.ShareIndexInProgress;
         }
         [HttpGet("GetLoggingServerErrors")]
         public Dictionary<String, String> GetLoggingServerErrors()
         {
-            return SonosHelper.Logger.ServerErrors;
+            return _logger.ServerErrors;
         }
     }
 }

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using SonosSQLiteWrapper.Interfaces;
 using HomeLogging;
+using Sonos.Classes.Interfaces;
 
 namespace Sonos.Classes
 {
@@ -16,18 +17,19 @@ namespace Sonos.Classes
         private readonly ISQLiteWrapper sw;
         private readonly List<String> CoverPaths = new();
         private readonly ILogging _logging;
+        private readonly ISonosDiscovery _sonos;
 
-        public MusicPictures(ISQLiteWrapper sQLiteWrapper, ILogging logging)
+        public MusicPictures(ISQLiteWrapper sQLiteWrapper, ILogging logging, ISonosDiscovery sonos)
         {
             sw = sQLiteWrapper;
             SonosConstants.MusicPictureHashes = sw.GetMusicPictures();
             _logging = logging;
+             _sonos = sonos;
         }
 
         public async Task<Boolean> GenerateDBContent()
         {
-            await SonosHelper.CheckSonosLiving();
-            List<SonosItem> tracks = await SonosHelper.Sonos.ZoneMethods.Browsing(SonosHelper.Sonos.Players.First(), SonosConstants.aTracks, false);
+            List<SonosItem> tracks = await _sonos.ZoneMethods.Browsing(_sonos.Players.First(), SonosConstants.aTracks, false);
             RunIntoList(tracks);
             UpdateImagesToDatabase();
             return true;
@@ -78,7 +80,7 @@ namespace Sonos.Classes
         /// </summary>
         /// <param name="items"></param>
         /// <returns></returns>
-        public async Task<List<SonosItem>> UpdateItemListToHashPath(List<SonosItem> items)
+        public List<SonosItem> UpdateItemListToHashPath(List<SonosItem> items)
         {
             try
             {
@@ -86,7 +88,7 @@ namespace Sonos.Classes
                 {
                     try
                     {
-                        await SonosItemHelper.UpdateItemToHashPath(item);
+                        SonosItemHelper.UpdateItemToHashPath(item);
                     }
                     catch (Exception ex)
                     {

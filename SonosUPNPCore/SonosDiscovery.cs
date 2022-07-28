@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using HomeLogging;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using OSTL.UPnP;
-using SonosConst;
 using SonosUPnP.DataClasses;
 using SonosUPnP.Props;
 using SonosUPNPCore.DataClasses;
@@ -15,7 +17,7 @@ using SonosUPNPCore.Enums;
 
 namespace SonosUPnP
 {
-    public class SonosDiscovery
+    public class SonosDiscovery : ISonosDiscovery
     {
         #region Klassenvariablen
         private UPnPSmartControlPoint ControlPoint { get; set; }
@@ -30,28 +32,27 @@ namespace SonosUPnP
         private readonly Boolean useSubscriptions = true;
         private ZonePerSoftwareGeneration ZoneSwGen1;
         private ZonePerSoftwareGeneration ZoneSwGen2;
+        private readonly IConfiguration _config;
         /// <summary>
         /// Liste mit den Erlaubten Services, wenn UseSubscription True ist.
         /// </summary>
         private readonly List<SonosEnums.Services> serviceEnums = new();
 
-        private readonly Logging Logger;
+        private readonly ILogging Logger;
         #endregion Klassenvariablen
         #region Public Methoden
-        public SonosDiscovery(Boolean _useSubscriptions = true, List<SonosEnums.Services> allowedServices = null, Logging log = null, Dictionary<string, string> icons = null)
+        public SonosDiscovery(IConfiguration config, ILogging log, IServiceProvider _provider)
         {
-            if (icons != null)
-                _icons = icons;
-            useSubscriptions = _useSubscriptions;
-            if (allowedServices != null)
-                serviceEnums = allowedServices;
-            if (log == null)
+            _config = config;
+            Logger = log;
+            GetLocalPlayerIcons();
+            if (Boolean.TryParse(_config["UseSubscription"], out Boolean outusesubscriptions))
             {
-                Logger = new Logging();
+                useSubscriptions = outusesubscriptions;
             }
-            else
+            if (useSubscriptions)
             {
-                Logger = log;
+                PrepareUsedServices();
             }
             try
             {
@@ -65,29 +66,66 @@ namespace SonosUPnP
             {
                 Logger.ServerErrorsAdd("ctor:ZonePerSoftwareGeneration", ex, "Discovery");
             }
+            CtorInit();
         }
 
-        private async void ZoneSwGen_GlobalSonosChange(object sender, ZonePerSoftwareGeneration e)
-        {
-            //implementierung
-            SonosEnums.EventingEnums t = (SonosEnums.EventingEnums)sender;
-            switch (t)
-            {
-                case SonosEnums.EventingEnums.AlarmListVersion:
-                    await GetSonosTimeStuff();
-                    break;
-                case SonosEnums.EventingEnums.FavoritesUpdateID:
-                    await SetFavoritesPlaylists();
-                    break;
-                case SonosEnums.EventingEnums.SavedQueuesUpdateID:
-                    await SetSonosPlaylist();
-                    break;
-                case SonosEnums.EventingEnums.ShareListUpdateID:
-                    await SetImportetPlaylist();
-                    break;
 
+        /// <summary>
+        /// Gibt den SonosPlayer aufgrund des übergebenen Names zurück oder Null.
+        /// </summary>
+        /// <param name="playerName"></param>
+        /// <returns></returns>
+        public SonosPlayer GetPlayerbyName(string playerName)
+        {
+            if (!Players.Any()) return null;
+
+            lock (Players)
+            {
+                foreach (SonosPlayer sonosPlayer in Players)
+                {
+                    if (sonosPlayer.Name.ToLower() == playerName.ToLower())
+                        return sonosPlayer;
+                }
             }
-            ManuellStateChange(t, DateTime.Now);
+            return null;
+        }
+        /// <summary>
+        /// Ermittelt einen Player aufgrund der UUID.
+        /// </summary>
+        /// <param name="uuid"></param>
+        /// <returns></returns>
+        public SonosPlayer GetPlayerbyUuid(string uuid)
+        {
+            if (!Players.Any()) return null;
+
+            lock (Players)
+            {
+                foreach (SonosPlayer sonosPlayer in Players)
+                {
+                    if (sonosPlayer.UUID == uuid)
+                        return sonosPlayer;
+                }
+            }
+            return null;
+        }
+
+        public SonosPlayer GetPlayerbySoftwareGenerationPlaylistentry(string playlist)
+        {
+            if (!Players.Any()) return null;
+            return Players.FirstOrDefault(x => x.SoftwareGeneration == ZoneProperties.GetSoftwareVersionForPlaylistEntry(playlist));
+        }
+        /// <summary>
+        /// Gibt den ersten Player einer bestimmten Softwaregen zurück
+        /// </summary>
+        /// <param name="uuid"></param>
+        /// <returns></returns>
+        public SonosPlayer GetPlayerbySoftWareGeneration(SoftwareGeneration softgen)
+        {
+            if (!Players.Any()) return null;
+            lock (Players)
+            {
+                return Players.FirstOrDefault(x => x.SoftwareGeneration == softgen);
+            }
         }
 
         /// <summary>
@@ -123,14 +161,6 @@ namespace SonosUPnP
             if (makenew)
                 ManuellStateChange(SonosEnums.EventingEnums.SavedQueuesUpdateID, DateTime.Now);
             return retval;
-        }
-        /// <summary>
-        /// Initialisierung und Suchen der Sonosgeräte
-        /// </summary>
-        public virtual void StartScan()
-        {
-            ControlPoint = new UPnPSmartControlPoint(OnDeviceAdded, OnServiceAdded, "urn:schemas-upnp-org:device:ZonePlayer:0");
-
         }
         /// <summary>
         /// Remove Device and make a Reset of SonosDiscovery
@@ -298,7 +328,7 @@ namespace SonosUPnP
             Boolean retval = false;
             if (!Players.Any())
                 return retval;
-            String timeServer = SonosConstants.Configuration["TimeServer"];
+            String timeServer = _config["TimeServer"]; //todo: aus dem ctor nehmen.
             if (!string.IsNullOrEmpty(timeServer))
             {
                 SonosPlayer sp1 = Players.FirstOrDefault(p => p.SoftwareGeneration == SoftwareGeneration.ZG1);
@@ -700,6 +730,114 @@ namespace SonosUPnP
         }
         #endregion Eventing
         #region private Methoden
+
+        /// <summary>
+        /// Initialisierung und Suchen der Sonosgeräte
+        /// </summary>
+        private void StartScan()
+        {
+            ControlPoint = new UPnPSmartControlPoint(OnDeviceAdded, OnServiceAdded, "urn:schemas-upnp-org:device:ZonePlayer:0");
+        }
+        /// <summary>
+        /// Start Scan. Use Config for minimum foundet Player with Timeout.
+        /// </summary>
+        private void CtorInit()
+        {
+            StartScan();
+            Boolean ok = false;
+            DateTime startnow = DateTime.Now;
+            int minFoundedPlayers = int.Parse(_config["MinFoundedPlayers"]);
+            while (!ok)
+            {
+                //Timer, falls das suchen länger als 360 Sekunden dauert abbrechen
+                int tdelta = (DateTime.Now - startnow).Seconds;
+                if (Players.Count > minFoundedPlayers || tdelta > 360)
+                {
+                    ok = true;
+                }
+            }
+        }
+        /// <summary>
+        /// Fill Images from Path root + @"\\wwwroot\\images\\player";
+        /// To Use as Device Icons
+        /// </summary>
+        private void GetLocalPlayerIcons()
+        {
+            try
+            {
+                var root = Directory.GetCurrentDirectory();
+                //var root = _config.GetValue<string>(WebHostDefaults.ContentRootKey);
+                var path = root + @"\\wwwroot\\images\\player";
+                var playerimages = Directory.GetFiles(path);
+                var url = "/images/player/";
+                foreach (var item in playerimages)
+                {
+                    //cut path
+                    string imagename = item.Substring(item.LastIndexOf("\\") + 1);
+                    if (!_icons.ContainsKey(imagename))
+                    {
+                        _icons.Add(imagename, url + imagename);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.ServerErrorsAdd("GetLocalPlayerIcons", ex, "SonosHelper");
+            }
+        }
+        /// <summary>
+        /// Prepare Servcies from Config if useSubscriptions
+        /// </summary>
+        private void PrepareUsedServices()
+        {
+            if (!useSubscriptions) return;
+            var allowedservices = _config["UseOnlyThisSubscriptions"];
+            try
+            {
+                if (allowedservices.Contains(','))
+                {
+                    var x = allowedservices.Split(',');
+                    foreach (var item in x)
+                    {
+                        if (Enum.TryParse(item.Trim(), out SonosEnums.Services se))
+                            serviceEnums.Add(se);
+                    }
+                }
+                else
+                {
+                    if (Enum.TryParse(allowedservices.Trim(), out SonosEnums.Services se))
+                        serviceEnums.Add(se);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.ServerErrorsAdd("SonosHelper:InitialSonos:configurations", ex);
+            }
+        }
+
+        private async void ZoneSwGen_GlobalSonosChange(object sender, ZonePerSoftwareGeneration e)
+        {
+            //implementierung
+            SonosEnums.EventingEnums t = (SonosEnums.EventingEnums)sender;
+            switch (t)
+            {
+                case SonosEnums.EventingEnums.AlarmListVersion:
+                    await GetSonosTimeStuff();
+                    break;
+                case SonosEnums.EventingEnums.FavoritesUpdateID:
+                    await SetFavoritesPlaylists();
+                    break;
+                case SonosEnums.EventingEnums.SavedQueuesUpdateID:
+                    await SetSonosPlaylist();
+                    break;
+                case SonosEnums.EventingEnums.ShareListUpdateID:
+                    await SetImportetPlaylist();
+                    break;
+
+            }
+            ManuellStateChange(t, DateTime.Now);
+        }
+
         private void HandleZoneUUIDinGroup(SonosPlayer sp, List<ZoneGroupMember> zgm)
         {
             Boolean makenew = false;

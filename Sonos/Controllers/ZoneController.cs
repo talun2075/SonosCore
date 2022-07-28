@@ -9,7 +9,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
+using HomeLogging;
+using Sonos.Classes.Interfaces;
 
 namespace Sonos.Controllers
 {
@@ -17,9 +18,14 @@ namespace Sonos.Controllers
     public class ZoneController : Controller
     {
         private Boolean getzonesRunning = false;
-        public ZoneController(IConfiguration iConfig)
+        private readonly ILogging _logger;
+        private readonly ISonosHelper _sonosHelper;
+        private readonly ISonosDiscovery _sonos;
+        public ZoneController(ISonosHelper sonosHelper, ILogging log, ISonosDiscovery sonos)
         {
-            SonosConstants.Configuration = iConfig;
+            _logger = log;
+            _sonosHelper = sonosHelper;
+            _sonos = sonos;
         }
         /// <summary>
         /// Ermittelt alle Playlists, die es gibt. 
@@ -32,16 +38,15 @@ namespace Sonos.Controllers
         {
             try
             {
-                if (!await SonosHelper.CheckSonosLiving()) return null;
-                if (SonosHelper.Sonos.CheckPlaylists())
+                if (_sonos.CheckPlaylists())
                 {
-                    await SonosHelper.Sonos.SetPlaylists(true);
+                    await _sonos.SetPlaylists(true);
                 }
-                return SonosHelper.Sonos.ZoneProperties.ListOfAllPlaylist;
+                return _sonos.ZoneProperties.ListOfAllPlaylist;
             }
             catch (Exception x)
             {
-                SonosHelper.Logger.ServerErrorsAdd("GetPlaylists", x);
+                _logger.ServerErrorsAdd("GetPlaylists", x);
                 return new List<SonosItem> { new SonosItem { Title = "Exception" }, new SonosItem { Title = x.Message } };
             }
         }
@@ -53,30 +58,19 @@ namespace Sonos.Controllers
        [HttpGet("GetFavorites")]
         public async Task<IList<SonosItem>> GetFavorites()
         {
-            if (!await SonosHelper.CheckSonosLiving() || SonosHelper.Sonos.Players.Count == 0) return new List<SonosItem>();
-            if (SonosHelper.Sonos.CheckPlaylists())
-                await SonosHelper.Sonos.SetPlaylists();
-            return SonosHelper.Sonos.ZoneProperties.ListOfFavorites;
-        }
-        /// <summary>
-        /// Liefert die ServerErrorliste
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-       [HttpGet("GetServerErrorList")]
-        public Dictionary<String, String> GetServerErrorList()
-        {
-            return SonosHelper.serverErrors;
+            if (!_sonos.Players.Any()) return new List<SonosItem>();
+            if (_sonos.CheckPlaylists())
+                await _sonos.SetPlaylists();
+            return _sonos.ZoneProperties.ListOfFavorites;
         }
         /// <summary>
         /// Liefert die Globalen Einstellungen zurück. 
         /// </summary>
         /// <returns></returns>
        [HttpGet("GetZoneProp")]
-        public async Task<DiscoveryZoneProperties> GetZoneProp()
+        public DiscoveryZoneProperties GetZoneProp()
         {
-            if (!await SonosHelper.CheckSonosLiving()) return null;
-            return SonosHelper.Sonos.ZoneProperties;
+            return _sonos.ZoneProperties;
         }
         /// <summary>
         /// Gibt alle Zonen zurück
@@ -87,13 +81,12 @@ namespace Sonos.Controllers
         {
             try
             {
-                if (!await SonosHelper.CheckSonosLiving()) return null;
-                if (SonosHelper.Sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.Count != SonosHelper.Sonos.Players.Count && !getzonesRunning)
+                if (_sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.Count != _sonos.Players.Count && !getzonesRunning)
                 {
                     getzonesRunning = true;
                     //Hier komme ich rein, wenn es weniger Zonen als Player gibt. Was ok ist, wenn es gruppen gibt. 
                     int calculatedzones = 0;
-                    foreach (SonosPlayer pl in SonosHelper.Sonos.Players)
+                    foreach (SonosPlayer pl in _sonos.Players)
                     {
                         if (pl.PlayerProperties.GroupCoordinatorIsLocal)
                         {
@@ -101,48 +94,48 @@ namespace Sonos.Controllers
                             continue;
                         }
                     }
-                    if (calculatedzones != SonosHelper.Sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.Count)
+                    if (calculatedzones != _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.Count)
                     {
                         //Hier komme ich rein, wenn es eine unstimmigkeit gibt
-                        if (calculatedzones < SonosHelper.Sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.Count)
-                            SonosHelper.Sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.Clear();
+                        if (calculatedzones < _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.Count)
+                            _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.Clear();
 
                         //Need Update
-                        var s1 = SonosHelper.Sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.FirstOrDefault(x => x.SoftwareGeneration ==  SonosUPNPCore.Enums.SoftwareGeneration.ZG1);
+                        var s1 = _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.FirstOrDefault(x => x.SoftwareGeneration ==  SonosUPNPCore.Enums.SoftwareGeneration.ZG1);
                         if (s1 == null)
                         {
                             //Update for 1
-                            SonosPlayer pl = await SonosHelper.GetPlayerbySoftWareGeneration(SonosUPNPCore.Enums.SoftwareGeneration.ZG1);
+                            SonosPlayer pl = _sonos.GetPlayerbySoftWareGeneration(SonosUPNPCore.Enums.SoftwareGeneration.ZG1);
                             var k = await pl.ZoneGroupTopology.GetZoneGroupState();
-                            SonosHelper.Sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.AddRange(k.ZoneGroupStates);
+                            _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.AddRange(k.ZoneGroupStates);
                         }
-                        var s2 = SonosHelper.Sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.FirstOrDefault(x => x.SoftwareGeneration ==  SonosUPNPCore.Enums.SoftwareGeneration.ZG2);
+                        var s2 = _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.FirstOrDefault(x => x.SoftwareGeneration ==  SonosUPNPCore.Enums.SoftwareGeneration.ZG2);
                         if (s2 == null)
                         {
                             //Update for 2
-                            SonosPlayer pl = await SonosHelper.GetPlayerbySoftWareGeneration(SonosUPNPCore.Enums.SoftwareGeneration.ZG2);
+                            SonosPlayer pl = _sonos.GetPlayerbySoftWareGeneration(SonosUPNPCore.Enums.SoftwareGeneration.ZG2);
                             var k = await pl.ZoneGroupTopology.GetZoneGroupState();
-                            lock (SonosHelper.Sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates)
+                            lock (_sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates)
                             {
-                                SonosHelper.Sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.AddRange(k.ZoneGroupStates);
+                                _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.AddRange(k.ZoneGroupStates);
                             }
                         }
-                        await SonosHelper.Sonos.SetPlaylists(true);
+                        await _sonos.SetPlaylists(true);
                     }
                     getzonesRunning = false;
                 }
                 //Sort Test
                 ZoneGroupStateList t = new();
-                t.ZoneGroupStates = SonosHelper.Sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.OrderBy(x => x.ZoneGroupMember.First().ZoneName).ToList();
-                SonosHelper.Sonos.ZoneProperties.ZoneGroupState = t;
-                return SonosHelper.Sonos.ZoneProperties.ZoneGroupState;
+                t.ZoneGroupStates = _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.OrderBy(x => x.ZoneGroupMember.First().ZoneName).ToList();
+                _sonos.ZoneProperties.ZoneGroupState = t;
+                return _sonos.ZoneProperties.ZoneGroupState;
             }
             catch(Exception ex)
             {
-                SonosHelper.Logger.ServerErrorsAdd("GetZones", ex, "ZoneController");
-                return SonosHelper.Sonos.ZoneProperties.ZoneGroupState;
+                _logger.ServerErrorsAdd("GetZones", ex, "ZoneController");
+                return _sonos.ZoneProperties.ZoneGroupState;
             }
-            //return SonosHelper.Sonos.ZoneProperties.ZoneGroupState;
+            //return _sonos.ZoneProperties.ZoneGroupState;
         }
        [HttpGet("SetPlaylists")]
         public async Task<String> SetPlaylists()
@@ -150,28 +143,26 @@ namespace Sonos.Controllers
             string retval = "ok";
             try
             {
-                if (!await SonosHelper.CheckSonosLiving()) return "Checkliving Error";
-                await SonosHelper.Sonos?.SetPlaylists();
+                await _sonos.SetPlaylists();
             }
             catch (Exception ex)
             {
-                SonosHelper.Logger.ServerErrorsAdd("SetPlaylists", ex, "ZoneController");
+                _logger.ServerErrorsAdd("SetPlaylists", ex, "ZoneController");
                 throw;
             }
             return retval;
         }
         [HttpGet("CheckPlayersForHashImages")]
-        public async Task<String> CheckPlayersForHashImages()
+        public String CheckPlayersForHashImages()
         {
             string retval = "ok";
             try
             {
-                if (!await SonosHelper.CheckSonosLiving()) return "Checkliving Error";
-                await SonosHelper.CheckPlayerForHashImages(SonosHelper.Sonos.Players);
+                _sonosHelper.CheckPlayerForHashImages(_sonos.Players);
             }
             catch (Exception ex)
             {
-                SonosHelper.Logger.ServerErrorsAdd("CheckPlayersForHashImages", ex, "ZoneController");
+                _logger.ServerErrorsAdd("CheckPlayersForHashImages", ex, "ZoneController");
                 throw;
             }
             return retval;
@@ -183,28 +174,26 @@ namespace Sonos.Controllers
             string retval = "ok";
             try
             {
-                if (!await SonosHelper.CheckSonosLiving()) return "Checkliving Error";
-                await SonosHelper.FillAllPlayerProperties();
+                await _sonosHelper.FillAllPlayerProperties();
             }
             catch (Exception ex)
             {
-                SonosHelper.Logger.ServerErrorsAdd("FillAllPlayerProperties", ex, "ZoneController");
+                _logger.ServerErrorsAdd("FillAllPlayerProperties", ex, "ZoneController");
                 throw;
             }
             return retval;
         }
         [HttpGet("CheckDevicesToPlayer")]
-        public async Task<String> CheckDevicesToPlayer()
+        public String CheckDevicesToPlayer()
         {
             string retval = "ok";
             try
             {
-                if (!await SonosHelper.CheckSonosLiving()) return "Checkliving Error";
-                SonosHelper.Sonos.CheckDevicesToPlayer();
+                _sonos.CheckDevicesToPlayer();
             }
             catch (Exception ex)
             {
-                SonosHelper.Logger.ServerErrorsAdd("CheckDevicesToPlayer", ex, "ZoneController");
+                _logger.ServerErrorsAdd("CheckDevicesToPlayer", ex, "ZoneController");
                 throw;
             }
             return retval;

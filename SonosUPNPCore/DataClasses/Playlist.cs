@@ -74,7 +74,7 @@ namespace SonosUPnP.DataClasses
                 {
                     foreach (SonosItem item in PlayListItems)
                     {
-                        await SonosItemHelper.UpdateItemToHashPath(item);
+                        SonosItemHelper.UpdateItemToHashPath(item);
                     }
                     PlayListItemsHashChecked = true;
                 }

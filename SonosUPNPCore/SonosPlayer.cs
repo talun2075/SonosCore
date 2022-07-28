@@ -44,10 +44,11 @@ namespace SonosUPnP
         private readonly List<SonosEnums.Services> serviceEnums = new();
         private readonly List<SonosEnums.EventingEnums> IgnoreEvent = new() { SonosEnums.EventingEnums.LastChangedPlayState, SonosEnums.EventingEnums.ThirdPartyMediaServersX, SonosEnums.EventingEnums.SettingsReplicationState };
         [NonSerialized]
-        private readonly Logging Logger;
-        public SonosPlayer(List<SonosEnums.Services> se, Boolean uSubscriptions = true, Dictionary<string, string> icons = null, Logging log = null)
+        private readonly ILogging Logger;
+        public SonosPlayer(List<SonosEnums.Services> se, Boolean uSubscriptions = true, Dictionary<string, string> icons = null, ILogging log = null)
         {
-            if(icons != null)
+            //todo: useSubscription kann gelöscht werden oder auch wieder über DI gemacht werden.
+            if (icons != null)
                 _icons = icons;
             useSubscription = uSubscriptions;
             serviceEnums = se;

@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\MusicPictures\SonosSQLiteWrapper.csproj" />
     <ProjectReference Include="..\SonosConst\SonosConst.csproj" />
     <ProjectReference Include="..\UPnPCore\UPnPCore.csproj" />

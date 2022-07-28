@@ -99,9 +99,6 @@ namespace SonosConst
         //public static Dictionary<string, string> MusicPictureHashes { get; set; } = new();
         public static DataTable MusicPictureHashes { get; set; } = new();
 
-        public static IConfiguration Configuration { get; set; }
-
-
         /// <summary>
         /// Entfernt vom übergebenen link die Version Parameter wie &v=xxx
         /// Der Parameter muss am ende stehen. 
@@ -111,7 +108,7 @@ namespace SonosConst
         public static String RemoveVersionInUri(string cover)
         {
             if (string.IsNullOrEmpty(cover)) return "";
-            if (!cover.Contains("&")) return cover;
+            if (!cover.Contains('&')) return cover;
             var sublen = cover.Length - (cover.Length - cover.LastIndexOf("&"));
             cover = cover.Substring(0, sublen);
             return cover;

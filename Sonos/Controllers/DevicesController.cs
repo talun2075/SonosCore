@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Sonos.Classes;
 using SonosUPnP;
-using SonosConst;
+using Sonos.Classes.Interfaces;
+using HomeLogging;
+using Sonos.Classes.Enums;
 
 namespace Sonos.Controllers
 {
@@ -16,12 +17,15 @@ namespace Sonos.Controllers
         #region Klassenvariablen
 
         private readonly Dictionary<string, DateTime> _playersLastChange = new();
-        private IMusicPictures musicPictures;
+        private readonly ILogging _logger;
+        private readonly ISonosHelper _sonosHelper;
+        private readonly ISonosDiscovery _sonos;
         #endregion KlassenVariablen
-        public DevicesController(IConfiguration iConfig, IMusicPictures imu)
+        public DevicesController(ISonosHelper sonosHelper, ILogging log, ISonosDiscovery sonos)
         {
-            SonosConstants.Configuration = iConfig;
-            musicPictures = imu;
+            _sonosHelper = sonosHelper;
+            _logger = log;
+            _sonos = sonos;
         }
         #region Public Methoden
         /// <summary>
@@ -29,16 +33,15 @@ namespace Sonos.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("Get")]
-        public async Task<string> Get()
+        public string Get()
         {
             try
             {
-                await SonosHelper.Initialisierung();
                 return "Ready";
             }
             catch (Exception ex)
             {
-                SonosHelper.Logger.ServerErrorsAdd("DeviceGetError", ex);
+                _logger.ServerErrorsAdd("DeviceGetError", ex);
                 throw;
             }
         }
@@ -47,14 +50,9 @@ namespace Sonos.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("GetPlayers")]
-        public async Task<IList<SonosPlayer>> GetPlayers()
+        public IList<SonosPlayer> GetPlayers()
         {
-            if (SonosHelper.Sonos == null || SonosHelper.Sonos.Players.Count == 0)
-            {
-                await SonosHelper.Initialisierung();
-            }
-            if (SonosHelper.Sonos == null) return null;
-            return SonosHelper.Sonos.Players;
+            return _sonos.Players;
         }
         /// <summary>
         /// Liefert einen definierten Player
@@ -62,24 +60,16 @@ namespace Sonos.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("GetPlayer/{id}")]
-        public async Task<SonosPlayer> GetPlayer(string id)
+        public SonosPlayer GetPlayer(string id)
         {
-            if (SonosHelper.Sonos == null || SonosHelper.Sonos.Players.Count == 0)
-            {
-                await SonosHelper.Initialisierung();
-            }
-            return await SonosHelper.GetPlayerbyUuid(id);
+            return _sonos.GetPlayerbyUuid(id);
         }
 
         [HttpGet("GetLongPlayer/{id}")]
-        public async Task<SonosPlayer> GetLongPlayer(string id)
+        public SonosPlayer GetLongPlayer(string id)
         {
-            if (SonosHelper.Sonos == null || SonosHelper.Sonos.Players.Count == 0)
-            {
-                await SonosHelper.Initialisierung();
-            }
-            if(SonosHelper.CheckAllPlayerReachable())
-                return await SonosHelper.GetPlayerbyUuid(id);
+            if(_sonosHelper.CheckAllPlayerReachable())
+                return _sonos.GetPlayerbyUuid(id);
             throw new Exception("System Reset, weil Player nicht erreichbar");
         }
 
@@ -89,38 +79,24 @@ namespace Sonos.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("GetLastChangesDateTimes")]
-        public async Task<Dictionary<string, DateTime>> GetLastChangesDateTimes()
+        public Dictionary<string, DateTime> GetLastChangesDateTimes()
         {
-            if(!await SonosHelper.CheckSonosLiving()) return null;
             _playersLastChange.Clear();
-            foreach (SonosPlayer item in SonosHelper.Sonos.Players)
+            foreach (SonosPlayer item in _sonos.Players)
             {
                     _playersLastChange.Add(item.UUID, item.LastChange);
             }
             //Das erst hier, weil dann das Web schon initialisiert wurde. 
             Debug.WriteLine("GetLastChangesDateTimes wurde aufgerufen.");
-            SonosHelper.Sonos.CheckDevicesToPlayer();
+            _sonos.CheckDevicesToPlayer();
             return _playersLastChange;
         }
         #endregion Public Methoden
-        [HttpGet("GetPlayerProperties/{id}")]
-        public async Task<PlayerDeviceProperties> GetPlayerProperties(string id)
-        {
-            if (!await SonosHelper.CheckSonosLiving())
-            {
-                throw new Exception("CheckSonosLiving Error");
-            }
-            return await new PlayerDeviceProperties().FilledData(await SonosHelper.GetPlayerbyUuid(id));
-        }
         [HttpGet("GetPlayerNamesAndUUID")]
-        public async Task<Dictionary<String, String>> GetPlayerNamesAndUUID()
+        public Dictionary<String, String> GetPlayerNamesAndUUID()
         {
             Dictionary<String, String> result = new();
-            if (!await SonosHelper.CheckSonosLiving())
-            {
-                throw new Exception("CheckSonosLiving Error");
-            }
-            foreach (SonosPlayer sp in SonosHelper.Sonos.Players)
+            foreach (SonosPlayer sp in _sonos.Players)
             {
                 if (!result.ContainsKey(sp.Name))
                     result.Add(sp.Name, sp.UUID);
@@ -129,23 +105,23 @@ namespace Sonos.Controllers
         }
 
         [HttpGet("CheckPlayerReachable")]
-        public async Task<Boolean> CheckPlayerReachable()
+        public Boolean CheckPlayerReachable()
         {
-            if (! await SonosHelper.CheckSonosLiving()) return false;
-
-            return SonosHelper.CheckAllPlayerReachable();
+            return _sonosHelper.CheckAllPlayerReachable();
         }
-
+        [HttpGet("GetPlayerProperties/{id}")]
+        public async Task<PlayerDeviceProperties> GetPlayerProperties(string id)
+        {
+            return await new PlayerDeviceProperties().FilledData(_sonos.GetPlayerbyUuid(id));
+        }
 
         [HttpPost("SetPlayerProperties")]
         public async Task<ActionResult> SetPlayerProperties(PlayerPropertiesRequest playerPropertiesRequest)
         {
             try
             {
-                
-
                 if (playerPropertiesRequest == null) return BadRequest("Übergabe Null");
-                SonosPlayer player = await SonosHelper.GetPlayerbyUuid(playerPropertiesRequest.uuid);
+                SonosPlayer player = _sonos.GetPlayerbyUuid(playerPropertiesRequest.uuid);
                 if (player == null) return BadRequest("Kein Player Gefunden");
                 Boolean retval = false;
                 switch (playerPropertiesRequest.type)

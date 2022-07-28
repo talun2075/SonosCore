@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Sonos.Classes;
 using SonosUPnP.DataClasses;
 using SonosConst;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using HomeLogging;
+using Sonos.Classes.Interfaces;
+using SonosUPnP;
 
 namespace Sonos.Controllers
 {
@@ -14,23 +16,22 @@ namespace Sonos.Controllers
     public class IanController : ChildBase
     {
         
-        public IanController(IConfiguration iConfig)
+        public IanController(ILogging log, ISonosHelper sh, ISonosDiscovery sonos) :base(log,sh,sonos)
         {
-            SonosConstants.Configuration = iConfig;
             ChildName = "Ian";
             ReadConfiguration();
         }
         #region Public
         
         [HttpGet("GetStart")]
-        public async Task<IList<SonosBrowseList>> GetStart()
+        public async Task<IList<ISonosBrowseList>> GetStart()
         {
             return await Start();
         }
         [HttpGet("GetBaseURL")]
-        public async Task<string> GetBaseURL()
+        public string GetBaseURL()
         {
-            return await BaseURL();
+            return BaseURL();
         }
         [HttpGet("GetTransport")]
         public async Task<int> GetTransport()

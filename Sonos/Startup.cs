@@ -7,6 +7,9 @@ using Sonos.Classes;
 using SonosSQLiteWrapper;
 using SonosSQLiteWrapper.Interfaces;
 using HomeLogging;
+using Sonos.Classes.Interfaces;
+using SonosUPnP;
+using SonosUPNPCore.DataClasses;
 
 namespace Sonos
 {
@@ -23,14 +26,13 @@ namespace Sonos
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews().AddJsonOptions(options => options.JsonSerializerOptions.IncludeFields = true);
-            //services.AddServices(Configuration);
-
             services
                 .AddSingleton<ILogging, Logging>()
+                .AddSingleton<ISonosHelper, SonosHelper>()
+                .AddSingleton<IStreamDeckResponse, StreamDeckResponse>()
                 .AddSingleton<IMusicPictures, MusicPictures>()
+                .AddSingleton<ISonosDiscovery, SonosDiscovery>()
                 .AddSingleton<ISQLiteWrapper, SQLiteWrapper>();
-
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

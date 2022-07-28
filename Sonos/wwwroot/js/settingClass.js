@@ -301,7 +301,7 @@ function SettingClass() {
         ppr.value = value;
         ppr.uuid = selectedplayer;
         ppr.type = Types[proper];
-        $.post("/devices/SetPlayerProperties", ppr).done(function (data) { console.log("Playerdsaten erfolgreich Update"); }).fail(function (ex) {
+        $.post("/devices/SetPlayerProperties", ppr).done(function (data) { console.log("Playerdaten erfolgreich Update"); }).fail(function (ex) {
             t.SetPlayer(ppr.uuid);
             alert(ex.statusText + " " + ex.responseText);
         });

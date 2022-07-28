@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HomeLogging;
+using Sonos.Classes.Interfaces;
 
 namespace Sonos.Controllers
 {
@@ -17,28 +19,36 @@ namespace Sonos.Controllers
         public static String ChildName { get; set; }
         public static List<SonosItem> ChildPlaylistButtonsIDs { get; set; } = new();
         public static Boolean IsRunning { get; set; } = false;
-        //public static Dictionary<String, List<String>> RandomItems { get; set; } = new();
         public static Dictionary<String, Dictionary<String, List<String>>> RandomPlaylistItems { get; set; } = new();
+        private readonly ILogging _logger;
+        private readonly ISonosHelper _sonosHelper;
+        private readonly ISonosDiscovery _sonos;
         #endregion Props
 
+        public ChildBase(ILogging log, ISonosHelper sonosHelper, ISonosDiscovery sonos)
+        {
+            _logger = log;
+            _sonosHelper = sonosHelper;
+            _sonos = sonos;
+        }
 
         #region Methods
-        public async Task<IList<SonosBrowseList>> Start()
+        public async Task<IList<ISonosBrowseList>> Start()
         {
-            List<SonosItem> genre = await SonosHelper.Sonos.ZoneMethods.Browsing(await GetChild(), SonosConstants.aGenre + "/Hörspiel", false);
+            List<SonosItem> genre = await _sonos.ZoneMethods.Browsing(GetChild(), SonosConstants.aGenre + "/Hörspiel", false);
             int ge = genre.Count - 1;
-            if (ge == SonosHelper.ChildGenrelist.Count)
+            if (ge == _sonosHelper.ChildGenrelist.Count)
             {
-                return SonosHelper.ChildGenrelist;//wenn ich hier hin komme, return weil fertig
+                return _sonosHelper.ChildGenrelist;//wenn ich hier hin komme, return weil fertig
             }
-            if (SonosHelper.ChildGenrelist.Count > ge)
+            if (_sonosHelper.ChildGenrelist.Count > ge)
             {
                 ResetList(); //hier ist ein fehler passiert daher neu.
             }
             foreach (SonosItem item in genre)
             {
                 var title = item.Title;
-                var exist = SonosHelper.ChildGenrelist.FirstOrDefault(x => x.Artist == title);
+                var exist = _sonosHelper.ChildGenrelist.FirstOrDefault(x => x.Artist == title);
                 if (exist != null) continue;//wenn schon vorhanden einfach weiter gehen. 
 
                 //if (!string.IsNullOrEmpty(item.AlbumArtURI))
@@ -47,8 +57,11 @@ namespace Sonos.Controllers
                 //    item.AlbumArtURI = titem.AlbumArtURI;
                 //}
                 if (title == SonosConstants.aALL) continue;
-                var sbl = new SonosBrowseList() { Artist = title };
-                sbl.Childs = await SonosHelper.Sonos.ZoneMethods.Browsing(await GetChild(), SonosConstants.aAlbumArtist + "/" + title, false);
+                var sbl = new SonosBrowseList
+                {
+                    Artist = title,
+                    Childs = await _sonos.ZoneMethods.Browsing(GetChild(), SonosConstants.aAlbumArtist + "/" + title, false)
+                };
                 if (sbl.Childs.Count > 0)
                 {
                     sbl.Childs.RemoveRange(0, 1);
@@ -56,21 +69,21 @@ namespace Sonos.Controllers
                 foreach (SonosItem citem in sbl.Childs)
                 {
                     //hier die metadaten holen um die zeit zu bekommen? 
-                    var cilditemchildslist = await SonosHelper.Sonos.ZoneMethods.Browsing(await GetChild(), citem.ContainerID, false);
+                    var cilditemchildslist = await _sonos.ZoneMethods.Browsing(GetChild(), citem.ContainerID, false);
                     //if (!string.IsNullOrEmpty(citem.AlbumArtURI))
                     //{
                     //    var titem = await MusicPictures.UpdateItemToHashPath(citem);
                     //    citem.AlbumArtURI = titem.AlbumArtURI;
                     //}
                 }
-                SonosHelper.ChildGenrelist.Add(sbl);
+                _sonosHelper.ChildGenrelist.Add(sbl);
             }
-            return SonosHelper.ChildGenrelist;
+            return _sonosHelper.ChildGenrelist;
         }
         public async void ReadConfiguration()
         {
             //neue Idee
-            SonosPlayer player = await GetChild();
+            SonosPlayer player = GetChild();
             var playlistsToUse = await player.ContentDirectory.Browse(SonosConstants.SQ);
             lock (ChildPlaylistButtonsIDs)
             {
@@ -88,23 +101,22 @@ namespace Sonos.Controllers
                 }
             }
         }
-        public async Task<SonosPlayer> GetChild()
+        public SonosPlayer GetChild()
         {
-            if(!await SonosHelper.CheckSonosLiving()) return null;
-            return await SonosHelper.GetPlayerbyName(ChildName);
+            return _sonos.GetPlayerbyName(ChildName);
         }
         public void ResetList()
         {
-            SonosHelper.ChildGenrelist.Clear();
+            _sonosHelper.ChildGenrelist.Clear();
         }
-        public async Task<string> BaseURL()
+        public string BaseURL()
         {
-            var bu = await GetChild();
+            var bu = GetChild();
             return bu.PlayerProperties.BaseUrl;
         }
         public async Task<int> Transport()
         {
-            var bu = await GetChild();
+            var bu = GetChild();
             var t = await bu.AVTransport?.GetTransportInfo();
             if (t == SonosEnums.TransportState.PLAYING)
                 return 1;
@@ -113,7 +125,7 @@ namespace Sonos.Controllers
         }
         public async Task<QueueData> DefineButton(string id, Boolean RemoveOld, [FromBody] string containerid)
         {
-            var player = await GetChild();
+            var player = GetChild();
             SonosItem playlist = ChildPlaylistButtonsIDs.FirstOrDefault(x => x.Title.ToLower() == id.ToLower());
 
             if (playlist == null) return null;
@@ -143,7 +155,7 @@ namespace Sonos.Controllers
         }
         public async Task<Boolean> Pause()
         {
-            var bu = await GetChild();
+            var bu = GetChild();
             return await bu.AVTransport.Pause();
         }
         public async Task<Boolean> Volume(string id)
@@ -160,12 +172,12 @@ namespace Sonos.Controllers
                         volume = 15;
                         break;
                 }
-                var pl = await GetChild();
+                var pl = GetChild();
                 return await pl.RenderingControl.SetVolume(volume);
             }
             catch (Exception ex)
             {
-                SonosHelper.Logger.ServerErrorsAdd("SetVolume", ex, ChildName+"Controller");
+                _logger.ServerErrorsAdd("SetVolume", ex, ChildName+"Controller");
                 throw;
             }
 
@@ -174,11 +186,11 @@ namespace Sonos.Controllers
         {
             try
             {
-                SonosPlayer pl = await GetChild();
+                SonosPlayer pl = GetChild();
                 await pl.AVTransport.RemoveAllTracksFromQueue();
                 await Task.Delay(300);
                 await pl.GroupRenderingControl.SetGroupVolume(volume);
-                await SonosHelper.Sonos.ZoneMethods.AddToQueue(v, pl);
+                await _sonos.ZoneMethods.AddToQueue(v, pl);
                 if (pl.PlayerProperties.AVTransportURI != SonosConstants.xrinconqueue + pl.UUID + "#0")
                 {
                     await pl.AVTransport.SetAVTransportURI(SonosConstants.xrinconqueue + pl.UUID + "#0");
@@ -189,7 +201,7 @@ namespace Sonos.Controllers
             }
             catch (Exception ex)
             {
-                SonosHelper.Logger.ServerErrorsAdd("ReplacePlaylist:" + v, ex, ChildName+"Controller");
+                _logger.ServerErrorsAdd("ReplacePlaylist:" + v, ex, ChildName+"Controller");
                 throw;
             }
         }
@@ -198,17 +210,12 @@ namespace Sonos.Controllers
         {
             try
             {
-                if (!await SonosHelper.CheckSonosLiving())
-                {
-                    throw new Exception("Sonos was Not init without errors");
-                }
-
-                var player = await GetChild();
+                var player = GetChild();
                 if(player == null) return false;
                 var randomitems = new Dictionary<String, List<String>>();
                 if(RandomPlaylistItems.ContainsKey(_playlist))
                     randomitems = RandomPlaylistItems[_playlist];
-                if (!SonosHelper.ChildGenrelist.Any())
+                if (!_sonosHelper.ChildGenrelist.Any())
                 {
                     await Start();
                 }
@@ -248,7 +255,7 @@ namespace Sonos.Controllers
                 List<SonosItem> ItemstoPlay = new();
                 foreach (var artist in randomitems.Keys)
                 {
-                    var selectedartist = SonosHelper.ChildGenrelist.FirstOrDefault(x => x.Artist == artist);
+                    var selectedartist = _sonosHelper.ChildGenrelist.FirstOrDefault(x => x.Artist == artist);
                     var countartist = randomitems[artist].Count;
                     for (int i = 0; i < countartist; i++)
                     {
@@ -272,14 +279,14 @@ namespace Sonos.Controllers
                 }
                 catch (Exception ex)
                 {
-                    SonosHelper.Logger.ServerErrorsAdd("Random:AVTransport", ex, "Childbase");
+                     _logger.ServerErrorsAdd("Random:AVTransport", ex, "Childbase");
                     return false;
                 }
                 return true;
             }
             catch(Exception ex)
             {
-                SonosHelper.Logger.ServerErrorsAdd("Random", ex, "Childbase");
+                 _logger.ServerErrorsAdd("Random", ex, "Childbase");
                 return false;
             }
 

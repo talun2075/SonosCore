@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <None Remove="Classes\DatabaseWrapper.cs~RF7f08ef.TMP" />
+    <None Remove="Controllers\ChildBase.cs~RF10681e7.TMP" />
   </ItemGroup>
 
   <ItemGroup>

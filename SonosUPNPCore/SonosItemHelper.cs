@@ -232,7 +232,7 @@ namespace SonosUPnP
             }
         }
 
-        public async static Task<SonosItem> UpdateItemToHashPath(SonosItem item)
+        public static SonosItem UpdateItemToHashPath(SonosItem item)
         {
             if (SonosConstants.MusicPictureHashes != null && SonosConstants.MusicPictureHashes.Rows.Count > 0)
             {

@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace SonosUPNPCore.DataClasses
 {
-    public class ZonePerSoftwareGeneration
+    public class ZonePerSoftwareGeneration : IZonePerSoftwareGeneration
     {
         #region Klassenvariablen
         private UPnPStateVariable AlarmListVersion { get; set; }
@@ -40,9 +40,9 @@ namespace SonosUPNPCore.DataClasses
         private UPnPStateVariable ShareIndexLastError { get; set; }
         public event EventHandler<ZonePerSoftwareGeneration> GlobalSonosChange = delegate { };
         private readonly Dictionary<SonosEnums.EventingEnums, DateTime> LastChangeDates = new();
-        private readonly Logging Logger;
+        private readonly ILogging Logger;
         #endregion Klassenvariablen
-        public ZonePerSoftwareGeneration(Logging log=null)
+        public ZonePerSoftwareGeneration(ILogging log = null)
         {
             if (log == null)
             {

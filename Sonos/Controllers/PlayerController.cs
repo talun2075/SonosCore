@@ -4,24 +4,31 @@ using SonosUPnP;
 using System.Text.RegularExpressions;
 using System.Linq;
 using MP3File;
-using Sonos.Classes;
 using SonosUPnP.DataClasses;
 using SonosUPnP.Props;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using SonosConst;
+using Sonos.Classes.Interfaces;
+using HomeLogging;
 
 namespace Sonos.Controllers
 {
     [Route("/[controller]")]
     public class PlayerController : Controller
     {
-        private IMusicPictures musicPictures;
-        public PlayerController(IMusicPictures imu)
+        private readonly IMusicPictures musicPictures;
+        private readonly ILogging _logger;
+        private readonly ISonosHelper _sonosHelper;
+        private readonly ISonosDiscovery _sonos;
+        public PlayerController(IMusicPictures imu, ISonosHelper sonosHelper, ILogging log, ISonosDiscovery sonos)
         {
             musicPictures = imu;
+            _logger = log;
+            _sonosHelper = sonosHelper;
+            _sonos = sonos;
         }
-        
+
         #region Frontend GET Fertig
         /// <summary>
         /// Füllt den übergebenen Player mit Daten. 
@@ -34,14 +41,14 @@ namespace Sonos.Controllers
         {
             try
             {
-                SonosPlayer pl = await SonosHelper.GetPlayerbyUuid(id);
+                SonosPlayer pl = _sonos.GetPlayerbyUuid(id);
                 if (pl == null) return false;
                 await pl.FillPlayerPropertiesDefaultsAsync(v);
                 return true;
             }
             catch (Exception ex)
             {
-                SonosHelper.Logger.ServerErrorsAdd("FillPlayerPropertiesDefaults:" + id, ex, "PlayerController");
+                _logger.ServerErrorsAdd("FillPlayerPropertiesDefaults:" + id, ex, "PlayerController");
                 throw;
             }
         }
@@ -59,7 +66,7 @@ namespace Sonos.Controllers
                 {
                     return false;
                 }
-                var pl = await SonosHelper.GetPlayerbyUuid(id);
+                var pl = _sonos.GetPlayerbyUuid(id);
                 return await pl.AVTransport.SetPlayMode(k);
             }
             catch (Exception ex)
@@ -87,7 +94,7 @@ namespace Sonos.Controllers
                         newposition++;
                     if (oldposition != newposition && oldposition > 0 && newposition > 0)
                     {
-                        var pl = await SonosHelper.GetPlayerbyUuid(id);
+                        var pl = _sonos.GetPlayerbyUuid(id);
                         await pl.AVTransport.ReorderTracksInQueue(oldposition, newposition);
                     }
                 }
@@ -106,12 +113,12 @@ namespace Sonos.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("BaseURL/{id}")]
-        public async Task<string> BaseURL(string id)
+        public string BaseURL(string id)
         {
             try
             {
 
-                SonosPlayer pl = await SonosHelper.GetPlayerbyUuid(id);
+                SonosPlayer pl = _sonos.GetPlayerbyUuid(id);
                 if (pl == null) return String.Empty;
                 return pl.PlayerProperties.BaseUrl;
             }
@@ -132,7 +139,7 @@ namespace Sonos.Controllers
         {
             try
             {
-                SonosPlayer pl = await SonosHelper.GetPlayerbyUuid(id);
+                SonosPlayer pl = _sonos.GetPlayerbyUuid(id);
                 if (pl == null) return false;
                 return await pl.AVTransport?.Play();
             }
@@ -143,11 +150,11 @@ namespace Sonos.Controllers
             }
         }
         [HttpGet("Cover/{id}")]
-        public async Task<String> Cover(string id)
+        public String Cover(string id)
         {
             try
             {
-                SonosPlayer pl = await SonosHelper.GetPlayerbyUuid(id);
+                SonosPlayer pl = _sonos.GetPlayerbyUuid(id);
                 if (pl == null) return null;
                 if (pl.PlayerProperties.CurrentTrack.AlbumArtURI.StartsWith(SonosConstants.CoverHashPathForBrowser))
                 {
@@ -167,9 +174,9 @@ namespace Sonos.Controllers
 
 
         [HttpGet("CheckPlayerPropertiesWithClient/{id}")]
-        public async Task<Boolean> CheckPlayerPropertiesWithClient(string id, [FromForm] PlayerProperties v)
+        public Boolean CheckPlayerPropertiesWithClient(string id, [FromForm] PlayerProperties v)
         {
-            SonosPlayer sp = await SonosHelper.GetPlayerbyUuid(id);
+            SonosPlayer sp = _sonos.GetPlayerbyUuid(id);
             if (sp == null) return false;
             try
             {
@@ -192,7 +199,7 @@ namespace Sonos.Controllers
         {
             try
             {
-                SonosPlayer pl = await SonosHelper.GetPlayerbyUuid(id);
+                SonosPlayer pl = _sonos.GetPlayerbyUuid(id);
                 if (pl == null) return false;
                 var retv = await pl.AVTransport?.Pause();
                 pl.PlayerProperties.TransportState = SonosEnums.TransportState.PAUSED_PLAYBACK;
@@ -214,7 +221,7 @@ namespace Sonos.Controllers
         {
             try
             {
-                SonosPlayer pl = await SonosHelper.GetPlayerbyUuid(id);
+                SonosPlayer pl = _sonos.GetPlayerbyUuid(id);
                 if (pl == null) return false;
                 var retv = await pl.AVTransport.Stop();
                 pl.PlayerProperties.TransportState = SonosEnums.TransportState.STOPPED;
@@ -236,7 +243,7 @@ namespace Sonos.Controllers
         {
             try
             {
-                SonosPlayer pl = await SonosHelper.GetPlayerbyUuid(id);
+                SonosPlayer pl = _sonos.GetPlayerbyUuid(id);
                 if (pl == null) return false;
                 return await pl.AVTransport.Next();
             }
@@ -256,7 +263,7 @@ namespace Sonos.Controllers
         {
             try
             {
-                SonosPlayer pl = await SonosHelper.GetPlayerbyUuid(id);
+                SonosPlayer pl = _sonos.GetPlayerbyUuid(id);
                 if (pl == null) return false;
                 return await pl.AVTransport.Previous();
             }
@@ -276,7 +283,7 @@ namespace Sonos.Controllers
         {
             try
             {
-                SonosPlayer sonosPlayer = await SonosHelper.GetPlayerbyUuid(id);
+                SonosPlayer sonosPlayer = _sonos.GetPlayerbyUuid(id);
                 if (sonosPlayer.PlayerProperties.GroupCoordinatorIsLocal)
                 {
                     await sonosPlayer.GroupRenderingControl.SetGroupMute(!sonosPlayer.PlayerProperties.GroupRenderingControl_GroupMute);
@@ -294,11 +301,11 @@ namespace Sonos.Controllers
             }
         }
         [HttpGet("GetMute/{id}")]
-        public async Task<Boolean> GetMute(string id)
+        public Boolean GetMute(string id)
         {
             try
             {
-                SonosPlayer sp = await SonosHelper.GetPlayerbyUuid(id);
+                SonosPlayer sp = _sonos.GetPlayerbyUuid(id);
                 if (sp == null) return false;
                 if (sp.PlayerProperties.GroupCoordinatorIsLocal)
                 {
@@ -322,7 +329,7 @@ namespace Sonos.Controllers
         {
             try
             {
-                var pla = await SonosHelper.GetPlayerbyUuid(id);
+                var pla = _sonos.GetPlayerbyUuid(id);
                 if (pla == null)
                 {
                     return SonosConstants.Off;
@@ -348,7 +355,7 @@ namespace Sonos.Controllers
                 SonosPlayer pl;
                 try
                 {
-                    pl = await SonosHelper.GetPlayerbyUuid(id);
+                    pl = _sonos.GetPlayerbyUuid(id);
                 }
                 catch (Exception ex)
                 {
@@ -379,7 +386,7 @@ namespace Sonos.Controllers
                 SonosPlayer pl;
                 try
                 {
-                    pl = await SonosHelper.GetPlayerbyUuid(id);
+                    pl = _sonos.GetPlayerbyUuid(id);
                 }
                 catch (Exception ex)
                 {
@@ -403,10 +410,10 @@ namespace Sonos.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("GetFadeMode/{id}")]
-        public async Task<Boolean?> GetFadeMode(string id)
+        public Boolean? GetFadeMode(string id)
         {
 
-            SonosPlayer sp = await SonosHelper.GetPlayerbyUuid(id);
+            SonosPlayer sp = _sonos.GetPlayerbyUuid(id);
             if (sp == null) return false;
             return sp.PlayerProperties.CurrentCrossFadeMode;
         }
@@ -420,7 +427,7 @@ namespace Sonos.Controllers
         {
             try
             {
-                SonosPlayer pl = await SonosHelper.GetPlayerbyUuid(id);
+                SonosPlayer pl = _sonos.GetPlayerbyUuid(id);
                 if (pl.PlayerProperties.CurrentTrack.Uri == null || pl.PlayerProperties.CurrentTrack.Uri.StartsWith(SonosConstants.xrinconstream) && (pl.PlayerProperties.CurrentTrack.StreamContent == SonosConstants.AudioEingang || pl.PlayerProperties.CurrentTrack.Title == "Heimkino"))
                 {
                     //Normale Playlist laden
@@ -495,7 +502,7 @@ namespace Sonos.Controllers
                 {
                     value = 1;
                 }
-                var pl = await SonosHelper.GetPlayerbyUuid(id);
+                var pl = _sonos.GetPlayerbyUuid(id);
                 return await pl.RenderingControl.SetVolume(value);
             }
             catch (Exception ex)
@@ -524,7 +531,7 @@ namespace Sonos.Controllers
                 {
                     value = 1;
                 }
-                SonosPlayer sp = await SonosHelper.GetPlayerbyUuid(id);
+                SonosPlayer sp = _sonos.GetPlayerbyUuid(id);
                 if (sp == null || !sp.PlayerProperties.GroupCoordinatorIsLocal) return false;
                 return await sp.GroupRenderingControl.SetGroupVolume(value);
             }
@@ -544,7 +551,7 @@ namespace Sonos.Controllers
         {
             try
             {
-                var pl = await SonosHelper.GetPlayerbyUuid(id);
+                var pl = _sonos.GetPlayerbyUuid(id);
                 return await pl.AVTransport.SetCrossfadeMode(v);
             }
             catch (Exception ex)
@@ -563,7 +570,7 @@ namespace Sonos.Controllers
         {
             try
             {
-                var pl = await SonosHelper.GetPlayerbyUuid(id);
+                var pl = _sonos.GetPlayerbyUuid(id);
                 return await pl.AVTransport.RemoveTrackFromQueue(v); //Playlist wird im Player durch ein Event neu befüllt
             }
             catch (Exception ex)
@@ -580,7 +587,7 @@ namespace Sonos.Controllers
         [HttpGet("GetPlayerPlaylist/{id}/{v}")]
         public async Task<Playlist> GetPlayerPlaylist(string id, Boolean v)
         {
-            var pl = await SonosHelper.GetPlayerbyUuid(id);
+            var pl = _sonos.GetPlayerbyUuid(id);
             if (pl == null) return new();
             await pl.GetPlayerPlaylist(v);
             try
@@ -591,7 +598,7 @@ namespace Sonos.Controllers
                     {
                         try
                         {
-                            await SonosItemHelper.UpdateItemToHashPath(item);
+                            SonosItemHelper.UpdateItemToHashPath(item);
                         }
                         catch
                         {
@@ -613,11 +620,11 @@ namespace Sonos.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("GetPlayMode/{id}")]
-        public async Task<String> GetPlayMode(string id)
+        public String GetPlayMode(string id)
         {
             try
             {
-                var pl = await SonosHelper.GetPlayerbyUuid(id);
+                var pl = _sonos.GetPlayerbyUuid(id);
                 return pl.PlayerProperties.CurrentPlayModeString;
             }
             catch (Exception ex)
@@ -632,11 +639,11 @@ namespace Sonos.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("GetTransportState/{id}")]
-        public async Task<string> GetTransportState(string id)
+        public string GetTransportState(string id)
         {
             try
             {
-                var pl = await SonosHelper.GetPlayerbyUuid(id);
+                var pl = _sonos.GetPlayerbyUuid(id);
                 return pl.PlayerProperties.TransportStateString;
             }
             catch (Exception ex)
@@ -650,13 +657,13 @@ namespace Sonos.Controllers
 
 
         /// <summary>
-        /// Fügt Exception zum Sonoshelper
+        /// Fügt Exception zum _sonosHelper
         /// </summary>
         /// <param name="Func"></param>
         /// <param name="ex"></param>
-        private static void AddServerErrors(string Func, Exception ex)
+        private void AddServerErrors(string Func, Exception ex)
         {
-            SonosHelper.Logger.ServerErrorsAdd(Func, ex, "PlayerController");
+            _logger.ServerErrorsAdd(Func, ex, "PlayerController");
         }
 
         #endregion PrivateFunctions
@@ -678,7 +685,7 @@ namespace Sonos.Controllers
                     {
                         v = String.Empty;
                     }
-                    var pl = await SonosHelper.GetPlayerbyUuid(id);
+                    var pl = _sonos.GetPlayerbyUuid(id);
                     return await pl.AVTransport.ConfigureSleepTimer(v);
                 }
                 return false;
@@ -700,9 +707,9 @@ namespace Sonos.Controllers
             if (v == null || !v.StartsWith(SonosConstants.FV2)) return false;
             try
             {
-                var k = SonosHelper.Sonos.ZoneProperties.ListOfFavorites.FirstOrDefault(x => x.ItemID == v);
-                if (k == null && SonosHelper.Sonos.ZoneProperties.ListOfFavorites.Count > 0) return false;
-                var pl = await SonosHelper.GetPlayerbySoftwareGenerationPlaylistentry(v);
+                var k = _sonos.ZoneProperties.ListOfFavorites.FirstOrDefault(x => x.ItemID == v);
+                if (k == null && _sonos.ZoneProperties.ListOfFavorites.Count > 0) return false;
+                var pl = _sonos.GetPlayerbySoftwareGenerationPlaylistentry(v);
                 return await pl.ContentDirectory.DestroyObject(v);
             }
             catch (Exception ex)
@@ -721,7 +728,7 @@ namespace Sonos.Controllers
         {
             try
             {
-                return await SonosHelper.Sonos.ZoneMethods.CreateFavorite(await SonosHelper.GetPlayerbyUuid(id), v);
+                return await _sonos.ZoneMethods.CreateFavorite(_sonos.GetPlayerbyUuid(id), v);
             }
             catch (Exception ex)
             {
@@ -739,9 +746,9 @@ namespace Sonos.Controllers
         [HttpPost("Browsing/{id}")]
         public async Task<IList<SonosItem>> Browsing(string id, [FromForm] string v)
         {
-            var retval = await SonosHelper.Sonos.ZoneMethods.Browsing(await SonosHelper.GetPlayerbyUuid(id), v,true);
+            var retval = await _sonos.ZoneMethods.Browsing(_sonos.GetPlayerbyUuid(id), v, true);
             if (retval == null) return null;
-            await musicPictures.UpdateItemListToHashPath(retval);
+            musicPictures.UpdateItemListToHashPath(retval);
             return retval;
         }
 
@@ -761,11 +768,11 @@ namespace Sonos.Controllers
                 SonosItem cur = new();
                 try
                 {
-                    pla = await SonosHelper.GetPlayerbyUuid(id);
+                    pla = _sonos.GetPlayerbyUuid(id);
                     if (pla.PlayerProperties.CurrentTrack != null)
                     {
                         cur = pla.PlayerProperties.CurrentTrack;
-                        await SonosItemHelper.UpdateItemToHashPath(cur);
+                        SonosItemHelper.UpdateItemToHashPath(cur);
                     }
                     if (pla.AVTransport != null)
                     {
@@ -837,7 +844,7 @@ namespace Sonos.Controllers
                         if (pla.PlayerProperties.CurrentTrack.Uri.Contains(".mp4") &&
                             pla.PlayerProperties.CurrentTrack.Uri.StartsWith(SonosConstants.xsonoshttp))
                         {
-                            return await SonosItemHelper.UpdateItemToHashPath(pla.PlayerProperties.CurrentTrack);
+                            return SonosItemHelper.UpdateItemToHashPath(pla.PlayerProperties.CurrentTrack);
                         }
                     }
                     catch (Exception ex)
@@ -878,7 +885,7 @@ namespace Sonos.Controllers
                         return cur;
                     }
                 }
-                return await SonosItemHelper.UpdateItemToHashPath(pla.PlayerProperties.CurrentTrack);
+                return SonosItemHelper.UpdateItemToHashPath(pla.PlayerProperties.CurrentTrack);
             }
             catch (Exception ex)
             {
@@ -922,15 +929,15 @@ namespace Sonos.Controllers
                 //Es wurde keiner gewählt was dazu führt, das alle Gruppen aufgelöst werden.
                 if (v[0].ToLower() == SonosConstants.empty)
                 {
-                    foreach (var player in SonosHelper.Sonos.Players)
+                    foreach (var player in _sonos.Players)
                     {
                         await player.AVTransport.BecomeCoordinatorOfStandaloneGroup();
                     }
                     return true;
                 }
-                //SonosPlayer master = SonosHelper.GetPlayerbyUuid(id);
+                //SonosPlayer master = _sonosHelper.GetPlayerbyUuid(id);
                 List<string> tocordinatedplayer = v.ToList();
-                return await SonosHelper.GenerateZoneConstruct(id, tocordinatedplayer);
+                return await _sonosHelper.GenerateZoneConstruct(id, tocordinatedplayer);
             }
             catch (Exception ex)
             {
@@ -944,9 +951,9 @@ namespace Sonos.Controllers
         /// <param name="id">UUID Des Players</param>
         /// <param name="v">PFAD#Rating'Gelegenheit</param>
         [HttpPost("SetSongMeta/{id}")]
-        public async Task<Boolean> SetSongMeta(string id, [FromForm] MP3File.MP3File v)
+        public Boolean SetSongMeta(string id, [FromForm] MP3File.MP3File v)
         {
-            var pla = await SonosHelper.GetPlayerbyUuid(id);
+            var pla = _sonos.GetPlayerbyUuid(id);
             MP3File.MP3File lied = v;
             try
             {
@@ -1003,11 +1010,11 @@ namespace Sonos.Controllers
         /// <param name="id"></param>
         /// <param name="v"></param>
         [HttpPost("SetRatingFilter/{id}")]
-        public async Task<Boolean> SetRatingFilter(string id, [FromForm] SonosRatingFilter v)
+        public Boolean SetRatingFilter(string id, [FromForm] SonosRatingFilter v)
         {
             try
             {
-                var pl = await SonosHelper.GetPlayerbyUuid(id);
+                var pl = _sonos.GetPlayerbyUuid(id);
                 if (pl != null && v.IsValid)
                 {
                     if (pl.RatingFilter.CheckSonosRatingFilter(v)) return false;
@@ -1016,7 +1023,7 @@ namespace Sonos.Controllers
             }
             catch (Exception ex)
             {
-                SonosHelper.Logger.ServerErrorsAdd("SetRatingFilter:" + id, ex, "PlayerController");
+                _logger.ServerErrorsAdd("SetRatingFilter:" + id, ex, "PlayerController");
                 throw;
             }
             return true;
@@ -1030,7 +1037,7 @@ namespace Sonos.Controllers
         public async Task<Boolean> Seek(string id, [FromForm] double v)
         {
             if (v < 1) return true;
-            var pl = await SonosHelper.GetPlayerbyUuid(id);
+            var pl = _sonos.GetPlayerbyUuid(id);
             return await pl.AVTransport.Seek(TimeSpan.FromSeconds(v).ToString());
         }
         /// <summary>
@@ -1041,8 +1048,8 @@ namespace Sonos.Controllers
         [HttpPost("Enqueue/{id}")]
         public async Task<Boolean> Enqueue(string id, [FromForm] string v)
         {
-            var pl = await SonosHelper.GetPlayerbyUuid(id);
-            return await SonosHelper.Sonos.ZoneMethods.AddToQueue(v, pl);
+            var pl = _sonos.GetPlayerbyUuid(id);
+            return await _sonos.ZoneMethods.AddToQueue(v, pl);
         }
         /// <summary>
         /// Aktuelle wiedergabeliste Speichern.
@@ -1054,7 +1061,7 @@ namespace Sonos.Controllers
         {
             try
             {
-                SonosPlayer pla = await SonosHelper.GetPlayerbyUuid(id);
+                SonosPlayer pla = _sonos.GetPlayerbyUuid(id);
                 var br = await pla.ContentDirectory.Browse(BrowseObjects.SonosPlaylist);
                 IList<SonosItem> sonosplaylists = br.Result;
                 string sonosid = String.Empty;
@@ -1076,7 +1083,7 @@ namespace Sonos.Controllers
             }
             catch (Exception ex)
             {
-                SonosHelper.Logger.ServerErrorsAdd("SaveQueue:" + id, ex, "PlayerController");
+                _logger.ServerErrorsAdd("SaveQueue:" + id, ex, "PlayerController");
                 throw;
             }
 
@@ -1092,7 +1099,7 @@ namespace Sonos.Controllers
         {
             try
             {
-                SonosPlayer pla = await SonosHelper.GetPlayerbyUuid(id);
+                SonosPlayer pla = _sonos.GetPlayerbyUuid(id);
                 //Playlist ermitteln und in Datei schreiben
                 var brpl = await pla.ContentDirectory.Browse(BrowseObjects.CurrentPlaylist);
                 IList<SonosItem> pl = brpl.Result;
@@ -1110,7 +1117,7 @@ namespace Sonos.Controllers
             }
             catch (Exception ex)
             {
-                SonosHelper.Logger.ServerErrorsAdd("ExportQueue:" + id, ex, "PlayerController");
+                _logger.ServerErrorsAdd("ExportQueue:" + id, ex, "PlayerController");
                 throw;
             }
         }
@@ -1124,10 +1131,10 @@ namespace Sonos.Controllers
         {
             try
             {
-                SonosPlayer pl = await SonosHelper.GetPlayerbyUuid(id);
+                SonosPlayer pl = _sonos.GetPlayerbyUuid(id);
                 await pl.AVTransport.RemoveAllTracksFromQueue();
                 await Task.Delay(300);
-                await SonosHelper.Sonos.ZoneMethods.AddToQueue(v, pl);
+                await _sonos.ZoneMethods.AddToQueue(v, pl);
                 if (pl.PlayerProperties.AVTransportURI != SonosConstants.xrinconqueue + pl.UUID + "#0")
                 {
                     await pl.AVTransport.SetAVTransportURI(SonosConstants.xrinconqueue + pl.UUID + "#0");
@@ -1138,7 +1145,7 @@ namespace Sonos.Controllers
             }
             catch (Exception ex)
             {
-                SonosHelper.Logger.ServerErrorsAdd("ReplacePlaylist:" + id, ex, "PlayerController");
+                _logger.ServerErrorsAdd("ReplacePlaylist:" + id, ex, "PlayerController");
                 throw;
             }
         }
@@ -1152,14 +1159,14 @@ namespace Sonos.Controllers
         {
             try
             {
-                SonosPlayer pl = await SonosHelper.GetPlayerbyUuid(id);
+                SonosPlayer pl = _sonos.GetPlayerbyUuid(id);
                 await pl.AVTransport.Seek(v, SonosEnums.SeekUnit.TRACK_NR);
                 await Task.Delay(100);
                 return await pl.AVTransport.Play();
             }
             catch (Exception ex)
             {
-                SonosHelper.Logger.ServerErrorsAdd("SetSongInPlaylist:" + id, ex, "PlayerController");
+                _logger.ServerErrorsAdd("SetSongInPlaylist:" + id, ex, "PlayerController");
                 throw;
             }
         }

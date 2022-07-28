@@ -1,14 +1,12 @@
-﻿namespace Sonos.Classes
+﻿using Sonos.Classes.Enums;
+using Sonos.Classes.Interfaces;
+
+namespace Sonos.Classes
 {
-    public class PlayerPropertiesRequest
+    public class PlayerPropertiesRequest : IPlayerPropertiesRequest
     {
         public string uuid { get; set; }
         public string value { get; set; }
         public PlayerDevicePropertiesTypes type { get; set; }
-    }
-
-    public enum PlayerDevicePropertiesTypes
-    {
-        ButtonLockState,Bass,LEDState,Loudness, OutputFixed, Treble
     }
 }

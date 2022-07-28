@@ -1,34 +1,35 @@
-﻿using SonosUPnP;
+﻿using Sonos.Classes.Interfaces;
+using SonosUPnP;
 using SonosUPNPCore.Enums;
 using System;
 using System.Threading.Tasks;
 
 namespace Sonos.Classes
 {
-    public class PlayerDeviceProperties
+    public class PlayerDeviceProperties : IPlayerDeviceProperties
     {
 
         public async Task<PlayerDeviceProperties> FilledData(SonosPlayer sp)
         {
             if (sp == null) return null;
-            if(sp.DeviceProperties == null) return null;
+            if (sp.DeviceProperties == null) return null;
             if (sp.RenderingControl == null) return null;
 
-                var lo = await sp.DeviceProperties.GetButtonLockState();
-                if (Enum.TryParse(lo, out OnOffSwitch oos))
-                {
-                    sp.PlayerProperties.ButtonLockState = oos;
+            var lo = await sp.DeviceProperties.GetButtonLockState();
+            if (Enum.TryParse(lo, out OnOffSwitch oos))
+            {
+                sp.PlayerProperties.ButtonLockState = oos;
 
-                }
+            }
 
             ButtonLockState = sp.PlayerProperties.ButtonLockState == OnOffSwitch.On;
 
-                var led = await sp.DeviceProperties.GetLEDState();
-                if (Enum.TryParse(led, out OnOffSwitch oosled))
-                {
-                    sp.PlayerProperties.LEDState = oosled;
+            var led = await sp.DeviceProperties.GetLEDState();
+            if (Enum.TryParse(led, out OnOffSwitch oosled))
+            {
+                sp.PlayerProperties.LEDState = oosled;
 
-                }
+            }
 
             LEDState = sp.PlayerProperties.LEDState == OnOffSwitch.On;
             await sp.RenderingControl.GetBass();
