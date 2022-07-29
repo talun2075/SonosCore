@@ -309,7 +309,6 @@ namespace Sonos.Controllers
                         foreach (SonosItem citem in sbl.Childs)
                         {
                             //hier die metadaten holen um die zeit zu bekommen? 
-                            var cilditemchildslist = await _sonos.ZoneMethods.Browsing(player, citem.ContainerID, false);
                             if (!string.IsNullOrEmpty(citem.AlbumArtURI))
                             {
                                 var titem = SonosItemHelper.UpdateItemToHashPath(citem);
@@ -349,7 +348,6 @@ namespace Sonos.Controllers
                                 continue;
                             }
                         }
-
                         artistchildlist.Duration = new SonosTimeSpan(tspan);
                     }
                 }

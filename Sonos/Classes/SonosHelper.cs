@@ -22,10 +22,10 @@ namespace Sonos.Classes
     public class SonosHelper : ISonosHelper
     {
         #region Klassenvariablen
-
+        private readonly IMusicPictures _musicpictures;
         #endregion Klassenvariablen
         #region public Methoden
-        public SonosHelper(ILogging logger, ISonosDiscovery sonosDiscovery)
+        public SonosHelper(ILogging logger, ISonosDiscovery sonosDiscovery, IMusicPictures imu)
         {
             Logger = logger;
             Sonos = sonosDiscovery;
@@ -34,7 +34,8 @@ namespace Sonos.Classes
             _ = new Timer(state => Sonos.CheckDevicesToPlayer(), null, TimeSpan.FromSeconds(15), TimeSpan.FromMilliseconds(-1));
             _ = new Timer(state => CheckPlayerForHashImages(Sonos.Players), null, TimeSpan.FromSeconds(30), TimeSpan.FromMilliseconds(-1));
             _ = new Timer(state => CheckAllPlayerReachable(true), null, TimeSpan.FromMinutes(15), TimeSpan.FromMilliseconds(-1));
-        }
+            _musicpictures = imu;//need as init.
+         }
 
         public Boolean CheckPlayerForHashImages(IList<SonosPlayer> sp)
         {

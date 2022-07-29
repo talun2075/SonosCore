@@ -17,11 +17,13 @@ namespace Sonos.Controllers
         private readonly ILogging _logger;
         private readonly IStreamDeckResponse _streamDeckResponse;
         private readonly ISonosDiscovery _sonos;
-        public StreamDeckController(IStreamDeckResponse sdr, ILogging log, ISonosDiscovery sonos)
+        private readonly IMusicPictures _musicpictures;
+        public StreamDeckController(IStreamDeckResponse sdr, ILogging log, ISonosDiscovery sonos, IMusicPictures musicpictures)
         {
             _logger = log;
             _streamDeckResponse = sdr;
             _sonos = sonos;
+            _musicpictures = musicpictures;//need for init
         }
 
         [HttpGet("Cover/{id}")]
@@ -31,8 +33,16 @@ namespace Sonos.Controllers
 
             try
             {
-                var rand = new Random().Next(SonosConstants.MusicPictureHashes.Rows.Count-1);
-                _streamDeckResponse.RandomCover = "http://"+ Request.Host.Value + SonosConstants.CoverHashPathForBrowser + SonosConstants.MusicPictureHashes.Rows[rand].ItemArray[1] + ".png";
+                if(SonosConstants.MusicPictureHashes.Rows.Count > 0)
+                {
+                    var rand = new Random().Next(SonosConstants.MusicPictureHashes.Rows.Count - 1);
+                    _streamDeckResponse.RandomCover = "http://" + Request.Host.Value + SonosConstants.CoverHashPathForBrowser + SonosConstants.MusicPictureHashes.Rows[rand].ItemArray[1] + ".png";
+                }
+                else
+                {
+                    _streamDeckResponse.RandomCover = "";
+                }
+                
             }
             catch (Exception ex)
             {
