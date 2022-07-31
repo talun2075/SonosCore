@@ -1,5 +1,5 @@
+using SonosData.DataClasses;
 using SonosUPnP;
-using SonosUPnP.DataClasses;
 
 namespace Sonos.Classes.Events
 {

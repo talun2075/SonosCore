@@ -1,4 +1,4 @@
-﻿using SonosUPnP.DataClasses;
+﻿using SonosData.DataClasses;
 using System;
 using System.Collections.Generic;
 

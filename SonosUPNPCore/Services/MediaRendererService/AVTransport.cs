@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using OSTL.UPnP;
 using SonosConst;
+using SonosData;
+using SonosData.DataClasses;
+using SonosData.Props;
 using SonosUPnP.Classes;
-using SonosUPnP.DataClasses;
-using SonosUPNPCore;
-using SonosUPNPCore.Props;
 
 namespace SonosUPnP.Services.MediaRendererService
 {

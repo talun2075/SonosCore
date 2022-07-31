@@ -4,26 +4,27 @@ using SonosUPnP;
 using System.Text.RegularExpressions;
 using System.Linq;
 using MP3File;
-using SonosUPnP.DataClasses;
-using SonosUPnP.Props;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using SonosConst;
 using Sonos.Classes.Interfaces;
 using HomeLogging;
+using SonosData.DataClasses;
+using SonosUPNPCore.Classes;
+using SonosData;
 
 namespace Sonos.Controllers
 {
     [Route("/[controller]")]
     public class PlayerController : Controller
     {
-        private readonly IMusicPictures musicPictures;
+        private readonly IMusicPictures _musicPictures;
         private readonly ILogging _logger;
         private readonly ISonosHelper _sonosHelper;
         private readonly ISonosDiscovery _sonos;
         public PlayerController(IMusicPictures imu, ISonosHelper sonosHelper, ILogging log, ISonosDiscovery sonos)
         {
-            musicPictures = imu;
+            _musicPictures = imu;
             _logger = log;
             _sonosHelper = sonosHelper;
             _sonos = sonos;
@@ -43,7 +44,10 @@ namespace Sonos.Controllers
             {
                 SonosPlayer pl = _sonos.GetPlayerbyUuid(id);
                 if (pl == null) return false;
-                await pl.FillPlayerPropertiesDefaultsAsync(v);
+                if(await pl.FillPlayerPropertiesDefaultsAsync(v))
+                {
+                    _sonosHelper.CheckPlayerForHashImages(pl);
+                }
                 return true;
             }
             catch (Exception ex)
@@ -598,7 +602,7 @@ namespace Sonos.Controllers
                     {
                         try
                         {
-                            SonosItemHelper.UpdateItemToHashPath(item);
+                            _musicPictures.UpdateItemToHashPath(item);
                         }
                         catch
                         {
@@ -748,7 +752,7 @@ namespace Sonos.Controllers
         {
             var retval = await _sonos.ZoneMethods.Browsing(_sonos.GetPlayerbyUuid(id), v, true);
             if (retval == null) return null;
-            musicPictures.UpdateItemListToHashPath(retval);
+            _musicPictures.UpdateItemListToHashPath(retval);
             return retval;
         }
 
@@ -772,7 +776,7 @@ namespace Sonos.Controllers
                     if (pla.PlayerProperties.CurrentTrack != null)
                     {
                         cur = pla.PlayerProperties.CurrentTrack;
-                        SonosItemHelper.UpdateItemToHashPath(cur);
+                        _musicPictures.UpdateItemToHashPath(cur);
                     }
                     if (pla.AVTransport != null)
                     {
@@ -844,7 +848,7 @@ namespace Sonos.Controllers
                         if (pla.PlayerProperties.CurrentTrack.Uri.Contains(".mp4") &&
                             pla.PlayerProperties.CurrentTrack.Uri.StartsWith(SonosConstants.xsonoshttp))
                         {
-                            return SonosItemHelper.UpdateItemToHashPath(pla.PlayerProperties.CurrentTrack);
+                            return _musicPictures.UpdateItemToHashPath(pla.PlayerProperties.CurrentTrack);
                         }
                     }
                     catch (Exception ex)
@@ -859,7 +863,7 @@ namespace Sonos.Controllers
                             if (pla.PlayerProperties.CurrentTrack.Uri != pl.TrackURI || pla.PlayerProperties.CurrentTrack.MP3.IsEmpty())
                             {
                                 //Bei Songwechsel Zugriff aufs Dateisystem außer es wird als Parameter übergeben.
-                                string u = SonosItemHelper.URItoPath(cur.Uri);
+                                string u = SonosConstants.URItoPath(cur.Uri);
                                 pla.PlayerProperties.CurrentTrack.MP3 = MP3ReadWrite.ReadMetaData(u);
                             }
                         }
@@ -885,7 +889,7 @@ namespace Sonos.Controllers
                         return cur;
                     }
                 }
-                return SonosItemHelper.UpdateItemToHashPath(pla.PlayerProperties.CurrentTrack);
+                return _musicPictures.UpdateItemToHashPath(pla.PlayerProperties.CurrentTrack);
             }
             catch (Exception ex)
             {
@@ -905,7 +909,7 @@ namespace Sonos.Controllers
             //Prüfen, ob schon in RatingFehlerliste enthalten.
             try
             {
-                v = SonosItemHelper.URItoPath(v);
+                v = SonosConstants.URItoPath(v);
                 if (MP3ReadWrite.listOfCurrentErrors.Any())
                 {
                     var k = MP3ReadWrite.listOfCurrentErrors.Find(x => x.Pfad == v);
@@ -1109,7 +1113,7 @@ namespace Sonos.Controllers
                 List<MP3File.MP3File> mpfiles = new();
                 foreach (SonosItem song in pl)
                 {
-                    string pfad = SonosItemHelper.URItoPath(song.Uri);
+                    string pfad = SonosConstants.URItoPath(song.Uri);
                     mpfiles.Add(MP3ReadWrite.ReadMetaData(pfad));
 
                 }

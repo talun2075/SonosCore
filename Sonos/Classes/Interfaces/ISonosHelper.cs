@@ -1,7 +1,7 @@
 ﻿using HomeLogging;
+using SonosData;
+using SonosData.DataClasses;
 using SonosUPnP;
-using SonosUPnP.DataClasses;
-using SonosUPNPCore.Enums;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -15,6 +15,7 @@ namespace Sonos.Classes.Interfaces
 
         bool CheckAllPlayerReachable(bool usetimer = false);
         bool CheckPlayerForHashImages(IList<SonosPlayer> sp);
+        bool CheckPlayerForHashImages(SonosPlayer sp);
         bool CheckPlaylist(SonosItem playlist, SonosPlayer sp, bool trace = false);
         Task<bool> FillAllPlayerProperties();
         Task<bool> FillSonosTimeSettingStuff();

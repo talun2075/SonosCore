@@ -1,5 +1,5 @@
-﻿using SonosUPnP.Props;
-using SonosUPNPCore.Enums;
+﻿using SonosData.Enums;
+using SonosUPNPCore.Classes;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;

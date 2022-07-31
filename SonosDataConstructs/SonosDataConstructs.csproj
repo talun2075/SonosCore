@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>SonosData</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SonosConst\SonosConst.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="MP3">
+      <HintPath>..\..\CommonCore\HomeCommon\MP3\bin\Debug\net6.0\MP3.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

@@ -1,6 +1,6 @@
 ﻿using Sonos.Classes.Interfaces;
+using SonosData.Enums;
 using SonosUPnP;
-using SonosUPNPCore.Enums;
 using System;
 using System.Threading.Tasks;
 

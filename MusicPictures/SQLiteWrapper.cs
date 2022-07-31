@@ -15,7 +15,6 @@ namespace SonosSQLiteWrapper
         private readonly SQLiteConnection sqlite;
         private readonly SQLiteDataAdapter adapter;
         private readonly SQLiteCommandBuilder builder;
-        private readonly DataTable datatable = new();
         private readonly ILogging _logging;
         private readonly string cs = "";
         /// <summary>
@@ -39,7 +38,7 @@ namespace SonosSQLiteWrapper
             {
                 OpenDatabase();
                 PrepareQueries();
-                adapter.Fill(this.datatable);
+                adapter.Fill(MusicPictures);
                 PreparePrimaryKeys();
                 Close();
                 
@@ -53,17 +52,14 @@ namespace SonosSQLiteWrapper
         /// Return the task table
         /// </summary>
         /// <returns></returns>
-        public DataTable GetMusicPictures()
-        {
-            return this.datatable;
-        }
+        public DataTable MusicPictures { get; set; } = new();
 
         public void Update()
         {
             OpenDatabase();
-            adapter.Update(datatable);
-            datatable.Clear();
-            adapter.Fill(datatable);
+            adapter.Update(MusicPictures);
+            MusicPictures.Clear();
+            adapter.Fill(MusicPictures);
             Close();
         }
 
@@ -120,8 +116,8 @@ namespace SonosSQLiteWrapper
             try
             {
                 var keys = new DataColumn[1];
-                keys[0] = datatable.Columns[0];
-                datatable.PrimaryKey = keys;
+                keys[0] = MusicPictures.Columns[0];
+                MusicPictures.PrimaryKey = keys;
             }
             catch(Exception ex)
             {

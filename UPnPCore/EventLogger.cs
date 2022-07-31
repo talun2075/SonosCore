@@ -32,7 +32,7 @@ namespace OpenSource.Utilities
     {
 
         public static bool EnabledTrace = false;
-        public static bool Enabled = true;
+        public static bool Enabled = false;
         public static bool ShowAll = false;
 
         public static Logging Logger { get; set; } = new(new LoggerWrapperConfig() { ConfigName = "SonosUPNP", TraceFileName = "traceUPNP.txt", ErrorFileName = "ErrorUPNP.txt" });

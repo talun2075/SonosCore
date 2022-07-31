@@ -1,5 +1,5 @@
 ﻿using Sonos.Classes.Interfaces;
-using SonosUPnP;
+using SonosData;
 using System;
 using System.Collections.Generic;
 

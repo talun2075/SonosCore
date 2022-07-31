@@ -1,10 +1,11 @@
-﻿using System.Data;
+﻿
+using System.Data;
 
 namespace SonosSQLiteWrapper.Interfaces
 {
     public interface ISQLiteWrapper
     {
-        DataTable GetMusicPictures();
+        public DataTable MusicPictures { get; set; }
         void Update();
     }
 }

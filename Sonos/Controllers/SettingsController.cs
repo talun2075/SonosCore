@@ -1,13 +1,15 @@
 ﻿using System;
 using SonosUPnP;
 using System.Linq;
-using SonosUPnP.DataClasses;
 using System.Collections.Generic;
-using SonosUPnP.Props;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Sonos.Classes.Interfaces;
 using HomeLogging;
+using SonosData.DataClasses;
+using SonosUPNPCore.Classes;
+using SonosData;
+using SonosConst;
 
 namespace Sonos.Controllers
 {
@@ -233,7 +235,8 @@ namespace Sonos.Controllers
             {
                 if (_sonos.ZoneProperties.ShareIndexInProgress) return true;
                 await _sonos.UpdateMusicIndex();
-                _ = await musicPictures.GenerateDBContent();
+                List<SonosItem> tracks = await _sonos.ZoneMethods.Browsing(_sonos.Players.First(), SonosConstants.aTracks, false);
+                musicPictures.GenerateDBContent(tracks);
                 _sonosHelper.ChildGenrelist.Clear();//Liste der Hörspiele leeren; Generieren erfolgt über Timer.
                 return _sonos.ZoneProperties.ShareIndexInProgress;
             }

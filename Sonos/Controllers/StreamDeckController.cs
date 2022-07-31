@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Sonos.Classes;
 using SonosUPnP;
-using SonosUPnP.DataClasses;
 using SonosConst;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Sonos.Classes.Interfaces;
 using HomeLogging;
+using SonosData.DataClasses;
 
 namespace Sonos.Controllers
 {
@@ -23,7 +23,7 @@ namespace Sonos.Controllers
             _logger = log;
             _streamDeckResponse = sdr;
             _sonos = sonos;
-            _musicpictures = musicpictures;//need for init
+            _musicpictures = musicpictures;
         }
 
         [HttpGet("Cover/{id}")]
@@ -33,10 +33,10 @@ namespace Sonos.Controllers
 
             try
             {
-                if(SonosConstants.MusicPictureHashes.Rows.Count > 0)
+                if(_musicpictures.CurrentMusicPictures.Rows.Count > 0)
                 {
-                    var rand = new Random().Next(SonosConstants.MusicPictureHashes.Rows.Count - 1);
-                    _streamDeckResponse.RandomCover = "http://" + Request.Host.Value + SonosConstants.CoverHashPathForBrowser + SonosConstants.MusicPictureHashes.Rows[rand].ItemArray[1] + ".png";
+                    var rand = new Random().Next(_musicpictures.CurrentMusicPictures.Rows.Count - 1);
+                    _streamDeckResponse.RandomCover = "http://" + Request.Host.Value + SonosConstants.CoverHashPathForBrowser + _musicpictures.CurrentMusicPictures.Rows[rand].ItemArray[1] + ".png";
                 }
                 else
                 {

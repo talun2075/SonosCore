@@ -892,7 +892,9 @@ function SonosZonesObject() {
             this.VisibilityChangeTimer = new Date();
             if ((this.VisibilityChangeTimer - oldtime) > maxTimeToReload) {
                 console.log("Länger als 10 Minuten versteckt");
-                location.reload();
+                SoVa.SSE_Event_Source.close();
+                location.reload();//todo: Stream beenden.
+
             } else {
                 GetLatestEvents();
             }

@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using System.Data;
-using System.Web;
+﻿using System.Web;
 
 namespace SonosConst
 {
@@ -95,10 +93,6 @@ namespace SonosConst
         public const string SleepTimerOffValueFromServer = "00:00:00";
 
         public const string CoverHashPathForBrowser = "/hashimages/"; //todo: appconfig.json
-
-        //public static Dictionary<string, string> MusicPictureHashes { get; set; } = new();
-        public static DataTable MusicPictureHashes { get; set; } = new();
-
         /// <summary>
         /// Entfernt vom übergebenen link die Version Parameter wie &v=xxx
         /// Der Parameter muss am ende stehen. 
@@ -126,11 +120,55 @@ namespace SonosConst
                 if (string.IsNullOrEmpty(_uri)) return String.Empty;
                 _uri = HttpUtility.UrlDecode(_uri);
                 _uri = Uri.UnescapeDataString(_uri);
-                _uri = _uri.Replace("getaa?u=" + SonosConstants.xfilecifs, "");
-                _uri = SonosConstants.RemoveVersionInUri(_uri);
+                _uri = _uri.Replace("getaa?u=" + xfilecifs, "");
+                _uri = RemoveVersionInUri(_uri);
                 _uri = _uri.Replace("/", @"\");
                 return _uri.Replace("\\\\\\", "\\\\");
 
+            }
+            catch
+            {
+                return _uri;
+            }
+        }
+
+        /// <summary>
+        /// Der Übergebene Container wird, zu einer gültigen URI. 
+        /// </summary>
+        /// <param name="_cont">Container ID die zu einer URI werden soll.</param>
+        /// <param name="playerid">Id des SonosPlayers in der Liste um die UUID zu bestimmen</param>
+        /// <returns>URI</returns>
+        public static String ContainertoURI(string _cont, string playerid)
+        {
+            //Kein Filter angesetzt
+            string rinconpl = String.Empty;
+            if (_cont.StartsWith("S:"))
+            {
+                rinconpl = _cont.Replace("S:", xfilecifs); //Playlist
+            }
+            if (_cont.StartsWith(xfilecifs))
+            {
+                rinconpl = _cont; //Song
+            }
+            if (String.IsNullOrEmpty(rinconpl))
+            {
+                rinconpl = xrinconplaylist + playerid + "#" + _cont; //Container
+            }
+            return rinconpl;
+        }
+        /// <summary>
+        /// Ersetzt den Pfad für die MP3 Verarbeitung
+        /// </summary>
+        /// <param name="_uri"></param>
+        /// <returns></returns>
+        public static String URItoPath(string _uri)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(_uri)) return String.Empty;
+                _uri = _uri.Replace(SonosConstants.xfilecifs, "");
+                _uri = Uri.UnescapeDataString(_uri);
+                return _uri.Replace("/", "\\");
             }
             catch
             {

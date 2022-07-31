@@ -8,12 +8,10 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using HomeLogging;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using OSTL.UPnP;
-using SonosUPnP.DataClasses;
-using SonosUPnP.Props;
-using SonosUPNPCore.DataClasses;
-using SonosUPNPCore.Enums;
+using SonosData.DataClasses;
+using SonosData.Enums;
+using SonosUPNPCore.Classes;
 
 namespace SonosUPnP
 {
@@ -41,7 +39,7 @@ namespace SonosUPnP
         private readonly ILogging Logger;
         #endregion Klassenvariablen
         #region Public Methoden
-        public SonosDiscovery(IConfiguration config, ILogging log, IServiceProvider _provider)
+        public SonosDiscovery(IConfiguration config, ILogging log)
         {
             _config = config;
             Logger = log;
@@ -135,7 +133,7 @@ namespace SonosUPnP
         {
             Boolean retval = true;
             List<Boolean> retvallist = new();
-            if (Players?.Count > 0)
+            if (Players.Count > 0)
             {
                 if (ZoneProperties.ListOfFavorites.Count == 0 || makenew)
                 {
@@ -328,7 +326,7 @@ namespace SonosUPnP
             Boolean retval = false;
             if (!Players.Any())
                 return retval;
-            String timeServer = _config["TimeServer"]; //todo: aus dem ctor nehmen.
+            String timeServer = _config["TimeServer"];
             if (!string.IsNullOrEmpty(timeServer))
             {
                 SonosPlayer sp1 = Players.FirstOrDefault(p => p.SoftwareGeneration == SoftwareGeneration.ZG1);

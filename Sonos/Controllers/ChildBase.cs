@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Sonos.Classes;
 using SonosUPnP;
-using SonosUPnP.DataClasses;
 using SonosConst;
 using System;
 using System.Collections.Generic;
@@ -9,6 +8,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using HomeLogging;
 using Sonos.Classes.Interfaces;
+using SonosData.DataClasses;
+using SonosData;
 
 namespace Sonos.Controllers
 {
@@ -23,18 +24,21 @@ namespace Sonos.Controllers
         private readonly ILogging _logger;
         private readonly ISonosHelper _sonosHelper;
         private readonly ISonosDiscovery _sonos;
+        private readonly IMusicPictures _musicPictures;
         #endregion Props
 
-        public ChildBase(ILogging log, ISonosHelper sonosHelper, ISonosDiscovery sonos)
+        public ChildBase(ILogging log, ISonosHelper sonosHelper, ISonosDiscovery sonos, IMusicPictures imu)
         {
             _logger = log;
             _sonosHelper = sonosHelper;
             _sonos = sonos;
+            _musicPictures = imu;
         }
 
         #region Methods
         public async Task<IList<ISonosBrowseList>> Start()
         {
+            if (_sonosHelper.ChildGenrelist.Any()) return _sonosHelper.ChildGenrelist;
             List<SonosItem> genre = await _sonos.ZoneMethods.Browsing(GetChild(), SonosConstants.aGenre + "/Hörspiel", false);
             int ge = genre.Count - 1;
             if (ge == _sonosHelper.ChildGenrelist.Count)
@@ -53,7 +57,7 @@ namespace Sonos.Controllers
 
                 if (!string.IsNullOrEmpty(item.AlbumArtURI))
                 {
-                    var titem = SonosItemHelper.UpdateItemToHashPath(item);
+                    var titem = _musicPictures.UpdateItemToHashPath(item);
                     item.AlbumArtURI = titem.AlbumArtURI;
                 }
                 if (title == SonosConstants.aALL) continue;
@@ -72,7 +76,7 @@ namespace Sonos.Controllers
                     //var cilditemchildslist = await _sonos.ZoneMethods.Browsing(GetChild(), citem.ContainerID, false);
                     if (!string.IsNullOrEmpty(citem.AlbumArtURI))
                     {
-                        var titem = SonosItemHelper.UpdateItemToHashPath(citem);
+                        var titem = _musicPictures.UpdateItemToHashPath(citem);
                         citem.AlbumArtURI = titem.AlbumArtURI;
                     }
                 }
@@ -117,6 +121,7 @@ namespace Sonos.Controllers
         public async Task<int> Transport()
         {
             var bu = GetChild();
+            if (bu == null || bu.AVTransport == null) return 0;
             var t = await bu.AVTransport?.GetTransportInfo();
             if (t == SonosEnums.TransportState.PLAYING)
                 return 1;
@@ -205,7 +210,6 @@ namespace Sonos.Controllers
                 throw;
             }
         }
-        
         public async Task<Boolean> Random(string _playlist, int volume)
         {
             try
@@ -251,7 +255,7 @@ namespace Sonos.Controllers
                     }
                 }
                 RandomPlaylistItems[_playlist] = randomitems;
-                Random rand = new Random();
+                Random rand = new();
                 List<SonosItem> ItemstoPlay = new();
                 foreach (var artist in randomitems.Keys)
                 {

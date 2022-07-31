@@ -1,6 +1,6 @@
 ﻿using OSTL.UPnP;
+using SonosData.DataClasses;
 using SonosUPnP.Classes;
-using SonosUPnP.DataClasses;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;

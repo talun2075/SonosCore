@@ -2,8 +2,6 @@
 using Microsoft.Extensions.Configuration;
 using Sonos.Classes;
 using SonosUPnP;
-using SonosUPnP.DataClasses;
-using SonosUPnP.Props;
 using SonosConst;
 using System;
 using System.Collections.Generic;
@@ -11,6 +9,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using HomeLogging;
 using Sonos.Classes.Interfaces;
+using SonosData.DataClasses;
+using SonosUPNPCore.Classes;
+using SonosData;
+using SonosData.Enums;
 
 namespace Sonos.Controllers
 {
@@ -101,19 +103,19 @@ namespace Sonos.Controllers
                             _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.Clear();
 
                         //Need Update
-                        var s1 = _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.FirstOrDefault(x => x.SoftwareGeneration ==  SonosUPNPCore.Enums.SoftwareGeneration.ZG1);
+                        var s1 = _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.FirstOrDefault(x => x.SoftwareGeneration ==  SoftwareGeneration.ZG1);
                         if (s1 == null)
                         {
                             //Update for 1
-                            SonosPlayer pl = _sonos.GetPlayerbySoftWareGeneration(SonosUPNPCore.Enums.SoftwareGeneration.ZG1);
+                            SonosPlayer pl = _sonos.GetPlayerbySoftWareGeneration(SoftwareGeneration.ZG1);
                             var k = await pl.ZoneGroupTopology.GetZoneGroupState();
                             _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.AddRange(k.ZoneGroupStates);
                         }
-                        var s2 = _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.FirstOrDefault(x => x.SoftwareGeneration ==  SonosUPNPCore.Enums.SoftwareGeneration.ZG2);
+                        var s2 = _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.FirstOrDefault(x => x.SoftwareGeneration ==  SoftwareGeneration.ZG2);
                         if (s2 == null)
                         {
                             //Update for 2
-                            SonosPlayer pl = _sonos.GetPlayerbySoftWareGeneration(SonosUPNPCore.Enums.SoftwareGeneration.ZG2);
+                            SonosPlayer pl = _sonos.GetPlayerbySoftWareGeneration(SoftwareGeneration.ZG2);
                             var k = await pl.ZoneGroupTopology.GetZoneGroupState();
                             lock (_sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates)
                             {
@@ -132,7 +134,7 @@ namespace Sonos.Controllers
             }
             catch(Exception ex)
             {
-                _logger.ServerErrorsAdd("GetZones", ex, "ZoneController");
+                _logger.ServerErrorsAdd("GetZones", ex, "ZoneController");//todo: wegen log mehr try catch machen.
                 return _sonos.ZoneProperties.ZoneGroupState;
             }
             //return _sonos.ZoneProperties.ZoneGroupState;
@@ -155,17 +157,17 @@ namespace Sonos.Controllers
         [HttpGet("CheckPlayersForHashImages")]
         public String CheckPlayersForHashImages()
         {
-            string retval = "ok";
+            Boolean retval = false;
             try
             {
-                _sonosHelper.CheckPlayerForHashImages(_sonos.Players);
+                retval= _sonosHelper.CheckPlayerForHashImages(_sonos.Players);
             }
             catch (Exception ex)
             {
                 _logger.ServerErrorsAdd("CheckPlayersForHashImages", ex, "ZoneController");
                 throw;
             }
-            return retval;
+            return retval.ToString();
         }
 
         [HttpGet("FillAllPlayerProperties")]

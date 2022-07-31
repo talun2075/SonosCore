@@ -2,17 +2,15 @@
 using System.Collections.Generic;
 using Sonos.Controllers;
 using SonosUPnP;
-using SonosUPnP.DataClasses;
 using HomeLogging;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 using Sonos.Classes.Events;
 using System.Threading;
 using System.Net;
-using Microsoft.AspNetCore.Hosting;
-using System.IO;
 using SonosConst;
 using Sonos.Classes.Interfaces;
+using SonosData.DataClasses;
+using SonosData;
 
 namespace Sonos.Classes
 {
@@ -31,9 +29,10 @@ namespace Sonos.Classes
             Sonos = sonosDiscovery;
             Sonos.PlayerChange += Sonos_Player_Changed;
             Sonos.GlobalSonosChange += Sonos_TopologyChanged;
-            _ = new Timer(state => Sonos.CheckDevicesToPlayer(), null, TimeSpan.FromSeconds(15), TimeSpan.FromMilliseconds(-1));
-            _ = new Timer(state => CheckPlayerForHashImages(Sonos.Players), null, TimeSpan.FromSeconds(30), TimeSpan.FromMilliseconds(-1));
-            _ = new Timer(state => CheckAllPlayerReachable(true), null, TimeSpan.FromMinutes(15), TimeSpan.FromMilliseconds(-1));
+            //todo: evtl wieder anschalten
+            //_ = new Timer(state => Sonos.CheckDevicesToPlayer(), null, TimeSpan.FromSeconds(15), TimeSpan.FromMilliseconds(-1));
+            //_ = new Timer(state => CheckPlayerForHashImages(Sonos.Players), null, TimeSpan.FromSeconds(30), TimeSpan.FromMilliseconds(-1));
+            
             _musicpictures = imu;//need as init.
          }
 
@@ -45,6 +44,7 @@ namespace Sonos.Classes
             }
             return true;
         }
+
         public bool CheckAllPlayerReachable(Boolean usetimer = false)
         {
             Boolean retval = false;
@@ -266,7 +266,10 @@ namespace Sonos.Classes
             {
                 foreach (SonosPlayer player in Sonos.Players)
                 {
-                    await player.FillPlayerPropertiesDefaultsAsync(false, true);
+                    if(await player.FillPlayerPropertiesDefaultsAsync(false, true))
+                    {
+                        CheckPlayerForHashImages(player);
+                    }
                 }
                 return true;
             }
@@ -326,22 +329,22 @@ namespace Sonos.Classes
             }
         }
 
-        private Boolean CheckPlayerForHashImages(SonosPlayer sp)
+        public Boolean CheckPlayerForHashImages(SonosPlayer sp)
         {
             try
             {
                 var props = sp.PlayerProperties;
                 if (!string.IsNullOrEmpty(props.NextTrack.AlbumArtURI))
-                    props.NextTrack = SonosItemHelper.UpdateItemToHashPath(props.NextTrack);
+                    props.NextTrack = _musicpictures.UpdateItemToHashPath(props.NextTrack);
                 if (!string.IsNullOrEmpty(props.CurrentTrack.AlbumArtURI))
-                    props.CurrentTrack = SonosItemHelper.UpdateItemToHashPath(props.CurrentTrack);
+                    props.CurrentTrack = _musicpictures.UpdateItemToHashPath(props.CurrentTrack);
                 if (!props.Playlist.IsEmpty && !props.Playlist.PlayListItemsHashChecked)
                 {
                     foreach (SonosItem item in props.Playlist.PlayListItems)
                     {
                         try
                         {
-                            SonosItemHelper.UpdateItemToHashPath(item);
+                            _musicpictures.UpdateItemToHashPath(item);
                         }
                         catch (Exception ex)
                         {

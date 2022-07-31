@@ -11,3 +11,6 @@ dotnet_diagnostic.IDE0066.severity = silent
 
 # IDE0057: Bereichsoperator verwenden
 dotnet_diagnostic.IDE0057.severity = none
+
+# CS8600: Das NULL-Literal oder ein möglicher NULL-Wert wird in einen Non-Nullable-Typ konvertiert.
+dotnet_diagnostic.CS8600.severity = silent

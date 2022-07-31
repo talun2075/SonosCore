@@ -772,10 +772,7 @@ namespace OSTL.UPnP
             {
                 // Socket Error
                 bool _OK = false;
-                var k = result.AsyncState;
-                if (k == null)
-                    k = "NullConvertToString";
-                EventLogger.Log(ex, "AsyncSocket:HandleReceive \r\n"+k.ToString());
+                EventLogger.Log(ex, "AsyncSocket:HandleReceive \r\n" + MainSocket.RemoteEndPoint.ToString()); ;
                 lock (this)
                 {
                     if (SentDisconnect == false)

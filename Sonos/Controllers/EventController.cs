@@ -6,13 +6,12 @@ using System;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using SonosUPnP.DataClasses;
 using System.Collections.Generic;
 using System.Linq;
-using SonosUPNPCore.Enums;
-using SonosUPnP;
 using HomeLogging;
 using Sonos.Classes.Interfaces;
+using SonosData.DataClasses;
+using SonosData.Enums;
 
 namespace Sonos.Controllers
 {
@@ -20,14 +19,17 @@ namespace Sonos.Controllers
     [Route("[controller]")]
     public class EventController : ControllerBase
     {
+        //todo: SErver Sent event mit net6 suchen
         private static readonly IMessageRepository _messageRepository = new MessageRepository();
         private int EventID = 0;
         private readonly Dictionary<int, RinconLastChangeItem> ListEvents = new();
         private readonly JsonSerializerOptions _jsonSerializerOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         private readonly ILogging _logger;
-        public EventController(ILogging log)
+        private readonly IMusicPictures _musicPictures;
+        public EventController(ILogging log, IMusicPictures imu)
         {
             _logger = log;
+            _musicPictures = imu;
         }
 
         /// <summary>
@@ -39,47 +41,55 @@ namespace Sonos.Controllers
         [HttpGet]
         public async Task SubscribeEvents(CancellationToken cancellationToken)
         {
-            SetServerSentEventHeaders();
-            // On connect, welcome message ;)
-            var data = new { Message = "connected!" };
-            var jsonConnection = JsonSerializer.Serialize(data, _jsonSerializerOptions);
-            await Response.WriteAsync($"event:connection\n", cancellationToken);
-            await Response.WriteAsync($"data: {jsonConnection}\n\n", cancellationToken);
-            await Response.Body.FlushAsync(cancellationToken);
-            async void OnNotification(object? sender, NotificationArgs eventArgs)
-            {
-                try
-                {
-                    // idea: https://stackoverflow.com/a/58565850/80527
-                    var json = PrepareData(eventArgs);
-                    //await Response.WriteAsync($"id:{eventArgs.Notification.Aurora.SerialNo}\n", cancellationToken);
-                    //await Response.WriteAsync("retry: 10000\n", cancellationToken);
-                    await Response.WriteAsync($"event:sonos\n", cancellationToken);
-                    await Response.WriteAsync($"data:{json}\n\n", cancellationToken);
-                    await Response.Body.FlushAsync(cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    var k = ex.Message;
-                }
-            }
-            _messageRepository.NotificationEvent += OnNotification;
-
             try
             {
-                while (!cancellationToken.IsCancellationRequested)
+                SetServerSentEventHeaders();
+                // On connect, welcome message ;)
+                var data = new { Message = "connected!" };
+                var jsonConnection = JsonSerializer.Serialize(data, _jsonSerializerOptions);
+                await Response.WriteAsync($"event:connection\n", cancellationToken);
+                await Response.WriteAsync($"data: {jsonConnection}\n\n", cancellationToken);
+                await Response.Body.FlushAsync(cancellationToken);
+                async void OnNotification(object? sender, NotificationArgs eventArgs)
                 {
-                    // Spin until something break or stop...
-                    await Task.Delay(1000, cancellationToken);
+                    try
+                    {
+                        if (!cancellationToken.IsCancellationRequested)
+                        {
+                            // idea: https://stackoverflow.com/a/58565850/80527
+                            var json = PrepareData(eventArgs);
+                            await Response.WriteAsync($"event:sonos\n", cancellationToken);
+                            await Response.WriteAsync($"data:{json}\n\n", cancellationToken);
+                            await Response.Body.FlushAsync(cancellationToken);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.ServerErrorsAdd("SubscribeEvents:inner", ex, "EventController");
+                    }
+                }
+                _messageRepository.NotificationEvent += OnNotification;
+
+                try
+                {
+                    while (!cancellationToken.IsCancellationRequested)
+                    {
+                        // Spin until something break or stop...
+                        await Task.Delay(1000, cancellationToken);
+                    }
+                }
+                catch (TaskCanceledException ex)
+                {
+                    _logger.ServerErrorsAdd("SubscribeEvents:TaskCanceledException", ex, "EventController");
+                }
+                finally
+                {
+                    _messageRepository.NotificationEvent -= OnNotification;
                 }
             }
-            catch (TaskCanceledException)
+            catch (Exception ex)
             {
-
-            }
-            finally
-            {
-                _messageRepository.NotificationEvent -= OnNotification;
+                _logger.ServerErrorsAdd("SubscribeEvents:Outer", ex, "EventController");
             }
         }
         private string PrepareData(NotificationArgs eventArgs)
@@ -91,9 +101,9 @@ namespace Sonos.Controllers
 
                 return PrepareDataForDiscovery(eventArgs);
             }
-            catch
+            catch(Exception ex)
             {
-                //ignore
+                _logger.ServerErrorsAdd("PrepareData", ex, "EventController");
                 return String.Empty;
             }
         }
@@ -167,11 +177,11 @@ namespace Sonos.Controllers
                             t.ChangedValues.Add(eventchange.ToString(), pl.PlayerProperties.CurrentTrackNumber.ToString());
                             break;
                         case SonosEnums.EventingEnums.NextTrack:
-                            SonosItemHelper.UpdateItemToHashPath(pl.PlayerProperties.NextTrack);
+                            _musicPictures.UpdateItemToHashPath(pl.PlayerProperties.NextTrack);
                             t.ChangedValues.Add(eventchange.ToString(), JsonSerializer.Serialize(pl.PlayerProperties.NextTrack, _jsonSerializerOptions));
                             break;
                         case SonosEnums.EventingEnums.CurrentTrack:
-                            SonosItemHelper.UpdateItemToHashPath(pl.PlayerProperties.CurrentTrack);
+                            _musicPictures.UpdateItemToHashPath(pl.PlayerProperties.CurrentTrack);
                             t.ChangedValues.Add(eventchange.ToString(), JsonSerializer.Serialize(pl.PlayerProperties.CurrentTrack, _jsonSerializerOptions));
                             break;
                         case SonosEnums.EventingEnums.LineInConnected:
@@ -258,75 +268,96 @@ namespace Sonos.Controllers
         private string PrepareDataForDiscovery(NotificationArgs eventArgs)
         {
 
-            var sd = eventArgs.Notification.Discovery;
-            var eventchange = eventArgs.Notification.EventType;
-            RinconLastChangeItem t = new()
+            try
             {
-                UUID = "Discovery",
-                LastChange = DateTime.Now,
-                TypeEnum = eventchange
-            };
-            switch (eventchange)
-            {
-                case SonosEnums.EventingEnums.AlarmListVersion:
-                    t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.AlarmListVersion[SoftwareGeneration.ZG1].ToString());
-                    break;
-                case SonosEnums.EventingEnums.DailyIndexRefreshTime:
-                    t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.DailyIndexRefreshTime[SoftwareGeneration.ZG1]);
-                    break;
-                case SonosEnums.EventingEnums.DateFormat:
-                    t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.DateFormat[SoftwareGeneration.ZG1]);
-                    break;
-                case SonosEnums.EventingEnums.TimeFormat:
-                    t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.TimeFormat[SoftwareGeneration.ZG1]);
-                    break;
-                case SonosEnums.EventingEnums.TimeGeneration:
-                    t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.TimeGeneration[SoftwareGeneration.ZG1].ToString());
-                    break;
-                case SonosEnums.EventingEnums.TimeServer:
-                    t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.TimeServer[SoftwareGeneration.ZG1]);
-                    break;
-                case SonosEnums.EventingEnums.TimeZone:
-                    t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.TimeZone[SoftwareGeneration.ZG1]);
-                    break;
-                case SonosEnums.EventingEnums.ShareListUpdateID:
-                    t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.ShareListUpdateID.ToString());
-                    break;
-                case SonosEnums.EventingEnums.SavedQueuesUpdateID:
-                    t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.SavedQueuesUpdateID.ToString());
-                    break;
-                case SonosEnums.EventingEnums.FavoritesUpdateID:
-                    t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.FavoritesUpdateID.ToString());
-                    break;
-                case SonosEnums.EventingEnums.ShareIndexInProgress:
-                    t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.ShareIndexInProgress.ToString());
-                    break;
-                case SonosEnums.EventingEnums.ShareIndexLastError:
-                    t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.ShareIndexLastError[SoftwareGeneration.ZG1]);
-                    break;
-                case SonosEnums.EventingEnums.ReloadNeeded:
-                    t.ChangedValues.Add(eventchange.ToString(), "true");
-                    break;
-                default:
-                    t.ChangedValues.Add(eventchange.ToString(), "Unbekannter Wert aus Discovery Übertragen");
-                    break;
+                var sd = eventArgs.Notification.Discovery;
+                var eventchange = eventArgs.Notification.EventType;
+                RinconLastChangeItem t = new()
+                {
+                    UUID = "Discovery",
+                    LastChange = DateTime.Now,
+                    TypeEnum = eventchange
+                };
+                switch (eventchange)
+                {
+                    case SonosEnums.EventingEnums.AlarmListVersion:
+                        t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.AlarmListVersion[SoftwareGeneration.ZG1].ToString());
+                        break;
+                    case SonosEnums.EventingEnums.DailyIndexRefreshTime:
+                        t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.DailyIndexRefreshTime[SoftwareGeneration.ZG1]);
+                        break;
+                    case SonosEnums.EventingEnums.DateFormat:
+                        t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.DateFormat[SoftwareGeneration.ZG1]);
+                        break;
+                    case SonosEnums.EventingEnums.TimeFormat:
+                        t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.TimeFormat[SoftwareGeneration.ZG1]);
+                        break;
+                    case SonosEnums.EventingEnums.TimeGeneration:
+                        t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.TimeGeneration[SoftwareGeneration.ZG1].ToString());
+                        break;
+                    case SonosEnums.EventingEnums.TimeServer:
+                        t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.TimeServer[SoftwareGeneration.ZG1]);
+                        break;
+                    case SonosEnums.EventingEnums.TimeZone:
+                        t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.TimeZone[SoftwareGeneration.ZG1]);
+                        break;
+                    case SonosEnums.EventingEnums.ShareListUpdateID:
+                        t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.ShareListUpdateID.ToString());
+                        break;
+                    case SonosEnums.EventingEnums.SavedQueuesUpdateID:
+                        t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.SavedQueuesUpdateID.ToString());
+                        break;
+                    case SonosEnums.EventingEnums.FavoritesUpdateID:
+                        t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.FavoritesUpdateID.ToString());
+                        break;
+                    case SonosEnums.EventingEnums.ShareIndexInProgress:
+                        t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.ShareIndexInProgress.ToString());
+                        break;
+                    case SonosEnums.EventingEnums.ShareIndexLastError:
+                        t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.ShareIndexLastError[SoftwareGeneration.ZG1]);
+                        break;
+                    case SonosEnums.EventingEnums.ReloadNeeded:
+                        t.ChangedValues.Add(eventchange.ToString(), "true");
+                        break;
+                    default:
+                        t.ChangedValues.Add(eventchange.ToString(), "Unbekannter Wert aus Discovery Übertragen");
+                        break;
 
+                }
+                return JsonSerializer.Serialize(t, _jsonSerializerOptions);
             }
-            return JsonSerializer.Serialize(t, _jsonSerializerOptions);
+            catch(Exception ex)
+            {
+                _logger.ServerErrorsAdd("PrepareDataForDiscovery", ex, "EventController");
+                return String.Empty;
+            }
         }
 
         private void SetServerSentEventHeaders()
         {
-            Response.StatusCode = 200;
-            Response.Headers.Add("Content-Type", "text/event-stream");
-            Response.Headers.Add("Cache-Control", "no-cache");
-            Response.Headers.Add("Connection", "keep-alive");
+            try
+            {
+                Response.StatusCode = 200;
+                Response.Headers.Add("Content-Type", "text/event-stream");
+                Response.Headers.Add("Cache-Control", "no-cache");
+                Response.Headers.Add("Connection", "keep-alive");
+            }
+            catch (Exception ex)
+            {
+                _logger.ServerErrorsAdd("SetServerSentEventHeaders", ex, "EventController");
+            }
         }
         [HttpPost("broadcast")]
         public Task Broadcast([FromBody] Notification notification)
         {
-            _messageRepository.Broadcast(notification);
-
+            try
+            {
+                _messageRepository.Broadcast(notification);
+            }
+            catch (Exception ex)
+            {
+                _logger.ServerErrorsAdd("SetServerSentEventHeaders", ex, "EventController");
+            }
             return Task.CompletedTask;
         }
 

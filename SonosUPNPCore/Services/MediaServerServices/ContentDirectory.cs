@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using OSTL.UPnP;
+using SonosData;
+using SonosData.DataClasses;
 using SonosUPnP.Classes;
-using SonosUPnP.DataClasses;
 
 namespace SonosUPnP.Services.MediaServerServices
 {

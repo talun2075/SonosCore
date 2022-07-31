@@ -4,12 +4,14 @@ using System.Threading.Tasks;
 using SonosUPnP;
 using System.Collections.Generic;
 using System.Linq;
-using SonosUPnP.DataClasses;
 using Microsoft.AspNetCore.Mvc;
-using SonosUPNPCore.Props;
 using SonosConst;
 using Sonos.Classes.Interfaces;
 using HomeLogging;
+using SonosData.DataClasses;
+using SonosData;
+using SonosData.Enums;
+using SonosData.Props;
 
 namespace Sonos.Controllers
 {
@@ -19,11 +21,13 @@ namespace Sonos.Controllers
         private readonly ILogging _logger;
         private readonly ISonosHelper _sonosHelper;
         private readonly ISonosDiscovery _sonos;
-        public SmartHomeController(ISonosHelper sonosHelper, ILogging log, ISonosDiscovery sonos)
+        private readonly IMusicPictures _musicPictures;
+        public SmartHomeController(ISonosHelper sonosHelper, ILogging log, ISonosDiscovery sonos,IMusicPictures imu)
         {
             _logger = log;
             _sonosHelper = sonosHelper;
             _sonos = sonos;
+            _musicPictures = imu;
         }
         #region Global
         [HttpGet("StoppAllPlayers")]
@@ -134,10 +138,10 @@ namespace Sonos.Controllers
                         if (_sonos.ZoneProperties.ListOfAllPlaylist.Count == 0)
                             await _sonosHelper.GetAllPlaylist();
                         var playlist = _sonos.ZoneProperties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.ToLower() == playlistToPlay.ToLower());
-                        if (playlist == null)
-                        {
-                            await _sonosHelper.GetAllPlaylist();//todo: Warum zweimal aufrufen
-                        }
+                        //if (playlist == null)
+                        //{
+                        //    await _sonosHelper.GetAllPlaylist();//todo: prüfen ob das aukommentiert bleiben kann.
+                        //}
                         playlist = _sonos.ZoneProperties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.ToLower() == playlistToPlay.ToLower());
                         Boolean loadPlaylist = false;
                         if (playlist != null)
@@ -280,7 +284,7 @@ namespace Sonos.Controllers
         {
             try
             {
-                var player = _sonos.GetPlayerbySoftWareGeneration(SonosUPNPCore.Enums.SoftwareGeneration.ZG1);
+                var player = _sonos.GetPlayerbySoftWareGeneration(SoftwareGeneration.ZG1);
                 List<SonosItem> genre = await _sonos.ZoneMethods.Browsing(player, SonosConstants.aGenre + "/Hörspiel", false);
                 if (_sonosHelper.ChildGenrelist.Count != genre.Count - 1)
                 {
@@ -296,7 +300,7 @@ namespace Sonos.Controllers
 
                         if (!string.IsNullOrEmpty(item.AlbumArtURI))
                         {
-                            var titem = SonosItemHelper.UpdateItemToHashPath(item);
+                            var titem = _musicPictures.UpdateItemToHashPath(item);
                             item.AlbumArtURI = titem.AlbumArtURI;
                         }
                         if (title == SonosConstants.aALL) continue;
@@ -311,7 +315,7 @@ namespace Sonos.Controllers
                             //hier die metadaten holen um die zeit zu bekommen? 
                             if (!string.IsNullOrEmpty(citem.AlbumArtURI))
                             {
-                                var titem = SonosItemHelper.UpdateItemToHashPath(citem);
+                                var titem = _musicPictures.UpdateItemToHashPath(citem);
                                 citem.AlbumArtURI = titem.AlbumArtURI;
                             }
                         }
@@ -331,13 +335,13 @@ namespace Sonos.Controllers
                         {
                             continue;
                         }
-                        SonosItemHelper.UpdateItemToHashPath(artistchildlist);
-                        var childvalues = await _sonos.ZoneMethods.Browsing(_sonos.GetPlayerbySoftWareGeneration(SonosUPNPCore.Enums.SoftwareGeneration.ZG1), artistchildlist.ContainerID);
+                        _musicPictures.UpdateItemToHashPath(artistchildlist);
+                        var childvalues = await _sonos.ZoneMethods.Browsing(_sonos.GetPlayerbySoftWareGeneration(SoftwareGeneration.ZG1), artistchildlist.ContainerID);
                         foreach (var item in childvalues)
                         {
                             try
                             {
-                                var meta = await _sonos.ZoneMethods.Browsing(_sonos.GetPlayerbySoftWareGeneration(SonosUPNPCore.Enums.SoftwareGeneration.ZG1), item.ItemID, false, SonosEnums.BrowseFlagData.BrowseMetadata);
+                                var meta = await _sonos.ZoneMethods.Browsing(_sonos.GetPlayerbySoftWareGeneration(SoftwareGeneration.ZG1), item.ItemID, false, SonosEnums.BrowseFlagData.BrowseMetadata);
                                 SonosItem metaitem = meta.FirstOrDefault();
                                 if (metaitem != null)
                                     tspan += metaitem.Duration.TimeSpan;
@@ -556,7 +560,7 @@ namespace Sonos.Controllers
             {
                 case "Random": //Next
 
-                    int ix = -999;
+                    int ix;
                     List<String> RandomPlaylistList = new() { "Mine", "4.5 Sterne", "5 Sterne", "Amon Armath", "Five Finger Death Punch", "Disturbed", "Foo Fighters", "Harte Gruppen", "Harte Gruppen Genre", "Herbert Grönemeyer", "I Prevail" };
                     try
                     {
@@ -627,8 +631,11 @@ namespace Sonos.Controllers
                 }
                 else
                 {
-                    await pp.AVTransport?.Seek("1", SonosEnums.SeekUnit.TRACK_NR);
-                    await Task.Delay(100);
+                    if (pp != null && pp.AVTransport != null)
+                    {
+                        await pp.AVTransport?.Seek("1", SonosEnums.SeekUnit.TRACK_NR);
+                        await Task.Delay(100);
+                    }
                 }
                 if (pp.PlayerProperties.Volume != v)
                 {
@@ -738,6 +745,10 @@ namespace Sonos.Controllers
                     }
                     playlist = _sonos.ZoneProperties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.ToLower() == Playlist.ToLower());
                     Boolean loadPlaylist = false;
+                    if(playlist == null)
+                    {
+                        return false;
+                    }
                     if (playlist != null)
                     {
                         loadPlaylist = _sonosHelper.CheckPlaylist(playlist, pp);

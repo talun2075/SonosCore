@@ -8,6 +8,7 @@ using SonosUPnP;
 using Sonos.Classes.Interfaces;
 using HomeLogging;
 using Sonos.Classes.Enums;
+using SonosData.DataClasses;
 
 namespace Sonos.Controllers
 {
@@ -129,21 +130,21 @@ namespace Sonos.Controllers
                     case PlayerDevicePropertiesTypes.ButtonLockState:
                         if (playerPropertiesRequest.value == "true")
                         {
-                            retval = await player.DeviceProperties.SetButtonLockState(SonosUPnP.DataClasses.SonosEnums.OnOff.On);
+                            retval = await player.DeviceProperties.SetButtonLockState(SonosEnums.OnOff.On);
                         }
                         else
                         {
-                            retval = await player.DeviceProperties.SetButtonLockState(SonosUPnP.DataClasses.SonosEnums.OnOff.Off);
+                            retval = await player.DeviceProperties.SetButtonLockState(SonosEnums.OnOff.Off);
                         }
                         break;
                     case PlayerDevicePropertiesTypes.LEDState:
                         if (playerPropertiesRequest.value == "true")
                         {
-                            retval = await player.DeviceProperties.SetLEDState(SonosUPnP.DataClasses.SonosEnums.OnOff.On);
+                            retval = await player.DeviceProperties.SetLEDState(SonosEnums.OnOff.On);
                         }
                         else
                         {
-                            retval = await player.DeviceProperties.SetLEDState(SonosUPnP.DataClasses.SonosEnums.OnOff.Off);
+                            retval = await player.DeviceProperties.SetLEDState(SonosEnums.OnOff.Off);
                         }
                         break;
                     case PlayerDevicePropertiesTypes.Loudness:

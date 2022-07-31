@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using OSTL.UPnP;
+using SonosData.DataClasses;
 using SonosUPnP.Classes;
-using SonosUPnP.DataClasses;
 
 namespace SonosUPnP.Services
 {

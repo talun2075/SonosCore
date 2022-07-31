@@ -25,6 +25,7 @@
   <ItemGroup>
     <ProjectReference Include="..\MusicPictures\SonosSQLiteWrapper.csproj" />
     <ProjectReference Include="..\SonosConst\SonosConst.csproj" />
+    <ProjectReference Include="..\SonosDataConstructs\SonosDataConstructs.csproj" />
     <ProjectReference Include="..\SonosUPNPCore\SonosUPNPCore.csproj" />
   </ItemGroup>
 

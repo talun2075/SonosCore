@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using SonosUPnP.DataClasses;
 using SonosConst;
 using System;
 using System.Collections.Generic;
@@ -8,6 +7,7 @@ using System.Threading.Tasks;
 using HomeLogging;
 using Sonos.Classes.Interfaces;
 using SonosUPnP;
+using SonosData.DataClasses;
 
 namespace Sonos.Controllers
 {
@@ -16,7 +16,7 @@ namespace Sonos.Controllers
     public class IanController : ChildBase
     {
         
-        public IanController(ILogging log, ISonosHelper sh, ISonosDiscovery sonos) :base(log,sh,sonos)
+        public IanController(ILogging log, ISonosHelper sh, ISonosDiscovery sonos, IMusicPictures imu) :base(log,sh,sonos,imu)
         {
             ChildName = "Ian";
             ReadConfiguration();
