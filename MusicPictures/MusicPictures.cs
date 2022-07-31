@@ -1,21 +1,16 @@
 ﻿using SonosConst;
-using System;
-using System.Collections.Generic;
-using System.IO;
 using SonosSQLiteWrapper.Interfaces;
 using HomeLogging;
-using Sonos.Classes.Interfaces;
 using System.Data;
 using SonosData;
 
-namespace Sonos.Classes
+namespace SonosSQLiteWrapper
 {
-    //todo: In datawrapper verschieben und schauen ob man dann aus Player und co darauf verlinken kann.
     public class MusicPictures : IMusicPictures
     {
         #region PublicMethoden
         private readonly ISQLiteWrapper sw;
-        private readonly List<String> CoverPaths = new();
+        private readonly List<string> CoverPaths = new();
         private readonly ILogging _logging;
 
         public MusicPictures(ISQLiteWrapper sQLiteWrapper, ILogging logging)
@@ -24,7 +19,7 @@ namespace Sonos.Classes
             _logging = logging;
         }
         public DataTable CurrentMusicPictures => sw.MusicPictures;
-        public Boolean GenerateDBContent(List<SonosItem> tracks)
+        public bool GenerateDBContent(List<SonosItem> tracks)
         {
             RunIntoList(tracks);
             UpdateImagesToDatabase();
@@ -85,7 +80,7 @@ namespace Sonos.Classes
             var dbvalues = sw.MusicPictures;
             var pathCn = dbvalues.Columns[0].ColumnName;
             var hashCn = dbvalues.Columns[1].ColumnName;
-            Boolean changes = false;
+            bool changes = false;
             foreach (string item in CoverPaths)
             {
                 if (string.IsNullOrEmpty(item)) continue;

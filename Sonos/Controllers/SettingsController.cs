@@ -10,6 +10,7 @@ using SonosData.DataClasses;
 using SonosUPNPCore.Classes;
 using SonosData;
 using SonosConst;
+using SonosSQLiteWrapper.Interfaces;
 
 namespace Sonos.Controllers
 {

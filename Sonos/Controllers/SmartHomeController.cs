@@ -12,6 +12,7 @@ using SonosData.DataClasses;
 using SonosData;
 using SonosData.Enums;
 using SonosData.Props;
+using SonosSQLiteWrapper.Interfaces;
 
 namespace Sonos.Controllers
 {

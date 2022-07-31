@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Sonos.Classes.Interfaces;
-using SonosSQLiteWrapper;
 using SonosSQLiteWrapper.Interfaces;
 
 namespace Sonos.Controllers

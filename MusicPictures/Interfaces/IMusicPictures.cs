@@ -1,10 +1,7 @@
 ﻿using SonosData;
-using SonosUPnP;
-using System.Collections.Generic;
 using System.Data;
-using System.Threading.Tasks;
 
-namespace Sonos.Classes.Interfaces
+namespace SonosSQLiteWrapper.Interfaces
 {
     public interface IMusicPictures
     {
