@@ -20,7 +20,6 @@ namespace Sonos.Controllers
     [Route("[controller]")]
     public class EventController : ControllerBase
     {
-        //todo: SErver Sent event mit net6 suchen
         private static readonly IMessageRepository _messageRepository = new MessageRepository();
         private int EventID = 0;
         private readonly Dictionary<int, RinconLastChangeItem> ListEvents = new();
@@ -51,6 +50,29 @@ namespace Sonos.Controllers
                 await Response.WriteAsync($"event:connection\n", cancellationToken);
                 await Response.WriteAsync($"data: {jsonConnection}\n\n", cancellationToken);
                 await Response.Body.FlushAsync(cancellationToken);
+
+                _messageRepository.NotificationEvent += OnNotification;
+                try
+                {
+                    while (!cancellationToken.IsCancellationRequested)
+                    {
+                        // Spin until something break or stop...
+                          await Task.Delay(1000, cancellationToken);
+                    }
+                }
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                {
+                    //task is cancelled, return or do something else
+                    return;
+                }
+                catch(Exception ex)
+                {
+                    _logger.ServerErrorsAdd("SubscribeEvents:Task.Delay", ex, "EventController");
+                }
+                finally
+                {
+                    _messageRepository.NotificationEvent -= OnNotification;
+                }
                 async void OnNotification(object? sender, NotificationArgs eventArgs)
                 {
                     try
@@ -69,24 +91,6 @@ namespace Sonos.Controllers
                         _logger.ServerErrorsAdd("SubscribeEvents:inner", ex, "EventController");
                     }
                 }
-                _messageRepository.NotificationEvent += OnNotification;
-
-                try
-                {
-                    while (!cancellationToken.IsCancellationRequested)
-                    {
-                        // Spin until something break or stop...
-                        await Task.Delay(1000, cancellationToken);
-                    }
-                }
-                catch (TaskCanceledException ex)
-                {
-                    _logger.ServerErrorsAdd("SubscribeEvents:TaskCanceledException", ex, "EventController");
-                }
-                finally
-                {
-                    _messageRepository.NotificationEvent -= OnNotification;
-                }
             }
             catch (Exception ex)
             {
@@ -102,7 +106,7 @@ namespace Sonos.Controllers
 
                 return PrepareDataForDiscovery(eventArgs);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.ServerErrorsAdd("PrepareData", ex, "EventController");
                 return String.Empty;
@@ -327,7 +331,7 @@ namespace Sonos.Controllers
                 }
                 return JsonSerializer.Serialize(t, _jsonSerializerOptions);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.ServerErrorsAdd("PrepareDataForDiscovery", ex, "EventController");
                 return String.Empty;

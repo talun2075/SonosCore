@@ -13,6 +13,7 @@ using SonosData.DataClasses;
 using SonosUPNPCore.Classes;
 using SonosData;
 using SonosData.Enums;
+using SonosUPNPCore.Interfaces;
 
 namespace Sonos.Controllers
 {
@@ -57,7 +58,7 @@ namespace Sonos.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-       [HttpGet("GetFavorites")]
+        [HttpGet("GetFavorites")]
         public async Task<IList<SonosItem>> GetFavorites()
         {
             if (!_sonos.Players.Any()) return new List<SonosItem>();
@@ -69,7 +70,7 @@ namespace Sonos.Controllers
         /// Liefert die Globalen Einstellungen zurück. 
         /// </summary>
         /// <returns></returns>
-       [HttpGet("GetZoneProp")]
+        [HttpGet("GetZoneProp")]
         public DiscoveryZoneProperties GetZoneProp()
         {
             return _sonos.ZoneProperties;
@@ -78,68 +79,86 @@ namespace Sonos.Controllers
         /// Gibt alle Zonen zurück
         /// </summary>
         /// <returns></returns>
-       [HttpGet("GetZones")]
+        [HttpGet("GetZones")]
         public async Task<ZoneGroupStateList> GetZones()
         {
             try
             {
                 if (_sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.Count != _sonos.Players.Count && !getzonesRunning)
                 {
-                    getzonesRunning = true;
-                    //Hier komme ich rein, wenn es weniger Zonen als Player gibt. Was ok ist, wenn es gruppen gibt. 
-                    int calculatedzones = 0;
-                    foreach (SonosPlayer pl in _sonos.Players)
+                    try
                     {
-                        if (pl.PlayerProperties.GroupCoordinatorIsLocal)
+                        getzonesRunning = true;
+                        //Hier komme ich rein, wenn es weniger Zonen als Player gibt. Was ok ist, wenn es gruppen gibt. 
+                        int calculatedzones = 0;
+                        lock (_sonos.Players)
                         {
-                            calculatedzones += 1;
-                            continue;
-                        }
-                    }
-                    if (calculatedzones != _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.Count)
-                    {
-                        //Hier komme ich rein, wenn es eine unstimmigkeit gibt
-                        if (calculatedzones < _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.Count)
-                            _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.Clear();
-
-                        //Need Update
-                        var s1 = _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.FirstOrDefault(x => x.SoftwareGeneration ==  SoftwareGeneration.ZG1);
-                        if (s1 == null)
-                        {
-                            //Update for 1
-                            SonosPlayer pl = _sonos.GetPlayerbySoftWareGeneration(SoftwareGeneration.ZG1);
-                            var k = await pl.ZoneGroupTopology.GetZoneGroupState();
-                            _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.AddRange(k.ZoneGroupStates);
-                        }
-                        var s2 = _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.FirstOrDefault(x => x.SoftwareGeneration ==  SoftwareGeneration.ZG2);
-                        if (s2 == null)
-                        {
-                            //Update for 2
-                            SonosPlayer pl = _sonos.GetPlayerbySoftWareGeneration(SoftwareGeneration.ZG2);
-                            var k = await pl.ZoneGroupTopology.GetZoneGroupState();
-                            lock (_sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates)
+                            foreach (SonosPlayer pl in _sonos.Players)
                             {
-                                _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.AddRange(k.ZoneGroupStates);
+                                if (pl.PlayerProperties.GroupCoordinatorIsLocal)
+                                {
+                                    calculatedzones += 1;
+                                    continue;
+                                }
                             }
                         }
-                        await _sonos.SetPlaylists(true);
+                        if (calculatedzones != _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.Count)
+                        {
+                            //Hier komme ich rein, wenn es eine unstimmigkeit gibt
+                            if (calculatedzones < _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.Count)
+                                _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.Clear();
+
+                            //Need Update
+                            var s1 = _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.FirstOrDefault(x => x.SoftwareGeneration == SoftwareGeneration.ZG1);
+                            if (s1 == null)
+                            {
+                                //Update for 1
+                                SonosPlayer pl = _sonos.GetPlayerbySoftWareGeneration(SoftwareGeneration.ZG1);
+                                var k = await pl.ZoneGroupTopology.GetZoneGroupState();
+                                _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.AddRange(k.ZoneGroupStates);
+                            }
+                            var s2 = _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.FirstOrDefault(x => x.SoftwareGeneration == SoftwareGeneration.ZG2);
+                            if (s2 == null)
+                            {
+                                //Update for 2
+                                SonosPlayer pl = _sonos.GetPlayerbySoftWareGeneration(SoftwareGeneration.ZG2);
+                                var k = await pl.ZoneGroupTopology.GetZoneGroupState();
+                                lock (_sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates)
+                                {
+                                    _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.AddRange(k.ZoneGroupStates);
+                                }
+                            }
+                            await _sonos.SetPlaylists(true);
+                        }
+                        getzonesRunning = false;
                     }
-                    getzonesRunning = false;
+                    catch (Exception ex)
+                    {
+                        _logger.ServerErrorsAdd("GetZones:Block1", ex, "ZoneController");
+                        return _sonos.ZoneProperties.ZoneGroupState;
+                    }
                 }
-                //Sort Test
-                ZoneGroupStateList t = new();
-                t.ZoneGroupStates = _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.OrderBy(x => x.ZoneGroupMember.First().ZoneName).ToList();
-                _sonos.ZoneProperties.ZoneGroupState = t;
+                try
+                {
+                    //Sort Test
+                    ZoneGroupStateList t = new();
+                    t.ZoneGroupStates = _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.OrderBy(x => x.ZoneGroupMember.First().ZoneName).ToList();
+                    _sonos.ZoneProperties.ZoneGroupState = t;
+                }
+                catch (Exception ex)
+                {
+                    _logger.ServerErrorsAdd("GetZones:Sort", ex, "ZoneController");
+                    return _sonos.ZoneProperties.ZoneGroupState;
+                }
                 return _sonos.ZoneProperties.ZoneGroupState;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                _logger.ServerErrorsAdd("GetZones", ex, "ZoneController");//todo: wegen log mehr try catch machen.
+                _logger.ServerErrorsAdd("GetZones", ex, "ZoneController");
                 return _sonos.ZoneProperties.ZoneGroupState;
             }
-            //return _sonos.ZoneProperties.ZoneGroupState;
         }
-       [HttpGet("SetPlaylists")]
+        [HttpGet("SetPlaylists")]
         public async Task<String> SetPlaylists()
         {
             string retval = "ok";
@@ -160,7 +179,7 @@ namespace Sonos.Controllers
             Boolean retval = false;
             try
             {
-                retval= _sonosHelper.CheckPlayerForHashImages(_sonos.Players);
+                retval = _sonosHelper.CheckPlayerForHashImages(_sonos.Players);
             }
             catch (Exception ex)
             {

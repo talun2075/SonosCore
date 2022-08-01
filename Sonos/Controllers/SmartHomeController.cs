@@ -13,6 +13,7 @@ using SonosData;
 using SonosData.Enums;
 using SonosData.Props;
 using SonosSQLiteWrapper.Interfaces;
+using SonosUPNPCore.Interfaces;
 
 namespace Sonos.Controllers
 {
@@ -305,8 +306,11 @@ namespace Sonos.Controllers
                             item.AlbumArtURI = titem.AlbumArtURI;
                         }
                         if (title == SonosConstants.aALL) continue;
-                        SonosBrowseList sbl = new() { Artist = title };
-                        sbl.Childs = await _sonos.ZoneMethods.Browsing(player, SonosConstants.aAlbumArtist + "/" + title, false);
+                        SonosBrowseList sbl = new()
+                        {
+                            Artist = title,
+                            Childs = await _sonos.ZoneMethods.Browsing(player, SonosConstants.aAlbumArtist + "/" + title, false)
+                        };
                         if (sbl.Childs.Count > 0)
                         {
                             sbl.Childs.RemoveRange(0, 1);
@@ -790,6 +794,12 @@ namespace Sonos.Controllers
             {
                 var pl = _sonos.GetPlayerbyName(playername);
                 if (pl == null) return false;
+                if(pl.AVTransport == null)
+                {
+                    _logger.ServerErrorsAdd("GenericRoomOff", new Exception("AvTransport is Null. ServiceInit is:"+pl.ServiceInit), "SmarthomeController");
+                    return false;
+                }
+
                 return await pl.AVTransport?.Pause();
             }
             catch (Exception ex)

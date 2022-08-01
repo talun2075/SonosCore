@@ -8,10 +8,12 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using HomeLogging;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using OSTL.UPnP;
 using SonosData.DataClasses;
 using SonosData.Enums;
 using SonosUPNPCore.Classes;
+using SonosUPNPCore.Interfaces;
 
 namespace SonosUPnP
 {
@@ -26,32 +28,18 @@ namespace SonosUPnP
         private string OnZoneGroupStateChangedValue = String.Empty;
         public event EventHandler<SonosPlayer> PlayerChange = delegate { };
         public event EventHandler<SonosDiscovery> GlobalSonosChange = delegate { };
-        readonly Dictionary<string, string> _icons = new();
-        private readonly Boolean useSubscriptions = true;
         private ZonePerSoftwareGeneration ZoneSwGen1;
         private ZonePerSoftwareGeneration ZoneSwGen2;
         private readonly IConfiguration _config;
-        /// <summary>
-        /// Liste mit den Erlaubten Services, wenn UseSubscription True ist.
-        /// </summary>
-        private readonly List<SonosEnums.Services> serviceEnums = new();
-
         private readonly ILogging Logger;
+        private readonly IServiceProvider _provider;
         #endregion Klassenvariablen
         #region Public Methoden
-        public SonosDiscovery(IConfiguration config, ILogging log)
+        public SonosDiscovery(IConfiguration config, ILogging log, IServiceProvider provider)
         {
             _config = config;
             Logger = log;
-            GetLocalPlayerIcons();
-            if (Boolean.TryParse(_config["UseSubscription"], out Boolean outusesubscriptions))
-            {
-                useSubscriptions = outusesubscriptions;
-            }
-            if (useSubscriptions)
-            {
-                PrepareUsedServices();
-            }
+            _provider = provider;
             try
             {
                 ZoneSwGen1 = new ZonePerSoftwareGeneration(Logger);
@@ -586,13 +574,12 @@ namespace SonosUPnP
             {
                 foreach (var playerXml in list)
                 {
-                    var player = new SonosPlayer(serviceEnums, useSubscriptions, _icons, Logger)
-                    {
-                        Name = (string)playerXml.Attribute("ZoneName"),
-                        UUID = (string)playerXml.Attribute("UUID"),
-                        DeviceLocation = new Uri((string)playerXml.Attribute("Location")),
-                        ControlPoint = ControlPoint
-                    };
+                    SonosPlayer player = ActivatorUtilities.CreateInstance(_provider, typeof(SonosPlayer)) as SonosPlayer;
+                    player.Name = (string)playerXml.Attribute("ZoneName");
+                    player.UUID = (string)playerXml.Attribute("UUID");
+                    player.DeviceLocation = new Uri((string)playerXml.Attribute("Location"));
+                    player.ControlPoint = ControlPoint;
+
                     var swgentemp = (string)playerXml.Attribute("SWGen");
                     if (swgentemp == "2")
                     {
@@ -706,13 +693,20 @@ namespace SonosUPnP
                         swgen = customfields.FirstOrDefault(x => x.Key == "swGen").Value;
                         uuid = device.UniqueDeviceName;
                         locat = device.LocationURL;
-                        pl = new SonosPlayer(serviceEnums, useSubscriptions, _icons, Logger)
-                        {
-                            Name = name,
-                            UUID = uuid,
-                            DeviceLocation = new Uri(locat),
-                            ControlPoint = ControlPoint
-                        };
+
+                        pl = ActivatorUtilities.CreateInstance(_provider, typeof(SonosPlayer)) as SonosPlayer;
+                        pl.Name = name;
+                        pl.UUID = uuid;
+                        pl.DeviceLocation = new Uri(locat);
+                        pl.ControlPoint = ControlPoint;
+
+                        //pl = new SonosPlayer(serviceEnums, useSubscriptions, _icons, Logger)
+                        //{
+                        //    Name = name,
+                        //    UUID = uuid,
+                        //    DeviceLocation = new Uri(locat),
+                        //    ControlPoint = ControlPoint
+                        //};
                         if (swgen == "2")
                         {
                             pl.SoftwareGeneration = SoftwareGeneration.ZG2;
@@ -755,64 +749,6 @@ namespace SonosUPnP
                 }
             }
         }
-        /// <summary>
-        /// Fill Images from Path root + @"\\wwwroot\\images\\player";
-        /// To Use as Device Icons
-        /// </summary>
-        private void GetLocalPlayerIcons()
-        {
-            try
-            {
-                var root = Directory.GetCurrentDirectory();
-                //var root = _config.GetValue<string>(WebHostDefaults.ContentRootKey);
-                var path = root + @"\\wwwroot\\images\\player";
-                var playerimages = Directory.GetFiles(path);
-                var url = "/images/player/";
-                foreach (var item in playerimages)
-                {
-                    //cut path
-                    string imagename = item.Substring(item.LastIndexOf("\\") + 1);
-                    if (!_icons.ContainsKey(imagename))
-                    {
-                        _icons.Add(imagename, url + imagename);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.ServerErrorsAdd("GetLocalPlayerIcons", ex, "SonosHelper");
-            }
-        }
-        /// <summary>
-        /// Prepare Servcies from Config if useSubscriptions
-        /// </summary>
-        private void PrepareUsedServices()
-        {
-            if (!useSubscriptions) return;
-            var allowedservices = _config["UseOnlyThisSubscriptions"];
-            try
-            {
-                if (allowedservices.Contains(','))
-                {
-                    var x = allowedservices.Split(',');
-                    foreach (var item in x)
-                    {
-                        if (Enum.TryParse(item.Trim(), out SonosEnums.Services se))
-                            serviceEnums.Add(se);
-                    }
-                }
-                else
-                {
-                    if (Enum.TryParse(allowedservices.Trim(), out SonosEnums.Services se))
-                        serviceEnums.Add(se);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.ServerErrorsAdd("SonosHelper:InitialSonos:configurations", ex);
-            }
-        }
-
         private async void ZoneSwGen_GlobalSonosChange(object sender, ZonePerSoftwareGeneration e)
         {
             //implementierung

@@ -143,7 +143,7 @@ namespace OSTL.UPnP
             }
             return (Count);
         }
-        private HttpClient _httpClient = new HttpClient();
+        private readonly HttpClient _httpClient = new();
 
         private async void HttpManagedRequests(string call, object tag = null)
         {

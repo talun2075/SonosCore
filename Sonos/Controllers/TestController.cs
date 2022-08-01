@@ -6,13 +6,11 @@ namespace Sonos.Controllers
     [Route("/[controller]")]
     public class TestController : Controller
     {
-        private IMusicPictures musicPictures;
-        public TestController(IMusicPictures imu)
+        public TestController()
         {
-            musicPictures = imu;
         }
         [HttpGet("test")]
-        public string test()
+        public string Test()
         {
 
             return "huuuuu";

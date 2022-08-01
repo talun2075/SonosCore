@@ -1,10 +1,11 @@
 ﻿using SonosData.Enums;
+using SonosUPnP;
 using SonosUPNPCore.Classes;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace SonosUPnP
+namespace SonosUPNPCore.Interfaces
 {
     public interface ISonosDiscovery
     {

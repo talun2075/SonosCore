@@ -12,6 +12,7 @@ using Sonos.Classes.Interfaces;
 using SonosData.DataClasses;
 using SonosData;
 using SonosSQLiteWrapper.Interfaces;
+using SonosUPNPCore.Interfaces;
 
 namespace Sonos.Classes
 {
@@ -30,11 +31,7 @@ namespace Sonos.Classes
             Sonos = sonosDiscovery;
             Sonos.PlayerChange += Sonos_Player_Changed;
             Sonos.GlobalSonosChange += Sonos_TopologyChanged;
-            //todo: evtl wieder anschalten
-            //_ = new Timer(state => Sonos.CheckDevicesToPlayer(), null, TimeSpan.FromSeconds(15), TimeSpan.FromMilliseconds(-1));
-            //_ = new Timer(state => CheckPlayerForHashImages(Sonos.Players), null, TimeSpan.FromSeconds(30), TimeSpan.FromMilliseconds(-1));
-            
-            _musicpictures = imu;//need as init.
+            _musicpictures = imu;
          }
 
         public Boolean CheckPlayerForHashImages(IList<SonosPlayer> sp)

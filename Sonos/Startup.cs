@@ -9,6 +9,8 @@ using SonosSQLiteWrapper.Interfaces;
 using HomeLogging;
 using Sonos.Classes.Interfaces;
 using SonosUPnP;
+using SonosUPNPCore;
+using SonosUPNPCore.Interfaces;
 
 namespace Sonos
 {
@@ -26,12 +28,15 @@ namespace Sonos
         {
             services.AddControllersWithViews().AddJsonOptions(options => options.JsonSerializerOptions.IncludeFields = true);
             services
+                .AddTransient<ISonosPlayer, SonosPlayer>()
                 .AddSingleton<ILogging, Logging>()
                 .AddSingleton<ISonosHelper, SonosHelper>()
                 .AddSingleton<IStreamDeckResponse, StreamDeckResponse>()
                 .AddSingleton<IMusicPictures, MusicPictures>()
                 .AddSingleton<ISonosDiscovery, SonosDiscovery>()
+                .AddSingleton<ISonosPlayerPrepare, SonosPlayerPrepare>()
                 .AddSingleton<ISQLiteWrapper, SQLiteWrapper>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -49,7 +54,6 @@ namespace Sonos
             });
 #endif
             app.UseStaticFiles();
-
             app.UseRouting();
 
             app.UseAuthorization();
@@ -59,6 +63,7 @@ namespace Sonos
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
+            
         }
     }
 }

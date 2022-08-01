@@ -11,6 +11,7 @@ using SonosUPNPCore.Classes;
 using SonosData;
 using SonosConst;
 using SonosSQLiteWrapper.Interfaces;
+using SonosUPNPCore.Interfaces;
 
 namespace Sonos.Controllers
 {

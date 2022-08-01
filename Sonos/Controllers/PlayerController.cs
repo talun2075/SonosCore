@@ -13,6 +13,7 @@ using SonosData.DataClasses;
 using SonosUPNPCore.Classes;
 using SonosData;
 using SonosSQLiteWrapper.Interfaces;
+using SonosUPNPCore.Interfaces;
 
 namespace Sonos.Controllers
 {
@@ -145,8 +146,8 @@ namespace Sonos.Controllers
             try
             {
                 SonosPlayer pl = _sonos.GetPlayerbyUuid(id);
-                if (pl == null) return false;
-                return await pl.AVTransport?.Play();
+                if (pl == null || pl.AVTransport == null) return false;
+                    return await pl.AVTransport?.Play();
             }
             catch (Exception ex)
             {

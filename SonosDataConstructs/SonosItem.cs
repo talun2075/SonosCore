@@ -142,14 +142,16 @@ namespace SonosData
                 items = xml.Elements(ns + "container");
                 foreach (var item in items)
                 {
-                    //todo: Das NULL-Literal oder ein möglicher NULL-Wert wird in einen Non-Nullable-Typ konvertiert.
                     var track = new SonosItem();
-                    track.Uri = (string)item.Element(ns + "res");
-                    track.Title = (string)item.Element(dc + "title");
-                    track.AlbumArtURI = (string)item.Element(upnp + "albumArtURI");
-                    track.ClassType = (string)item.Element(upnp + "class");
-                    track.ContainerID = item.FirstAttribute.Value;
-                    track.ParentID = item.FirstAttribute.NextAttribute.Value;
+                    track.Uri = (string)item.Element(ns + "res") ?? "";
+                    track.Title = (string)item.Element(dc + "title") ?? "";
+                    track.AlbumArtURI = (string)item.Element(upnp + "albumArtURI") ?? "";
+                    track.ClassType = (string)item.Element(upnp + "class") ?? "";
+                    if (item.FirstAttribute != null)
+                    {
+                        track.ContainerID = item.FirstAttribute.Value;
+                        track.ParentID = item.FirstAttribute.NextAttribute != null ? item.FirstAttribute.NextAttribute.Value : "";
+                    }
                     list.Add(track);
                 }
                 if (list.Count == 1)
@@ -188,7 +190,7 @@ namespace SonosData
 
                 if (list.Any())
                 {
-                    returnval= list.FirstOrDefault();
+                   return list.First();
                 }
             }
             return returnval;
@@ -203,28 +205,25 @@ namespace SonosData
                 if (resElement != null)
                 {
                     track.Uri = resElement.Value;
-                    track.ProtocolInfo = resElement.Attribute("protocolInfo").Value;
+                    track.ProtocolInfo = (string)resElement.Attribute("protocolInfo")??"";
                     if (TimeSpan.TryParse(resElement.Attribute("duration")?.Value, out TimeSpan tsres))
                         track.Duration = new SonosTimeSpan(tsres);
                 }
-                track.ItemID = item.Attribute("id").Value;
-                track.ParentID = item.Attribute("parentID").Value;
-                track.MetaData = (string)item.Element(r + "resMD");
-                var taau = (string)item.Element(upnp + "albumArtURI");
-                track.AlbumArtURI = String.IsNullOrEmpty(taau) ? String.Empty : taau;
-                track.ClassType = (string)item.Element(upnp + "class");
-                var tal = (string)item.Element(upnp + "album");
-                track.Album = String.IsNullOrEmpty(tal) ? String.Empty : tal;
-                var tar = (string)item.Element(dc + "creator");
-                if (string.IsNullOrEmpty(tar))
-                {
-                    tar = (string)item.Element(upnp + "artist");
-                }
-                track.Artist = String.IsNullOrEmpty(tar) ? String.Empty : tar;
+                track.ItemID = (string)item.Attribute("id") ?? String.Empty;
+                track.ParentID = (string)item.Attribute("parentID") ?? String.Empty;
+                track.MetaData = (string)item.Element(r + "resMD") ?? String.Empty;
+                track.AlbumArtURI = (string)item.Element(upnp + "albumArtURI") ?? String.Empty;
+                track.ClassType = (string)item.Element(upnp + "class") ?? String.Empty;
+                track.Album = (string)item.Element(upnp + "album") ?? String.Empty;
+                //var tar = (string)item.Element(dc + "creator");
+                //if (string.IsNullOrEmpty(tar))
+                //{//todo ansehen ob auch mal creator gefüllt ist.
+                //    tar = (string)item.Element(upnp + "artist");
+                //}
+                track.Artist = (string)item.Element(upnp + "artist") ?? String.Empty;
                 //Title | Wenn Streamcontent vorhanden, dann wird radio abgespielt und der Titel ist falsch. 
-                track.StreamContent = (string)item.Element(r + "streamContent");
-                string tti = (string)item.Element(dc + "title");
-                track.Title = String.IsNullOrEmpty(tti) ? String.Empty : tti;
+                track.StreamContent = (string)item.Element(r + "streamContent") ?? String.Empty;
+                track.Title = (string)item.Element(dc + "title") ?? String.Empty;
                 track.Description = (string)item.Element(r + "description") ?? String.Empty;
 
             }

@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
-using HomeLogging;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Text.Json.Serialization;
@@ -16,12 +15,13 @@ using SonosConst;
 using SonosData.DataClasses;
 using SonosUPNPCore.Classes;
 using SonosData;
+using SonosUPNPCore.Interfaces;
 
 namespace SonosUPnP
 {
     [Serializable]
     [DataContract]
-    public class SonosPlayer
+    public class SonosPlayer : ISonosPlayer
     {
         #region Klassenvariable und ctor
         public event EventHandler<SonosPlayer> Player_Changed = delegate { };
@@ -29,7 +29,7 @@ namespace SonosUPnP
         private readonly Timer RelTimer;
         [NonSerialized]
         private readonly Timer RemSleeTimer;
-        private const string ClassName ="SonosPlayer";
+        private const string ClassName = "SonosPlayer";
         private const string audio = "Audio Eingang";
         private const string radio = "Radio";
         private const string service = "Dienst";
@@ -38,38 +38,18 @@ namespace SonosUPnP
         private const string xsonosapistream = xsonosapi + "-stream";
         private const string xsonosapihlsstatic = xsonosapi + "-hls-static";
         private static readonly List<string> _bekannteStreamingPfade = new() { "x-rincon-stream:RINCON", "x-rincon-mp3radio", xsonosapiradio, xsonosapihlsstatic, xsonosapistream, "x-sonos-http", "x-sonosprog-http", "aac:" };
-        [NonSerialized]
-        private Timer ServiceCheckTimer;
-        private Boolean ServiceInit = false;
-        private readonly Dictionary<string, string> _icons = new();
         /// <summary>
         /// nutze ich die subscriptions oder mache ich alles selber.
         /// </summary>
-        private readonly Boolean useSubscription = false;
-        /// <summary>
-        /// Die erlaubten services aus der Web.config
-        /// </summary>
-        private readonly List<SonosEnums.Services> serviceEnums = new();
         private readonly List<SonosEnums.EventingEnums> IgnoreEvent = new() { SonosEnums.EventingEnums.LastChangedPlayState, SonosEnums.EventingEnums.ThirdPartyMediaServersX, SonosEnums.EventingEnums.SettingsReplicationState };
         [NonSerialized]
-        private readonly ILogging Logger;
-        public SonosPlayer(List<SonosEnums.Services> se, Boolean uSubscriptions = true, Dictionary<string, string> icons = null, ILogging log = null)
+        private readonly ISonosPlayerPrepare _sonosPlayerPrepare;
+
+        public SonosPlayer(ISonosPlayerPrepare spp)
         {
-            //todo: useSubscription kann gelöscht werden oder auch wieder über DI gemacht werden.
-            if (icons != null)
-                _icons = icons;
-            useSubscription = uSubscriptions;
-            serviceEnums = se;
-            RelTimer = new Timer(state => RelTimeTimer(), null, 60000, Timeout.Infinite);
-            RemSleeTimer = new Timer(state => RemainingSleepTimer(), null, 10000, Timeout.Infinite);
-            if (log == null)
-            {
-                Logger = new Logging();
-            }
-            else
-            {
-                Logger = log;
-            }
+            _sonosPlayerPrepare = spp;
+            RelTimer = new Timer(state => RelTimeTimer(), null, 5000, Timeout.Infinite);
+            RemSleeTimer = new Timer(state => RemainingSleepTimer(), null, 60000, Timeout.Infinite);
             RatingFilter.RatingFilter_Changed += RatingFilterChangedEvent;
         }
         #endregion Klassenvariable
@@ -86,9 +66,9 @@ namespace SonosUPnP
             {
                 lock (Device)
                 {
-                    if (_icons.ContainsKey(Device.IconName))
+                    if (_sonosPlayerPrepare.Icons.ContainsKey(Device.IconName))
                     {
-                        PlayerProperties.Icon = _icons[Device.IconName];
+                        PlayerProperties.Icon = _sonosPlayerPrepare.Icons[Device.IconName];
                     }
                     else
                     {
@@ -105,7 +85,7 @@ namespace SonosUPnP
             AlarmClock = new AlarmClock(this);//Eventing in Discovery
             ContentDirectory = new ContentDirectory(this);//Eventing in Discovery
             QPlay = new QPlay(this); //Kein Event vorhanden
-            ServiceCheckTimer = new Timer(state => ServiceCheck(), null, 9000, Timeout.Infinite);
+            _ = new Timer(state => ServiceCheck(), null, 1000, Timeout.Infinite);
 
         }
         /// <summary>
@@ -116,7 +96,7 @@ namespace SonosUPnP
         /// <param name="ex"></param>
         public void ServerErrorsAdd(String Method, String Source, Exception ex)
         {
-            Logger.ServerErrorsAdd(Method, ex, Name + ":" + Source);
+           _sonosPlayerPrepare.Logger.ServerErrorsAdd(Method, ex, Name + ":" + Source);
         }
 
         /// <summary>
@@ -180,8 +160,8 @@ namespace SonosUPnP
                         PlayerProperties.Playlist.PlayListItems.Add(new SonosItem() { Album = SonosConstants.empty, Artist = SonosConstants.empty, Title = SonosConstants.empty });
                     }
                 }
-                    if (!useSubscription || useSubscription && !serviceEnums.Contains(SonosEnums.Services.Queue))
-                        GetPlaylistFireEvent();
+                if (!_sonosPlayerPrepare.UseSubscription || _sonosPlayerPrepare.UseSubscription && !_sonosPlayerPrepare.ServiceEnums.Contains(SonosEnums.Services.Queue))
+                    GetPlaylistFireEvent();
             }
             catch (Exception ex)
             {
@@ -247,7 +227,7 @@ namespace SonosUPnP
                     }
                     catch (Exception ex)
                     {
-                        Logger.ServerErrorsAdd("FillPlayerPropertiesDefaults:AVTransport", ex, Name);
+                        ServerErrorsAdd("FillPlayerPropertiesDefaults:AVTransport", Name,ex);
                         retval = false;
                     }
                 }
@@ -273,7 +253,7 @@ namespace SonosUPnP
                 }
                 catch (Exception ex)
                 {
-                    Logger.ServerErrorsAdd("FillPlayerPropertiesDefaults:GroupRenderingControl", ex, Name);
+                    ServerErrorsAdd("FillPlayerPropertiesDefaults:GroupRenderingControl", Name, ex);
                     retval = false;
                 }
                 try
@@ -338,7 +318,7 @@ namespace SonosUPnP
                 }
                 catch (Exception ex)
                 {
-                    Logger.ServerErrorsAdd("FillPlayerPropertiesDefaults:ZoneGroupTopology", ex, Name);
+                    ServerErrorsAdd("FillPlayerPropertiesDefaults:ZoneGroupTopology", Name, ex);
                     retval = false;
                 }
                 try
@@ -359,7 +339,7 @@ namespace SonosUPnP
                 }
                 catch (Exception ex)
                 {
-                    Logger.ServerErrorsAdd("FillPlayerPropertiesDefaults:Volume", ex, Name);
+                    ServerErrorsAdd("FillPlayerPropertiesDefaults:Volume", Name, ex);
                     retval = false;
                 }
                 try
@@ -391,7 +371,7 @@ namespace SonosUPnP
                                     }
                                     catch (Exception ex)
                                     {
-                                        Logger.ServerErrorsAdd("FillPlayerPropertiesDefaults:Blockctp", ex, Name);
+                                        ServerErrorsAdd("FillPlayerPropertiesDefaults:Blockctp", Name, ex);
 
                                     }
                                     PlayerProperties.CurrentTrack.FillMP3AndItemFromHDD();
@@ -410,7 +390,7 @@ namespace SonosUPnP
                 }
                 catch (Exception ex)
                 {
-                    Logger.ServerErrorsAdd("FillPlayerPropertiesDefaults:GetPositionInfo", ex, Name);
+                    ServerErrorsAdd("FillPlayerPropertiesDefaults:GetPositionInfo", Name, ex);
                     retval = false;
                 }
                 //Playlist testen
@@ -428,7 +408,7 @@ namespace SonosUPnP
                 }
                 catch (Exception ex)
                 {
-                    Logger.ServerErrorsAdd("FillPlayerPropertiesDefaults:EnqueuedTransportURI", ex, Name);
+                    ServerErrorsAdd("FillPlayerPropertiesDefaults:EnqueuedTransportURI", Name, ex);
                     retval = false;
                 }
                 //Defaults bei Override testen 
@@ -445,7 +425,7 @@ namespace SonosUPnP
                             }
                             catch (Exception ex)
                             {
-                                Logger.ServerErrorsAdd("FillPlayerPropertiesDefaults:AVTransport2:1", ex, Name);
+                                ServerErrorsAdd("FillPlayerPropertiesDefaults:AVTransport2:1", Name, ex);
                             }
                             if (PlayerProperties.GroupCoordinatorIsLocal == true)
                             {
@@ -455,7 +435,7 @@ namespace SonosUPnP
                                 }
                                 catch (Exception ex)
                                 {
-                                    Logger.ServerErrorsAdd("FillPlayerPropertiesDefaults:AVTransport2:2", ex, Name);
+                                    ServerErrorsAdd("FillPlayerPropertiesDefaults:AVTransport2:2", Name, ex);
                                 }
                                 if (overrule)
                                 {
@@ -467,7 +447,7 @@ namespace SonosUPnP
                     }
                     catch (Exception ex)
                     {
-                        Logger.ServerErrorsAdd("FillPlayerPropertiesDefaults:AVTransport2", ex, Name);
+                        ServerErrorsAdd("FillPlayerPropertiesDefaults:AVTransport2", Name, ex);
                     }
                     try
                     {
@@ -486,7 +466,7 @@ namespace SonosUPnP
                     }
                     catch (Exception ex)
                     {
-                        Logger.ServerErrorsAdd("FillPlayerPropertiesDefaults:PlayerProperties.GroupCoordinatorIsLocal", ex, Name);
+                        ServerErrorsAdd("FillPlayerPropertiesDefaults:PlayerProperties.GroupCoordinatorIsLocal", Name, ex);
                     }
                     try
                     {
@@ -502,14 +482,14 @@ namespace SonosUPnP
                     }
                     catch (Exception ex)
                     {
-                        Logger.ServerErrorsAdd("FillPlayerPropertiesDefaults:RenderingControl", ex, Name);
+                        ServerErrorsAdd("FillPlayerPropertiesDefaults:RenderingControl", Name,ex);
                     }
 
                 }
             }
             catch (Exception ex)
             {
-                Logger.ServerErrorsAdd("FillPlayerPropertiesDefaults:LastAndALL", ex, Name);
+                ServerErrorsAdd("FillPlayerPropertiesDefaults:LastAndALL", Name,ex);
                 retval = false;
             }
             Player_Changed(SonosEnums.EventingEnums.IsIdle, this);
@@ -580,6 +560,7 @@ namespace SonosUPnP
         }
         #endregion Public Methoden
         #region Eigenschaften
+        public Boolean ServiceInit { get; private set; } = false;
         [DataMember(Name = "Name")]
         public string Name { get; set; }
         [DataMember(Name = "UUID")]
@@ -682,14 +663,15 @@ namespace SonosUPnP
             try
             {
 
-                if (ev == SonosEnums.EventingEnums.QueueChangeResort || ev == SonosEnums.EventingEnums.CurrentPlayMode || (!e.PlayerProperties.CurrentTrack.IsEmtpy() && e.PlayerProperties.CurrentTrackNumber != 0 && e.PlayerProperties.Playlist.PlayListItems.Count > 0 && e.PlayerProperties.Playlist.PlayListItems.FirstOrDefault(x => x.Uri == e.PlayerProperties.CurrentTrack.Uri) == null))
+                if (ev == SonosEnums.EventingEnums.QueueChangeResort || ev == SonosEnums.EventingEnums.CurrentPlayMode || ev == SonosEnums.EventingEnums.QueueChangedNoRefillNeeded)
                 {
                     if (!string.IsNullOrEmpty(PlayerProperties.EnqueuedTransportURI))
                     {
                         PlayerProperties.EnqueuedTransportURI = String.Empty;
                         Player_Changed(SonosEnums.EventingEnums.EnqueuedTransportURI, this);
                     }
-                    await GetPlayerPlaylist(true, true);
+                    if(ev != SonosEnums.EventingEnums.QueueChangedNoRefillNeeded)
+                        await GetPlayerPlaylist(true, true);
                 }
             }
             catch (Exception ex)
@@ -704,17 +686,9 @@ namespace SonosUPnP
             }
             if (ev == SonosEnums.EventingEnums.QueueChanged)
             {
-                //todo: hier evtl den kommentar einbauen um die AllPlaliyst Selection zu reduzieren.
-                //|| ev == SonosEnums.EventingEnums.QueueChangedNoRefillNeeded
-                //if (!string.IsNullOrEmpty(PlayerProperties.EnqueuedTransportURI))
-                //{
-                //    PlayerProperties.EnqueuedTransportURI = String.Empty;
-                //    Player_Changed(SonosEnums.EventingEnums.EnqueuedTransportURI, this);
-                //}
-                //PlayerProperties.Playlist.NumberReturned = PlayerProperties.Playlist.TotalMatches = PlayerProperties.Playlist.PlayListItems.Count;
                 PlayerProperties.Playlist.ResetPlaylist();
             }
-            
+
             if (ev == SonosEnums.EventingEnums.TransportState || ev == SonosEnums.EventingEnums.IsIdle)
             {
                 //Abspieler in Schleife laden.
@@ -916,13 +890,14 @@ namespace SonosUPnP
         /// </summary>
         private async void RelTimeTimer()
         {
+            //Todo: so umbauen, dass die Oberfläche genau das macht. Die bekommt den Playing status und wir brauchen das nur für den player der angezeigt wird. 
             if (PlayerProperties.TransportState == SonosEnums.TransportState.PLAYING && PlayerProperties.LocalGroupUUID == UUID)
             {
                 RelTimer.Change(3000, 3000);
                 var po = await AVTransport.GetPositionInfo();
                 if (!po.IsEmpty)
                 {
-                    if (PlayerProperties.CurrentTrack.RelTime != po.RelTime)
+                    if (PlayerProperties.CurrentTrack.RelTime.TotalMilliseconds != po.RelTime.TotalMilliseconds)
                     {
                         PlayerProperties.CurrentTrack.RelTime = po.RelTime;
                         LastChange = DateTime.Now;
@@ -941,7 +916,7 @@ namespace SonosUPnP
                         LastChange = DateTime.Now;
                         Player_Changed(SonosEnums.EventingEnums.CurrentTrackNumber, this);
                     }
-                    if (po.TrackDuration != PlayerProperties.CurrentTrack.Duration)
+                    if (po.TrackDuration.TotalMilliseconds != PlayerProperties.CurrentTrack.Duration.TotalMilliseconds)
                     {
                         PlayerProperties.CurrentTrack.Duration = po.TrackDuration;
                         LastChange = DateTime.Now;
@@ -951,7 +926,7 @@ namespace SonosUPnP
             }
             else
             {
-                RelTimer.Change(30000, 30000);
+                RelTimer.Change(Timeout.Infinite, Timeout.Infinite);
             }
 
         }
@@ -960,6 +935,7 @@ namespace SonosUPnP
         /// </summary>
         private async void RemainingSleepTimer()
         {
+            //todo: so umstellen, dass die Oberfläche das macht. Wird nicht im Backend benötigt, wenn die Ui das nicht anzeigt. 
             if (PlayerProperties.SleepTimerRunning)
             {
                 RemSleeTimer.Change(2000, 2000);
@@ -974,7 +950,7 @@ namespace SonosUPnP
         /// <summary>
         /// Prüft ob die Services ordentlich initialisiert wurde.
         /// </summary>
-        public void ServiceCheck()
+        private void ServiceCheck()
         {
             if (ServiceInit) return;
             ServiceInit = true;
@@ -998,46 +974,46 @@ namespace SonosUPnP
             SystemProperties.SystemProperties_Changed += Service_Changed;
             AudioIn = new AudioIn(this);
             AudioIn.AudioIn_Changed += Service_Changed;
-            if (useSubscription)
+            if (_sonosPlayerPrepare.UseSubscription)
             {
-                if (serviceEnums.Contains(SonosEnums.Services.AVTransport))
+                if (_sonosPlayerPrepare.ServiceEnums.Contains(SonosEnums.Services.AVTransport))
                 {
                     AVTransport.SubscripeToEvents();
                 }
-                if (serviceEnums.Contains(SonosEnums.Services.Queue))
+                if (_sonosPlayerPrepare.ServiceEnums.Contains(SonosEnums.Services.Queue))
                 {
                     Queue.SubscripeToEvents();
                 }
-                if (serviceEnums.Contains(SonosEnums.Services.RenderingControl))
+                if (_sonosPlayerPrepare.ServiceEnums.Contains(SonosEnums.Services.RenderingControl))
                 {
                     RenderingControl.SubscripeToEvents();
                 }
-                if (serviceEnums.Contains(SonosEnums.Services.GroupManagement))
+                if (_sonosPlayerPrepare.ServiceEnums.Contains(SonosEnums.Services.GroupManagement))
                 {
                     List<SonosEnums.EventingEnums> ee = new() { SonosEnums.EventingEnums.GroupCoordinatorIsLocal, SonosEnums.EventingEnums.ResetVolumeAfter, SonosEnums.EventingEnums.VirtualLineInGroupID, SonosEnums.EventingEnums.VolumeAVTransportURI };
                     GroupManagement.SubscripeToEvents(ee);
                 }
-                if (serviceEnums.Contains(SonosEnums.Services.DeviceProperties))
+                if (_sonosPlayerPrepare.ServiceEnums.Contains(SonosEnums.Services.DeviceProperties))
                 {
                     DeviceProperties.SubscripeToEvents();
                 }
-                if (serviceEnums.Contains(SonosEnums.Services.GroupRenderingControl))
+                if (_sonosPlayerPrepare.ServiceEnums.Contains(SonosEnums.Services.GroupRenderingControl))
                 {
                     GroupRenderingControl.SubscripeToEvents();
                 }
-                if (serviceEnums.Contains(SonosEnums.Services.ZoneGroupTopology))
+                if (_sonosPlayerPrepare.ServiceEnums.Contains(SonosEnums.Services.ZoneGroupTopology))
                 {
                     ZoneGroupTopology.SubscripeToEvents();
                 }
-                if (serviceEnums.Contains(SonosEnums.Services.MusicServices))
+                if (_sonosPlayerPrepare.ServiceEnums.Contains(SonosEnums.Services.MusicServices))
                 {
                     MusicServices.SubscripeToEvents();
                 }
-                if (serviceEnums.Contains(SonosEnums.Services.SystemProperties))
+                if (_sonosPlayerPrepare.ServiceEnums.Contains(SonosEnums.Services.SystemProperties))
                 {
                     SystemProperties.SubscripeToEvents();
                 }
-                if (serviceEnums.Contains(SonosEnums.Services.AudioIn))
+                if (_sonosPlayerPrepare.ServiceEnums.Contains(SonosEnums.Services.AudioIn))
                 {
                     AudioIn.SubscripeToEvents();
                 }

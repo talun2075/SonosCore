@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using HomeLogging;
 using Sonos.Classes.Interfaces;
-using SonosUPnP;
 using SonosData.DataClasses;
 using SonosSQLiteWrapper.Interfaces;
+using SonosUPNPCore.Interfaces;
 
 namespace Sonos.Controllers
 {

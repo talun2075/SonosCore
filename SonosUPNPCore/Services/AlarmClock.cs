@@ -190,7 +190,7 @@ namespace SonosUPnP.Services
         private void EventFired_AlarmListVersion(UPnPStateVariable sender, object NewValue)
         {
             var nv = NewValue.ToString();
-            if (nv.Contains(":"))
+            if (nv.Contains(':'))
             {
                 var x = nv.Split(':');
 
@@ -391,7 +391,7 @@ namespace SonosUPnP.Services
             int ctg = 0;
             try
             {
-                int.TryParse(arguments[3].DataValue.ToString(), out ctg);
+                _ = int.TryParse(arguments[3].DataValue.ToString(), out ctg);
             }
             catch
             {

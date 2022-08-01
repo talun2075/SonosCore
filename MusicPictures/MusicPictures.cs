@@ -67,7 +67,8 @@ namespace SonosSQLiteWrapper
                 if (sw.MusicPictures.Rows.Contains(covershort))
                 {
                     var row = sw.MusicPictures.Rows.Find(covershort);
-                    var hash = row.ItemArray[1];
+                    var hash = row?.ItemArray[1];
+                    if(hash !=null)
                     item.AlbumArtURI = SonosConstants.CoverHashPathForBrowser + hash + ".png";
                 }
             }

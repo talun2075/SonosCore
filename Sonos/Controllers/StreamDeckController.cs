@@ -9,6 +9,7 @@ using Sonos.Classes.Interfaces;
 using HomeLogging;
 using SonosData.DataClasses;
 using SonosSQLiteWrapper.Interfaces;
+using SonosUPNPCore.Interfaces;
 
 namespace Sonos.Controllers
 {

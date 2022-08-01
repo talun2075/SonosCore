@@ -31,9 +31,9 @@ namespace OpenSource.Utilities
     public sealed class EventLogger
     {
 
-        public static bool EnabledTrace = false;
-        public static bool Enabled = false;
-        public static bool ShowAll = false;
+        private static bool EnabledTrace = false;
+        private static bool Enabled = false;
+        private static bool ShowAll = false;
 
         public static Logging Logger { get; set; } = new(new LoggerWrapperConfig() { ConfigName = "SonosUPNP", TraceFileName = "traceUPNP.txt", ErrorFileName = "ErrorUPNP.txt" });
 

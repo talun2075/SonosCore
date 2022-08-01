@@ -89,6 +89,12 @@ $(document).ready(function () {
     window.SoVa = new SonosVariablen();
     window.SoDo = new SonosDOMObjects();
     window.SonosZones = new SonosZonesObject();
+    $(window).on('beforeunload', function () {
+        //Close SSE on site leaving
+        if (typeof SoVa.SSE_Event_Source !== "undefined" && SoVa.SSE_Event_Source.readyState !== SoVa.SSE_Event_Source.CLOSE) {
+            SoVa.SSE_Event_Source.close();
+        }
+    });
     SoDo.errorloggingDOM.on("click", function () {
         SonosWindows(SoDo.errorlogging);
     });
@@ -159,6 +165,8 @@ $(document).ready(function () {
             }
         }
     });
+
+
     //Events verarbeiten, wenn ein Button geklickt wurde.
     SoDo.prevButton.on("click", function () {
         if (SonosZones.CheckActiveZone()) {

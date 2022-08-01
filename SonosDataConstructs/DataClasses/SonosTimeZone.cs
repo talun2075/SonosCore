@@ -145,7 +145,7 @@
         /// </summary>
         /// <param name="stzd"></param>
         /// <returns></returns>
-        public static SonosTimeZoneData FillSonosTimeZoneData(SonosTimeZoneData stzd)
+        public static SonosTimeZoneData? FillSonosTimeZoneData(SonosTimeZoneData stzd)
         {
             var retval = GetListOfTimeZones.FirstOrDefault(x => x.ID == stzd.ID);
             if (retval == null)

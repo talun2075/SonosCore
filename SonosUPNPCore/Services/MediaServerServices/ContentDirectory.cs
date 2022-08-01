@@ -212,7 +212,7 @@ namespace SonosUPnP.Services.MediaServerServices
         private void EventFired_SavedQueuesUpdateID(UPnPStateVariable sender, object NewValue)
         {
             var nv = NewValue.ToString();
-            if (nv.Contains(","))
+            if (nv.Contains(','))
                 nv = nv.Split(',')[1];
             
             if (int.TryParse(nv, out int nvint) && pl.PlayerProperties.ContentDirectory_SavedQueuesUpdateID != nvint)
@@ -247,7 +247,7 @@ namespace SonosUPnP.Services.MediaServerServices
         private void EventFired_RadioLocationUpdateID(UPnPStateVariable sender, object NewValue)
         {
             var nv = NewValue.ToString();
-            if (nv.Contains(","))
+            if (nv.Contains(','))
                 nv = nv.Split(',')[1];
             
             if (int.TryParse(nv, out int nvint) && pl.PlayerProperties.ContentDirectory_RadioLocationUpdateID != nvint)

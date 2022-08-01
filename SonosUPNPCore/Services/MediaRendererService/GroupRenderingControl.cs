@@ -124,9 +124,7 @@ namespace SonosUPnP.Services.MediaRendererService
             arguments[1] = new UPnPArgument("CurrentMute", null);
             await Invoke("GetGroupMute", arguments, 100);
             await ServiceWaiter.WaitWhileAsync(arguments, 1, 100, 10, WaiterTypes.String);
-            Boolean cvalue = false;
-            
-            if(arguments[1].DataValue != null&& Boolean.TryParse(arguments[1].DataValue.ToString(), out cvalue)&&pl.PlayerProperties.GroupRenderingControl_GroupMute != cvalue)
+            if(arguments[1].DataValue != null&& Boolean.TryParse(arguments[1].DataValue.ToString(), out bool cvalue)&&pl.PlayerProperties.GroupRenderingControl_GroupMute != cvalue)
             {
                 pl.PlayerProperties.GroupRenderingControl_GroupMute = cvalue;
                 ManuellStateChange(SonosEnums.EventingEnums.GroupMute, DateTime.Now);
@@ -140,8 +138,7 @@ namespace SonosUPnP.Services.MediaRendererService
             arguments[1] = new UPnPArgument("CurrentVolume", null);
             await Invoke("GetGroupVolume", arguments, 50);
             await ServiceWaiter.WaitWhileAsync(arguments, 1, 100, 10, WaiterTypes.String);
-            int curvalue = 0;
-            if (arguments[1].DataValue != null && int.TryParse(arguments[1].DataValue?.ToString(), out curvalue) && pl.PlayerProperties.GroupRenderingControl_GroupVolume != curvalue)
+            if (arguments[1].DataValue != null && int.TryParse(arguments[1].DataValue?.ToString(), out int curvalue) && pl.PlayerProperties.GroupRenderingControl_GroupVolume != curvalue)
             {
                 pl.PlayerProperties.GroupRenderingControl_GroupVolume = curvalue;
                 ManuellStateChange(SonosEnums.EventingEnums.GroupVolume, DateTime.Now);
@@ -204,7 +201,7 @@ namespace SonosUPnP.Services.MediaRendererService
             await ServiceWaiter.WaitWhileAsync(arguments, 2, 100, 10, WaiterTypes.String);
             int curvalue=0;
             if (arguments[2].DataValue != null)
-                int.TryParse(arguments[2].DataValue.ToString(), out curvalue);
+                _=int.TryParse(arguments[2].DataValue.ToString(), out curvalue);
             return curvalue;
         }
         public async Task<Boolean> SnapshotGroupVolume(UInt32 InstanceID = 0)

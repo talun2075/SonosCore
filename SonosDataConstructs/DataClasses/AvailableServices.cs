@@ -22,7 +22,7 @@ namespace SonosData.DataClasses
         /// <summary>
         /// Liste aller Services
         /// </summary>
-        public List<AvailableService> AllServices { get; private set; }= new();
+        public List<AvailableService> AllServices { get; private set; } = new();
 
         /// <summary>
         /// Parst das übergebene XML zu einer Liste von Services
@@ -42,32 +42,38 @@ namespace SonosData.DataClasses
                     try
                     {
                         if (item == null) continue;
-                        //todo: Das NULL-Literal oder ein möglicher NULL-Wert wird in einen Non-Nullable-Typ konvertiert.
                         XElement policy = item.Element("Policy");
                         XElement presentation = item.Element("Presentation");
-                        XElement presentationstrings = presentation.Element("Strings");
-                        XElement prenstationmap = presentation.Element("PresentationMap");
                         var ase = new AvailableService();
-                        if (policy != null && Enum.TryParse(policy.Attribute("Auth").Value, out SonosEnums.PolicyAuth pa))
+                        if (presentation != null)
+                        {
+
+                            XElement presentationstrings = presentation.Element("Strings");
+                            XElement prenstationmap = presentation.Element("PresentationMap");
+                            if (prenstationmap != null)
+                            {
+                                ase.Presentation.MapVersion = Convert.ToInt16((string)prenstationmap.Attribute("Version"));
+                                ase.Presentation.MapURI = (string)prenstationmap.Attribute("Uri") ?? "";
+                            }
+                            if (presentationstrings != null)
+                            {
+                                ase.Presentation.Version = Convert.ToInt16((string)presentationstrings.Attribute("Version"));
+                                ase.Presentation.URI = (string)presentationstrings.Attribute("Uri") ?? "";
+                            }
+                        }
+
+
+                        if (policy != null && Enum.TryParse((string)policy.Attribute("Auth"), out SonosEnums.PolicyAuth pa))
                             ase.PolicyAuth = pa;
-                        ase.ID = Convert.ToInt16(item.Attribute("Id").Value);
-                        ase.Name = item.Attribute("Name").Value;
-                        ase.Version = item.Attribute("Version").Value;
-                        ase.URI = item.Attribute("Uri").Value;
-                        ase.SecureURI = item.Attribute("SecureUri").Value;
-                        ase.ContainerType = item.Attribute("ContainerType").Value == "MService" ? SonosEnums.ContainerTypes.MService : SonosEnums.ContainerTypes.SoundLab;
-                        ase.PollIntervall = Convert.ToInt16(policy.Attribute("PollInterval").Value);
+                        ase.ID = Convert.ToInt16((string)item.Attribute("Id"));
+                        ase.Name = (string)item.Attribute("Name") ?? "";
+                        ase.Version = (string)item.Attribute("Version") ?? "";
+                        ase.URI = (string)item.Attribute("Uri") ?? "";
+                        ase.SecureURI = (string)item.Attribute("SecureUri") ?? "";
+                        ase.ContainerType = (string)item.Attribute("ContainerType") == "MService" ? SonosEnums.ContainerTypes.MService : SonosEnums.ContainerTypes.SoundLab;
+                        if (policy != null)
+                            ase.PollIntervall = Convert.ToInt16((string)policy.Attribute("PollInterval"));
                         ase.Presentation = new ServicePresentation();
-                        if (prenstationmap != null)
-                        {
-                            ase.Presentation.MapVersion = Convert.ToInt16(prenstationmap.Attribute("Version").Value);
-                            ase.Presentation.MapURI = prenstationmap.Attribute("Uri").Value;
-                        }
-                        if (presentationstrings != null)
-                        {
-                            ase.Presentation.Version = Convert.ToInt16(presentationstrings.Attribute("Version").Value);
-                            ase.Presentation.URI = presentationstrings.Attribute("Uri").Value;
-                        }
                         list.Add(ase);
                     }
                     catch

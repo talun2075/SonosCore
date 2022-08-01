@@ -2217,7 +2217,7 @@ namespace OSTL.UPnP
         internal void SetVersion(string v)
         {
             DText p = new();
-            if (!v.Contains("-"))
+            if (!v.Contains('-'))
             {
                 p.ATTRMARK = ".";
             }
@@ -3484,6 +3484,14 @@ namespace OSTL.UPnP
                         }
                     }
                     break;
+                case "System.UInt16":
+                    var val = uint.Parse(data);
+                    if (val > 65535)
+                    {
+                        val = 65535;
+                    }
+                    RetObj = Convert.ToUInt16(val);
+                    break;
                 default:
                     Arg[0] = data;
 
@@ -3492,7 +3500,7 @@ namespace OSTL.UPnP
                     {
                         try
                         {
-                            if (data.Contains(",") && ObjectType.Name.ToLower() == "uint32")
+                            if (data.Contains(',') && ObjectType.Name.ToLower() == "uint32")
                             {
                                 data = data.Split(',')[1];
                                 Arg[0] = data;

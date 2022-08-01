@@ -34,7 +34,7 @@ namespace SonosData.DataClasses
         /// <summary>
         /// Ist der Wecker aktiv?
         /// </summary>
-        public bool Enabled { get; set; }
+        public bool Enabled { get; set; } = false;
         /// <summary>
         /// UUID des Raums
         /// </summary>
@@ -59,7 +59,7 @@ namespace SonosData.DataClasses
         {
             get
             {
-                if (ProgramURI.Contains("/") && ProgramURI.Contains("."))
+                if (ProgramURI.Contains('/') && ProgramURI.Contains('.'))
                 {
                     int starttocut = ProgramURI.LastIndexOf("/") + 1;//34
                     int lastpartlength = ProgramURI.Length - ProgramURI.LastIndexOf(".");//4
@@ -94,7 +94,7 @@ namespace SonosData.DataClasses
         /// <summary>
         /// Sollen auch die anderen Player der Zone abgespielt werden?
         /// </summary>
-        public bool IncludeLinkedZones { get; set; }
+        public bool IncludeLinkedZones { get; set; } = false;
 
         public static IList<Alarm> Parse(string xmlString)
         {
@@ -104,21 +104,25 @@ namespace SonosData.DataClasses
 
             foreach (var item in items)
             {
-                //todo: Dereferenzierung eines möglichen Nullverweises
                 var alarm = new Alarm();
-                alarm.Duration = item.Attribute("Duration").Value;
-                alarm.Enabled = (bool)item.Attribute("Enabled");
-                alarm.StartTime = item.Attribute("StartTime").Value;
-                alarm.Recurrence = item.Attribute("Recurrence").Value;
-                alarm.RoomUUID = item.Attribute("RoomUUID").Value;
-                alarm.ProgramURI = item.Attribute("ProgramURI").Value;
-                alarm.ProgramMetaData = item.Attribute("ProgramMetaData").Value;
+                alarm.Duration = (string)item.Attribute("Duration") ?? "";
+                alarm.StartTime = (string)item.Attribute("StartTime") ?? "";
+                alarm.Recurrence = (string)item.Attribute("Recurrence") ?? "";
+                alarm.RoomUUID = (string)item.Attribute("RoomUUID") ?? "";
+                alarm.ProgramURI = (string)item.Attribute("ProgramURI") ?? "";
+                alarm.ProgramMetaData = (string)item.Attribute("ProgramMetaData") ?? "";
                 alarm.ContainerID = SonosItem.Parse(alarm.ProgramMetaData)[0].ItemID;
-                alarm.PlayMode = item.Attribute("PlayMode").Value;
-                var vol = item.Attribute("Volume").Value;
-                alarm.Volume = Convert.ToUInt16(vol);
-                alarm.IncludeLinkedZones = (bool)item.Attribute("IncludeLinkedZones");
-                alarm.ID = (uint)item.Attribute("ID");
+                alarm.PlayMode = (string)item.Attribute("PlayMode") ?? "";
+                alarm.Volume = Convert.ToUInt16((string)item.Attribute("Volume"));
+                if ((string)item.Attribute("IncludeLinkedZones") != null && (string)item.Attribute("IncludeLinkedZones") =="1")
+                {
+                    alarm.IncludeLinkedZones = true;
+                }
+                if ((string)item.Attribute("Enabled") != null && (string)item.Attribute("Enabled") == "1")
+                {
+                    alarm.Enabled = true;
+                }
+                alarm.ID = Convert.ToUInt16((string)item.Attribute("ID"));
                 list.Add(alarm);
             }
 
