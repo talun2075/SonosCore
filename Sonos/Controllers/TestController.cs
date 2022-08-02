@@ -12,7 +12,7 @@ namespace Sonos.Controllers
         [HttpGet("test")]
         public string Test()
         {
-
+            throw new System.Exception("dies ist ein blub");
             return "huuuuu";
         }
     }

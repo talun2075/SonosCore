@@ -53,6 +53,7 @@ namespace Sonos
                 EnableDirectoryBrowsing = true
             });
 #endif
+            app.UseMiddleware<ExceptionMiddleware>();
             app.UseStaticFiles();
             app.UseRouting();
 

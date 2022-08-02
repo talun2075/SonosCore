@@ -114,18 +114,27 @@ namespace Sonos.Controllers
                             {
                                 //Update for 1
                                 SonosPlayer pl = _sonos.GetPlayerbySoftWareGeneration(SoftwareGeneration.ZG1);
-                                var k = await pl.ZoneGroupTopology.GetZoneGroupState();
-                                _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.AddRange(k.ZoneGroupStates);
+                                if (pl != null)
+                                {
+                                    var k = await pl.ZoneGroupTopology.GetZoneGroupState();
+                                    lock (_sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates)
+                                    {
+                                        _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.AddRange(k.ZoneGroupStates);
+                                    }
+                                }
                             }
                             var s2 = _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.FirstOrDefault(x => x.SoftwareGeneration == SoftwareGeneration.ZG2);
                             if (s2 == null)
                             {
                                 //Update for 2
                                 SonosPlayer pl = _sonos.GetPlayerbySoftWareGeneration(SoftwareGeneration.ZG2);
-                                var k = await pl.ZoneGroupTopology.GetZoneGroupState();
-                                lock (_sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates)
+                                if (pl != null)
                                 {
-                                    _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.AddRange(k.ZoneGroupStates);
+                                    var k = await pl.ZoneGroupTopology.GetZoneGroupState();
+                                    lock (_sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates)
+                                    {
+                                        _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.AddRange(k.ZoneGroupStates);
+                                    }
                                 }
                             }
                             await _sonos.SetPlaylists(true);

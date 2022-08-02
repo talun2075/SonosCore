@@ -842,6 +842,7 @@ namespace Sonos.Controllers
                 try
                 {
                     pp = _sonos.GetPlayerbyName(playername);
+                    if (pp == null || pp.AVTransport == null) return "Player null.";
                     await pp.AVTransport.GetTransportInfo();
                     await _sonosHelper.WaitForTransitioning(pp);
                 }

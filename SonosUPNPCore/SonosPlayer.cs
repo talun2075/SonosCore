@@ -19,6 +19,8 @@ using SonosUPNPCore.Interfaces;
 
 namespace SonosUPnP
 {
+    //todo: wenn enqueuedTransportURI leer ist evtl. mal die Position lesen?
+
     [Serializable]
     [DataContract]
     public class SonosPlayer : ISonosPlayer
@@ -676,7 +678,7 @@ namespace SonosUPnP
             }
             catch (Exception ex)
             {
-                var k = ex.Message;
+                ServerErrorsAdd("Service_Changed:QueueChange", "", ex);
             }
             if (ev == SonosEnums.EventingEnums.CurrentTrack)
             {
@@ -686,7 +688,11 @@ namespace SonosUPnP
             }
             if (ev == SonosEnums.EventingEnums.QueueChanged)
             {
-                PlayerProperties.Playlist.ResetPlaylist();
+                if (PlayerProperties.Playlist.IsEmpty)
+                {
+                    Player_Changed(SonosEnums.EventingEnums.QueueChangedEmpty, e);
+                    return;
+                }
             }
 
             if (ev == SonosEnums.EventingEnums.TransportState || ev == SonosEnums.EventingEnums.IsIdle)

@@ -147,11 +147,18 @@ namespace SonosData
                     track.Title = (string)item.Element(dc + "title") ?? "";
                     track.AlbumArtURI = (string)item.Element(upnp + "albumArtURI") ?? "";
                     track.ClassType = (string)item.Element(upnp + "class") ?? "";
+
                     if (item.FirstAttribute != null)
                     {
                         track.ContainerID = item.FirstAttribute.Value;
                         track.ParentID = item.FirstAttribute.NextAttribute != null ? item.FirstAttribute.NextAttribute.Value : "";
                     }
+                    var tar = (string)item.Element(dc + "creator");
+                    if (string.IsNullOrEmpty(tar))
+                    {
+                        tar = (string)item.Element(upnp + "artist");
+                    }
+                    track.Artist = tar ?? String.Empty;
                     list.Add(track);
                 }
                 if (list.Count == 1)
@@ -215,12 +222,12 @@ namespace SonosData
                 track.AlbumArtURI = (string)item.Element(upnp + "albumArtURI") ?? String.Empty;
                 track.ClassType = (string)item.Element(upnp + "class") ?? String.Empty;
                 track.Album = (string)item.Element(upnp + "album") ?? String.Empty;
-                //var tar = (string)item.Element(dc + "creator");
-                //if (string.IsNullOrEmpty(tar))
-                //{//todo ansehen ob auch mal creator gefüllt ist.
-                //    tar = (string)item.Element(upnp + "artist");
-                //}
-                track.Artist = (string)item.Element(upnp + "artist") ?? String.Empty;
+                var tar = (string)item.Element(dc + "creator");
+                if (string.IsNullOrEmpty(tar))
+                {
+                    tar = (string)item.Element(upnp + "artist");
+                }
+                track.Artist = tar ?? String.Empty;
                 //Title | Wenn Streamcontent vorhanden, dann wird radio abgespielt und der Titel ist falsch. 
                 track.StreamContent = (string)item.Element(r + "streamContent") ?? String.Empty;
                 track.Title = (string)item.Element(dc + "title") ?? String.Empty;

@@ -669,9 +669,9 @@ function AddToPlaylist(item) {
         var uri = $(item).parent().attr("data-containerid");
         var request = SonosAjax("Enqueue", { '': uri });
         request.success(function () {
-            var player = SonosPlayers[SonosZones.ActiveZoneUUID];
-            player.playlist.ClearPlaylist(player);
-            player.playlist.RenderPlaylist(player, player.playerProperties.currentTrack.stream);
+            //var player = SonosPlayers[SonosZones.ActiveZoneUUID];
+            //player.playlist.ClearPlaylist(player);
+            //player.playlist.RenderPlaylist(player, player.playerProperties.currentTrack.stream);
         });
         request.fail(function (jqXHR) {
             if (jqXHR.statusText === "Internal Server Error") {
@@ -1285,7 +1285,7 @@ function LoadBrowse(v) {
                         }
                     }
                     browsetitlewidth = 320;
-                    if (item.albumArtURI !== null && item.mP3.hatCover === true) {
+                    if (item.albumArtURI !== null && item.albumArtURI !== "" && item.mP3.hatCover === true) {
                         var img = "http://" + SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.baseUrl + item.albumArtURI;
                         if (!item.albumArtURI.startsWith("/getaa")) {
                             img = item.albumArtURI;

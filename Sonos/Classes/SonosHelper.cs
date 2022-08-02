@@ -32,7 +32,7 @@ namespace Sonos.Classes
             Sonos.PlayerChange += Sonos_Player_Changed;
             Sonos.GlobalSonosChange += Sonos_TopologyChanged;
             _musicpictures = imu;
-         }
+        }
 
         public Boolean CheckPlayerForHashImages(IList<SonosPlayer> sp)
         {
@@ -264,7 +264,7 @@ namespace Sonos.Classes
             {
                 foreach (SonosPlayer player in Sonos.Players)
                 {
-                    if(await player.FillPlayerPropertiesDefaultsAsync(false, true))
+                    if (await player.FillPlayerPropertiesDefaultsAsync(false, true))
                     {
                         CheckPlayerForHashImages(player);
                     }
@@ -332,31 +332,45 @@ namespace Sonos.Classes
             try
             {
                 var props = sp.PlayerProperties;
-                if (!string.IsNullOrEmpty(props.NextTrack.AlbumArtURI))
-                    props.NextTrack = _musicpictures.UpdateItemToHashPath(props.NextTrack);
-                if (!string.IsNullOrEmpty(props.CurrentTrack.AlbumArtURI))
-                    props.CurrentTrack = _musicpictures.UpdateItemToHashPath(props.CurrentTrack);
+                try
+                {
+                    if (!string.IsNullOrEmpty(props.NextTrack.AlbumArtURI))
+                        props.NextTrack = _musicpictures.UpdateItemToHashPath(props.NextTrack);
+                    if (!string.IsNullOrEmpty(props.CurrentTrack.AlbumArtURI))
+                        props.CurrentTrack = _musicpictures.UpdateItemToHashPath(props.CurrentTrack);
+                }
+                catch (Exception ex)
+                {
+                    Logger.ServerErrorsAdd("CheckPlayerForHashImages:NC", ex, "SonosHelper");
+                    return false;
+                }
                 if (!props.Playlist.IsEmpty && !props.Playlist.PlayListItemsHashChecked)
                 {
-                    foreach (SonosItem item in props.Playlist.PlayListItems)
+                    lock (props.Playlist.PlayListItems)
                     {
-                        try
+                        foreach (SonosItem item in props.Playlist.PlayListItems)
                         {
-                            _musicpictures.UpdateItemToHashPath(item);
+                            try
+                            {
+                                if (item != null)
+                                    _musicpictures.UpdateItemToHashPath(item);
+                                else
+                                    break;
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.ServerErrorsAdd("CheckPlayerForHashImages item:" + item.Uri, ex, "SonosHelper");
+                                continue;
+                            }
                         }
-                        catch (Exception ex)
-                        {
-                            Logger.ServerErrorsAdd("CheckPlayerForHashImages item:" + item.Uri, ex, "SonosHelper");
-                            continue;
-                        }
+                        props.Playlist.PlayListItemsHashChecked = true;
                     }
-                    props.Playlist.PlayListItemsHashChecked = true;
                 }
                 return true;
             }
             catch (Exception ex)
             {
-                Logger.ServerErrorsAdd("CheckPlayerForHashImages", ex, "DeviceController");
+                Logger.ServerErrorsAdd("CheckPlayerForHashImages", ex, "SonosHelper");
                 return false;
             }
         }

@@ -46,7 +46,7 @@ namespace Sonos.Controllers
             {
                 SonosPlayer pl = _sonos.GetPlayerbyUuid(id);
                 if (pl == null) return false;
-                if(await pl.FillPlayerPropertiesDefaultsAsync(v))
+                if (await pl.FillPlayerPropertiesDefaultsAsync(v))
                 {
                     _sonosHelper.CheckPlayerForHashImages(pl);
                 }
@@ -147,7 +147,7 @@ namespace Sonos.Controllers
             {
                 SonosPlayer pl = _sonos.GetPlayerbyUuid(id);
                 if (pl == null || pl.AVTransport == null) return false;
-                    return await pl.AVTransport?.Play();
+                return await pl.AVTransport?.Play();
             }
             catch (Exception ex)
             {
@@ -600,18 +600,24 @@ namespace Sonos.Controllers
             {
                 if (!pl.PlayerProperties.Playlist.IsEmpty && !pl.PlayerProperties.Playlist.PlayListItemsHashChecked)
                 {
-                    foreach (SonosItem item in pl.PlayerProperties.Playlist.PlayListItems)
+                    lock (pl.PlayerProperties.Playlist.PlayListItems)
                     {
-                        try
+                        foreach (SonosItem item in pl.PlayerProperties.Playlist.PlayListItems)
                         {
-                            _musicPictures.UpdateItemToHashPath(item);
+                            try
+                            {
+                                if (item != null)
+                                    _musicPictures.UpdateItemToHashPath(item);
+                                else
+                                   break;
+                            }
+                            catch
+                            {
+                                continue;
+                            }
                         }
-                        catch
-                        {
-                            continue;
-                        }
+                        pl.PlayerProperties.Playlist.PlayListItemsHashChecked = true;
                     }
-                    pl.PlayerProperties.Playlist.PlayListItemsHashChecked = true;
                 }
             }
             catch

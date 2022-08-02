@@ -1744,7 +1744,7 @@ namespace SonosUPnP.Services.MediaRendererService
             {
                 try
                 {
-                    if (songnumber > 0)
+                    if (songnumber > 0 && !pl.PlayerProperties.Playlist.IsEmpty && pl.PlayerProperties.Playlist.PlayListItems.Count <= songnumber)
                     {
                         pl.PlayerProperties.Playlist.PlayListItems.Remove(pl.PlayerProperties.Playlist.PlayListItems[songnumber - 1]);
                     }

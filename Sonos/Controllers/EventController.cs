@@ -88,7 +88,7 @@ namespace Sonos.Controllers
                     }
                     catch (Exception ex)
                     {
-                        _logger.ServerErrorsAdd("SubscribeEvents:inner", ex, "EventController");
+                        _logger.ServerErrorsAdd("SubscribeEvents:inner:EventArgs:"+ eventArgs.Notification.Message+" "+eventArgs.Notification.EventType, ex, "EventController");
                     }
                 }
             }
@@ -182,12 +182,18 @@ namespace Sonos.Controllers
                             t.ChangedValues.Add(eventchange.ToString(), pl.PlayerProperties.CurrentTrackNumber.ToString());
                             break;
                         case SonosEnums.EventingEnums.NextTrack:
-                            _musicPictures.UpdateItemToHashPath(pl.PlayerProperties.NextTrack);
-                            t.ChangedValues.Add(eventchange.ToString(), JsonSerializer.Serialize(pl.PlayerProperties.NextTrack, _jsonSerializerOptions));
+                            if (pl.PlayerProperties.NextTrack != null)
+                            {
+                                _musicPictures.UpdateItemToHashPath(pl.PlayerProperties.NextTrack);
+                                t.ChangedValues.Add(eventchange.ToString(), JsonSerializer.Serialize(pl.PlayerProperties.NextTrack, _jsonSerializerOptions));
+                            }
                             break;
                         case SonosEnums.EventingEnums.CurrentTrack:
-                            _musicPictures.UpdateItemToHashPath(pl.PlayerProperties.CurrentTrack);
-                            t.ChangedValues.Add(eventchange.ToString(), JsonSerializer.Serialize(pl.PlayerProperties.CurrentTrack, _jsonSerializerOptions));
+                            if (pl.PlayerProperties.CurrentTrack != null)
+                            {
+                                _musicPictures.UpdateItemToHashPath(pl.PlayerProperties.CurrentTrack);
+                                t.ChangedValues.Add(eventchange.ToString(), JsonSerializer.Serialize(pl.PlayerProperties.CurrentTrack, _jsonSerializerOptions));
+                            }
                             break;
                         case SonosEnums.EventingEnums.LineInConnected:
                             t.ChangedValues.Add(eventchange.ToString(), pl.PlayerProperties.AudioInput_LineInConnected.ToString());

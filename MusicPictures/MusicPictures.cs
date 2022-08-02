@@ -60,17 +60,30 @@ namespace SonosSQLiteWrapper
         }
         public SonosItem UpdateItemToHashPath(SonosItem item)
         {
-            if (sw.MusicPictures != null && sw.MusicPictures.Rows.Count > 0)
+            try
             {
-                if (string.IsNullOrEmpty(item.AlbumArtURI) || item.AlbumArtURI.StartsWith(SonosConstants.CoverHashPathForBrowser)) return item;
-                var covershort = SonosConstants.RemoveVersionInUri(item.AlbumArtURI);
-                if (sw.MusicPictures.Rows.Contains(covershort))
+                if (sw.MusicPictures != null && sw.MusicPictures.Rows.Count > 0)
                 {
-                    var row = sw.MusicPictures.Rows.Find(covershort);
-                    var hash = row?.ItemArray[1];
-                    if(hash !=null)
-                    item.AlbumArtURI = SonosConstants.CoverHashPathForBrowser + hash + ".png";
+                    if(item == null)
+                    {
+                        var k = "test";
+                    }
+                    if (string.IsNullOrEmpty(item.AlbumArtURI) || item.AlbumArtURI.StartsWith(SonosConstants.CoverHashPathForBrowser)) return item;
+                    var covershort = SonosConstants.RemoveVersionInUri(item.AlbumArtURI);
+                    if (sw.MusicPictures.Rows.Contains(covershort))
+                    {
+                        var row = sw.MusicPictures.Rows.Find(covershort);
+                        object? hash = null;
+                        if(row != null && row.ItemArray.Length >0)
+                            hash = row.ItemArray[1];
+                        if (hash != null)
+                            item.AlbumArtURI = SonosConstants.CoverHashPathForBrowser + hash + ".png";
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                _logging.ServerErrorsAdd("UpdateItemToHashPath", ex, "MusicPictures");
             }
             return item;
         }
