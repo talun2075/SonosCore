@@ -18,7 +18,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SonosSQLiteWrapper", "Music
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SonosConst", "SonosConst\SonosConst.csproj", "{E6252496-FBE0-450C-90EB-16C920B920E6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SonosDataConstructs", "SonosDataConstructs\SonosDataConstructs.csproj", "{8067DA90-86D3-4A99-A13B-7A0781367A0B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SonosDataConstructs", "SonosDataConstructs\SonosDataConstructs.csproj", "{8067DA90-86D3-4A99-A13B-7A0781367A0B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

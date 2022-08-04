@@ -742,15 +742,15 @@ function SonosPlayer(_uuid, _name,_swgen) {
                 var ct = this.playerProperties.currentTrack;
                 var pt = this.playerProperties.playlist.playListItems[this.playerProperties.currentTrackNumber - 1];
                 if (typeof ct === "undefined" || typeof pt === "undefined") return false;
-                if (ct.uri === pt.uri) return true;
+                if (ct.uri === pt.uri) return true;//todo: prüfen wer das aufruft. Hier wird currenttrack nicht mehr geladen. 
                 //Wenn ich hier hin komme, dann muss ich den CurrentTrack neu laden.
-                var request = SonosAjax("GetAktSongInfo", null, player.uuid);
-                request.success(function (data) {
-                    player.playerProperties.currentTrack = data;
-                    player.RenderCurrentTrack();
-                }
+                //var request = SonosAjax("GetAktSongInfo", null, player.uuid);
+                //request.success(function (data) {
+                //    player.playerProperties.currentTrack = data;
+                //    player.RenderCurrentTrack();
+                //}
 
-                );
+                //);
             }
             catch (fehlernachricht) {
                 alert(fehlernachricht + " Fehler bei:" + fehlernachricht.fileName + "\n" + "Meldung:" + fehlernachricht.message + "\n" + "Zeile:" + fehlernachricht.lineNumber);

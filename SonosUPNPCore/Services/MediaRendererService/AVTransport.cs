@@ -969,6 +969,14 @@ namespace SonosUPnP.Services.MediaRendererService
                 {
                     //<r:streamContent></r:streamContent><r:radioShowMd></r:radioShowMd><r:streamInfo>bd:0,sr:0,c:0,l:0,d:0</r:streamInfo>//todo: schauen, was sich dahinter versteckt. Evtl. Streaming ja/nein
                     pl.PlayerProperties.CurrentTrack = SonosItem.ParseSingleItem(ctmdevalue);
+                    try
+                    {
+                        pl.PlayerProperties.CurrentTrack.FillMP3AndItemFromHDD();
+                    }
+                    catch(Exception ex)
+                    {
+                        pl.ServerErrorsAdd("ParseChangeXMLCurrentTrack:Fill", ClassName, ex);
+                    }
                     pl.PlayerProperties.CurrentTrack.MetaData = ctmdevalue;
                     if (LastChangeDates[SonosEnums.EventingEnums.CurrentTrack].Ticks == 0)
                     {

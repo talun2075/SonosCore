@@ -11,6 +11,7 @@ using Sonos.Classes.Interfaces;
 using SonosUPnP;
 using SonosUPNPCore;
 using SonosUPNPCore.Interfaces;
+using System.Diagnostics;
 
 namespace Sonos
 {
@@ -45,14 +46,16 @@ namespace Sonos
             app.UseDeveloperExceptionPage();
             app.UseDefaultFiles();//=> für index.html Dateien; muss vor UseStaticFiles stehen
             var stfo = new StaticFileOptions();
-#if DEBUG
-            app.UseFileServer(new FileServerOptions
+            if (Debugger.IsAttached)
             {
-                FileProvider = new PhysicalFileProvider(@"X:\MusikPictures"),
-                RequestPath = new PathString("/hashimages"),
-                EnableDirectoryBrowsing = true
-            });
-#endif
+                app.UseFileServer(new FileServerOptions
+                {
+                    FileProvider = new PhysicalFileProvider(Configuration["MusicHashFolder"]),
+                    RequestPath = new PathString("/hashimages"),
+                    EnableDirectoryBrowsing = true
+                });
+            }
+
             app.UseMiddleware<ExceptionMiddleware>();
             app.UseStaticFiles();
             app.UseRouting();

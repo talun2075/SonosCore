@@ -4,6 +4,7 @@ using SonosConst;
 using SonosSQLiteWrapper.Interfaces;
 using System.Data;
 using System.Data.SQLite;
+using System.Diagnostics;
 
 namespace SonosSQLiteWrapper
 {
@@ -26,14 +27,13 @@ namespace SonosSQLiteWrapper
         public SQLiteWrapper(IConfiguration configuration, ILogging logging)
         {
 
-                cs = @"URI=file:"+configuration["MusicPictureDBPath"];
-#if DEBUG
-            cs = @"URI=file:C:\\talun\\musicpictures.db";
-#endif
-                _logging = logging;
-                sqlite = new SQLiteConnection(cs);
-                adapter = new SQLiteDataAdapter("Select path,hash from musicpictures", sqlite);
-                builder = new SQLiteCommandBuilder(adapter);
+            cs = @"URI=file:" + configuration["MusicPictureDBPath"];
+            if (Debugger.IsAttached)
+                cs = @"URI=file:"+ configuration["MusicPictureDBPathDebug"];
+            _logging = logging;
+            sqlite = new SQLiteConnection(cs);
+            adapter = new SQLiteDataAdapter("Select path,hash from musicpictures", sqlite);
+            builder = new SQLiteCommandBuilder(adapter);
             try
             {
                 OpenDatabase();
@@ -41,9 +41,9 @@ namespace SonosSQLiteWrapper
                 adapter.Fill(MusicPictures);
                 PreparePrimaryKeys();
                 Close();
-                
+
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logging.ServerErrorsAdd("SQLiteWrapper:Ctor", ex, "SQLiteWrapper");
             }
@@ -119,7 +119,7 @@ namespace SonosSQLiteWrapper
                 keys[0] = MusicPictures.Columns[0];
                 MusicPictures.PrimaryKey = keys;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logging.ServerErrorsAdd("Primarykeys", ex, "SQLiteWrapper");
             }

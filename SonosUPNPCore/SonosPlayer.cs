@@ -98,7 +98,7 @@ namespace SonosUPnP
         /// <param name="ex"></param>
         public void ServerErrorsAdd(String Method, String Source, Exception ex)
         {
-           _sonosPlayerPrepare.Logger.ServerErrorsAdd(Method, ex, Name + ":" + Source);
+            _sonosPlayerPrepare.Logger.ServerErrorsAdd(Method, ex, Name + ":" + Source);
         }
 
         /// <summary>
@@ -229,7 +229,7 @@ namespace SonosUPnP
                     }
                     catch (Exception ex)
                     {
-                        ServerErrorsAdd("FillPlayerPropertiesDefaults:AVTransport", Name,ex);
+                        ServerErrorsAdd("FillPlayerPropertiesDefaults:AVTransport", Name, ex);
                         retval = false;
                     }
                 }
@@ -484,14 +484,14 @@ namespace SonosUPnP
                     }
                     catch (Exception ex)
                     {
-                        ServerErrorsAdd("FillPlayerPropertiesDefaults:RenderingControl", Name,ex);
+                        ServerErrorsAdd("FillPlayerPropertiesDefaults:RenderingControl", Name, ex);
                     }
 
                 }
             }
             catch (Exception ex)
             {
-                ServerErrorsAdd("FillPlayerPropertiesDefaults:LastAndALL", Name,ex);
+                ServerErrorsAdd("FillPlayerPropertiesDefaults:LastAndALL", Name, ex);
                 retval = false;
             }
             Player_Changed(SonosEnums.EventingEnums.IsIdle, this);
@@ -672,7 +672,7 @@ namespace SonosUPnP
                         PlayerProperties.EnqueuedTransportURI = String.Empty;
                         Player_Changed(SonosEnums.EventingEnums.EnqueuedTransportURI, this);
                     }
-                    if(ev != SonosEnums.EventingEnums.QueueChangedNoRefillNeeded)
+                    if (ev != SonosEnums.EventingEnums.QueueChangedNoRefillNeeded)
                         await GetPlayerPlaylist(true, true);
                 }
             }
@@ -683,8 +683,8 @@ namespace SonosUPnP
             if (ev == SonosEnums.EventingEnums.CurrentTrack)
             {
                 PlayerProperties.CurrentTrack = await CheckItemForStreaming(PlayerProperties.CurrentTrack);
-                if (!PlayerProperties.CurrentTrack.Stream)
-                    PlayerProperties.CurrentTrack.FillMP3AndItemFromHDD();
+                //if (!PlayerProperties.CurrentTrack.Stream)
+                //    PlayerProperties.CurrentTrack.FillMP3AndItemFromHDD();//todo: MP§ um ein Empty erweitern und dann hier prüfen. Fill wird schon beim AVTransport aufgemacht.
             }
             if (ev == SonosEnums.EventingEnums.QueueChanged)
             {
