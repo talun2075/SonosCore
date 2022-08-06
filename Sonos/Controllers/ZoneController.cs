@@ -137,7 +137,7 @@ namespace Sonos.Controllers
                                     }
                                 }
                             }
-                            await _sonos.SetPlaylists(true);
+                            //await _sonos.SetPlaylists(true);Todo: warum werden hier die Playlisten befüllt?
                         }
                         getzonesRunning = false;
                     }

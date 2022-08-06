@@ -21,8 +21,8 @@ namespace Sonos.Controllers
     public class EventController : ControllerBase
     {
         private static readonly IMessageRepository _messageRepository = new MessageRepository();
-        private int EventID = 0;
-        private readonly Dictionary<int, RinconLastChangeItem> ListEvents = new();
+        private static int EventID = 0;
+        private static readonly Dictionary<int, RinconLastChangeItem> ListEvents = new();
         private readonly JsonSerializerOptions _jsonSerializerOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         private readonly ILogging _logger;
         private readonly IMusicPictures _musicPictures;
@@ -75,12 +75,22 @@ namespace Sonos.Controllers
                 }
                 async void OnNotification(object? sender, NotificationArgs eventArgs)
                 {
+                    String json = "Fehler Beim Prepare somit nichts vorhanden.";
                     try
                     {
+                        
                         if (!cancellationToken.IsCancellationRequested)
                         {
                             // idea: https://stackoverflow.com/a/58565850/80527
-                            var json = PrepareData(eventArgs);
+                            
+                            try
+                            {
+                                json = PrepareData(eventArgs);
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.ServerErrorsAdd("SubscribeEvents:Json:EventType:" + eventArgs.Notification.EventType, ex, "EventController");
+                            }
                             await Response.WriteAsync($"event:sonos\n", cancellationToken);
                             await Response.WriteAsync($"data:{json}\n\n", cancellationToken);
                             await Response.Body.FlushAsync(cancellationToken);
@@ -88,7 +98,7 @@ namespace Sonos.Controllers
                     }
                     catch (Exception ex)
                     {
-                        _logger.ServerErrorsAdd("SubscribeEvents:inner:EventArgs:"+ eventArgs.Notification.Message+" "+eventArgs.Notification.EventType, ex, "EventController");
+                        _logger.ServerErrorsAdd("SubscribeEvents:inner:EventType:"+eventArgs.Notification.EventType+ " Json:"+ json, ex, "EventController");
                     }
                 }
             }
@@ -103,8 +113,11 @@ namespace Sonos.Controllers
             {
                 if (eventArgs.Notification.Player != null)
                     return PrepareDataForPlayer(eventArgs);
+                if (eventArgs.Notification.Discovery != null)
+                    return PrepareDataForDiscovery(eventArgs);
 
-                return PrepareDataForDiscovery(eventArgs);
+                _logger.ServerErrorsAdd("PrepareData", new Exception("Eventargs ist leer; Typ:"+eventArgs.Notification.EventType), "EventController");
+                return String.Empty;
             }
             catch (Exception ex)
             {
@@ -271,7 +284,7 @@ namespace Sonos.Controllers
             catch (Exception ex)
             {
                 _logger.ServerErrorsAdd("EventPlayerChange Eventenum:" + eventArgs.Notification.EventType.ToString(), ex, "EventController");
-                return "Fehler beim eventing";
+                return "Fehler beim eventing Player";
             }
 
 
@@ -340,7 +353,7 @@ namespace Sonos.Controllers
             catch (Exception ex)
             {
                 _logger.ServerErrorsAdd("PrepareDataForDiscovery", ex, "EventController");
-                return String.Empty;
+                return "Fehler beim eventing Discovery";
             }
         }
 

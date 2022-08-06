@@ -796,6 +796,7 @@ namespace Sonos.Controllers
                 if (pl == null) return false;
                 if(pl.AVTransport == null)
                 {
+                    //pl.ServiceCheck();
                     _logger.ServerErrorsAdd("GenericRoomOff", new Exception("AvTransport is Null. ServiceInit is:"+pl.ServiceInit), "SmarthomeController");
                     return false;
                 }

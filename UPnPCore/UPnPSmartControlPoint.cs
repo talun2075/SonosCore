@@ -28,13 +28,13 @@ namespace OSTL.UPnP
     /// devices that change IP address or change subnet. The class will also gather all the
     /// relevent UPnP device information prior to informing the user about the device.
     /// </summary>
-    public sealed class UPnPSmartControlPoint
+    public sealed class UPnPSmartControlPoint //todo: auch über DI machen //todo: Prüfen warum der Filter nicht zieht.
     {
-        private readonly bool MultiFilter = true;
-        internal static UPnPInternalSmartControlPoint iSCP = new();
+        #region Vars
+        internal static UPnPInternalSmartControlPoint iSCP;
         private readonly string[] PartialMatchFilters = { "upnp:rootdevice" };
         private readonly double[] MinimumVersion = { 1.0 };
-
+        private readonly string UsnFilter = "RINCON";
         public delegate void DeviceHandler(UPnPSmartControlPoint sender, UPnPDevice device);
         public delegate void ServiceHandler(UPnPSmartControlPoint sender, UPnPService service);
 
@@ -58,35 +58,8 @@ namespace OSTL.UPnP
         /// Triggered when a Service that passes the filter disappears from the network
         /// </summary>
         public event ServiceHandler OnRemovedService;
-
-
-        public static void ForceDisposeDevice(UPnPDevice root)
-        {
-            while (root.ParentDevice != null)
-            {
-                root = root.ParentDevice;
-            }
-            iSCP.SSDPNotifySink(null, null, null, false, root.UniqueDeviceName, "upnp:rootdevice", 0, null);
-        }
-
-
-        /// <summary>
-        /// Keep track of all UPnP devices on the network
-        /// </summary>
-        public UPnPSmartControlPoint()
-            : this(null)
-        {
-        }
-
-        /// <summary>
-        /// Keep track of all UPnP devices on the network. The user can expect the OnAddedDeviceSink
-        /// delegate to immidiatly be called for each device that is already known.
-        /// </summary>
-        /// <param name="OnAddedDeviceSink">Delegate called when a UPnP device is detected</param>
-        public UPnPSmartControlPoint(DeviceHandler OnAddedDeviceSink)
-            : this(OnAddedDeviceSink, "upnp:rootdevice")
-        {
-        }
+        #endregion
+        #region ctor
 
         /// <summary>
         /// Keep track of all UPnP devices on the network. The user can expect the OnAddedDeviceSink
@@ -94,8 +67,8 @@ namespace OSTL.UPnP
         /// </summary>
         /// <param name="OnAddedDeviceSink"></param>
         /// <param name="DevicePartialMatchFilter"></param>
-        public UPnPSmartControlPoint(DeviceHandler OnAddedDeviceSink, string DevicePartialMatchFilter)
-            : this(OnAddedDeviceSink, null, DevicePartialMatchFilter)
+        public UPnPSmartControlPoint(DeviceHandler OnAddedDeviceSink, string DevicePartialMatchFilter, string usnfilter)
+            : this(OnAddedDeviceSink, null, DevicePartialMatchFilter, usnfilter)
         {
         }
 
@@ -109,10 +82,15 @@ namespace OSTL.UPnP
         /// <param name="OnAddedDeviceSink"></param>
         /// <param name="OnAddedServiceSink"></param>
         /// <param name="Filters">Array of strings, which represent the search criteria</param>
-        public UPnPSmartControlPoint(DeviceHandler OnAddedDeviceSink, ServiceHandler OnAddedServiceSink, string[] Filters)
+        public UPnPSmartControlPoint(DeviceHandler OnAddedDeviceSink, ServiceHandler OnAddedServiceSink, string[] Filters, string _usnFilter)
         {
-            //MultiFilter = true;
-            PartialMatchFilters = new String[Filters.Length];
+
+            if (!string.IsNullOrEmpty(_usnFilter))
+            {
+                UsnFilter = _usnFilter;
+            }
+            iSCP = new UPnPInternalSmartControlPoint(UsnFilter);
+            PartialMatchFilters = new String[Filters.Length];//todo: Filter komplett auf String statt array umstellen. 
             MinimumVersion = new double[Filters.Length];
             for (int i = 0; i < PartialMatchFilters.Length; ++i)
             {
@@ -159,12 +137,21 @@ namespace OSTL.UPnP
         /// <param name="OnAddedDeviceSink">Delegate called when a UPnP device is detected that match the filter</param>
         /// <param name="OnAddedServiceSink"></param>
         /// <param name="DevicePartialMatchFilter">Sets the filter to UPnP devices that start with this string</param>
-        public UPnPSmartControlPoint(DeviceHandler OnAddedDeviceSink, ServiceHandler OnAddedServiceSink, string DevicePartialMatchFilter)
-            : this(OnAddedDeviceSink, OnAddedServiceSink, new[] { DevicePartialMatchFilter })
+        public UPnPSmartControlPoint(DeviceHandler OnAddedDeviceSink, ServiceHandler OnAddedServiceSink, string DevicePartialMatchFilter, string usnFilter)
+            : this(OnAddedDeviceSink, OnAddedServiceSink, new[] { DevicePartialMatchFilter }, usnFilter)
         {
-            MultiFilter = false;
-        }
 
+        }
+        #endregion
+        #region public methods
+        public static void ForceDisposeDevice(UPnPDevice root)
+        {
+            while (root.ParentDevice != null)
+            {
+                root = root.ParentDevice;
+            }
+            iSCP.SSDPNotifySink(null, null, null, false, root.UniqueDeviceName, "upnp:rootdevice", 0, null);//todo testen ob dies das nicht vorhandene Gerät ist.
+        }
         /// <summary>
         /// Rescans the network
         /// </summary>
@@ -189,9 +176,9 @@ namespace OSTL.UPnP
         {
             get
             {
-                ArrayList dList = new ();
-                ArrayList sList = new ();
-                Hashtable h = new ();
+                ArrayList dList = new();
+                ArrayList sList = new();
+                Hashtable h = new();
                 int filterIndex;
 
                 bool MatchAll;
@@ -249,7 +236,7 @@ namespace OSTL.UPnP
 
                 }
 
-                ArrayList a = new ();
+                ArrayList a = new();
                 IDictionaryEnumerator ide = h.GetEnumerator();
                 while (ide.MoveNext())
                 {
@@ -258,7 +245,8 @@ namespace OSTL.UPnP
                 return (a);
             }
         }
-
+        #endregion
+        #region private methods
         /// <summary>
         /// Forward the OnAddedDevice event to the user.
         /// </summary>
@@ -269,8 +257,8 @@ namespace OSTL.UPnP
             if ((OnAddedDevice != null) || (OnAddedService != null))
             {
                 ArrayList dList = new();
-                ArrayList sList = new ();
-                Hashtable h = new ();
+                ArrayList sList = new();
+                Hashtable h = new();
 
                 bool MatchAll = true;
                 for (int filterIndex = 0; filterIndex < PartialMatchFilters.Length; ++filterIndex)
@@ -298,14 +286,7 @@ namespace OSTL.UPnP
                             sList.Add(x);
                             if (PartialMatchFilters.Length == 1)
                             {
-                                if (MultiFilter == false)
-                                {
-                                    OnAddedService?.Invoke(this, (UPnPService)x);
-                                }
-                                else
-                                {
-                                    OnAddedDevice?.Invoke(this, ((UPnPService)x).ParentDevice);
-                                }
+                                OnAddedService?.Invoke(this, (UPnPService)x);
                             }
                         }
                     }
@@ -372,7 +353,7 @@ namespace OSTL.UPnP
         /// <param name="device">The UPnPDevice object that was updated</param>
         private void HandleUpdatedDevice(UPnPInternalSmartControlPoint sender, UPnPDevice device)
         {
-
+            //todo: empty
         }
 
         /// <summary>
@@ -385,8 +366,8 @@ namespace OSTL.UPnP
             if ((OnRemovedDevice != null) || (OnRemovedService != null))
             {
                 ArrayList dList = new();
-                ArrayList sList = new ();
-                Hashtable h = new ();
+                ArrayList sList = new();
+                Hashtable h = new();
 
                 bool MatchAll = true;
                 for (int filterIndex = 0; filterIndex < PartialMatchFilters.Length; ++filterIndex)
@@ -492,7 +473,7 @@ namespace OSTL.UPnP
 
         private bool CheckDeviceAgainstFilter(string filter, double Version, UPnPDevice device, out object[] MatchingObject)
         {
-            ArrayList TempList = new ();
+            ArrayList TempList = new();
             // No devices to filter.
             if (device == null)
             {
@@ -568,5 +549,6 @@ namespace OSTL.UPnP
             iSCP.ForceDeviceAddition(url);
         }
 
+        #endregion
     }
 }

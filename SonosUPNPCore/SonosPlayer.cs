@@ -87,7 +87,8 @@ namespace SonosUPnP
             AlarmClock = new AlarmClock(this);//Eventing in Discovery
             ContentDirectory = new ContentDirectory(this);//Eventing in Discovery
             QPlay = new QPlay(this); //Kein Event vorhanden
-            _ = new Timer(state => ServiceCheck(), null, 1000, Timeout.Infinite);
+            ServiceCheck();
+            //_ = new Timer(state => ServiceCheck(), null, 1000, Timeout.Infinite);
 
         }
         /// <summary>
@@ -956,7 +957,7 @@ namespace SonosUPnP
         /// <summary>
         /// Prüft ob die Services ordentlich initialisiert wurde.
         /// </summary>
-        private void ServiceCheck()
+        public void ServiceCheck()
         {
             if (ServiceInit) return;
             ServiceInit = true;

@@ -37,6 +37,7 @@ namespace OSTL.UPnP
         private readonly Hashtable deviceTable = new();
         private readonly object deviceTableLock = new();
         private readonly ArrayList activeDeviceList = ArrayList.Synchronized(new ArrayList());
+        private readonly string UsnFilter = "RINCON";
 
         private readonly LifeTimeMonitor deviceLifeTimeClock = new();
         private readonly LifeTimeMonitor deviceUpdateClock = new();
@@ -88,6 +89,25 @@ namespace OSTL.UPnP
 
         public UPnPInternalSmartControlPoint()
         {
+            deviceFactory.OnDevice += DeviceFactoryCreationSink;
+            deviceFactory.OnFailed += DeviceFactoryFailedSink;
+            deviceLifeTimeClock.OnExpired += DeviceLifeTimeClockSink;
+            deviceUpdateClock.OnExpired += DeviceUpdateClockSink;
+
+            hostNetworkInfo = new NetworkInfo(NetworkInfoNewInterfaceSink);
+            hostNetworkInfo.OnInterfaceDisabled += NetworkInfoOldInterfaceSink;
+
+            // Launch a search for all devices and start populating the
+            // internal smart control point device list.
+            genericControlPoint = new UPnPControlPoint();
+            genericControlPoint.OnSearch += UPnPControlPointSearchSink;
+            genericControlPoint.OnNotify += SSDPNotifySink;
+
+            genericControlPoint.FindDeviceAsync("upnp:rootdevice");
+        }
+        public UPnPInternalSmartControlPoint(string usnfilter)
+        {
+            UsnFilter = usnfilter;
             deviceFactory.OnDevice += DeviceFactoryCreationSink;
             deviceFactory.OnFailed += DeviceFactoryFailedSink;
             deviceLifeTimeClock.OnExpired += DeviceLifeTimeClockSink;
@@ -162,10 +182,12 @@ namespace OSTL.UPnP
         /// </summary>
         private void UPnPControlPointSearchSink(IPEndPoint source, IPEndPoint local, Uri LocationURL, String USN, String SearchTarget, int MaxAge)
         {
-            // A bit like getting a SSDP notification, but we don't do automatic
-            // source change in this case. The only valid scenario of a search
-            // result is device creation.
-            lock (deviceTableLock)
+            if (!USN.ToUpper().StartsWith(UsnFilter)) return; //todo: reicht das hier aus um nur noch die Rincon Geräte zu haben?
+
+                // A bit like getting a SSDP notification, but we don't do automatic
+                // source change in this case. The only valid scenario of a search
+                // result is device creation.
+                lock (deviceTableLock)
             {
                 if (deviceTable.ContainsKey(USN) == false)
                 {
@@ -275,7 +297,7 @@ namespace OSTL.UPnP
         {
             UPnPDevice removedDevice = null;
             // Simple ignore everything that is not root
-            if (SearchTarget != "upnp:rootdevice") return;
+            if (SearchTarget != "upnp:rootdevice" || !USN.ToUpper().StartsWith(UsnFilter)) return;
 
             if (IsAlive == false)
             {
@@ -308,7 +330,7 @@ namespace OSTL.UPnP
                         deviceInfo.MaxAge = MaxAge;
                         deviceInfo.LocalEP = local;
                         deviceTable[USN] = deviceInfo;
-                        deviceFactory.CreateDevice(deviceInfo.BaseURL, deviceInfo.MaxAge, local.Address, USN); // TODO2: Does URI construction work all this time??
+                        deviceFactory.CreateDevice(deviceInfo.BaseURL, deviceInfo.MaxAge, local.Address, USN); 
                     }
                     else
                     {

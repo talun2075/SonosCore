@@ -357,7 +357,6 @@ function ChangePlayerSettings(data) {
                     SonosZones.RenderPlaylistCounter(data.uuid);
                     SonosZones.RenderCurrentTrackinPlaylist(data.uuid, player.playerProperties.currentTrackNumber, "CheckPlayerEventData");
                     SonosZones.RenderNextTrack(data.uuid);
-                    player.CheckCurrentTrackToTrackNumber();
                 }
             }
             break;
@@ -369,7 +368,6 @@ function ChangePlayerSettings(data) {
                     SonosZones.RenderPlaylistCounter(data.uuid);
                     SonosZones.RenderCurrentTrackinPlaylist(data.uuid, player.playerProperties.currentTrackNumber, "CheckPlayerEventData");
                     SonosZones.RenderNextTrack(data.uuid);
-                    player.CheckCurrentTrackToTrackNumber();
                 }
             }
             if (JSON.stringify(player.playerProperties.currentTrack.relTime) !== data.changedValues.RelTime) {

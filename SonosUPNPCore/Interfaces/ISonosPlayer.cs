@@ -39,7 +39,7 @@ namespace SonosUPNPCore.Interfaces
         ZoneGroupTopology ZoneGroupTopology { get; }
 
         event EventHandler<SonosPlayer> Player_Changed;
-
+        public void ServiceCheck();
         void CheckPlayerPropertiesWithClient(PlayerProperties pp);
         Task<bool> FillPlayerPropertiesDefaultsAsync(bool overrule = false, bool CheckValues = false);
         Task<Playlist> GetPlayerPlaylist(bool fillnew = false, bool loadcurrent = false);

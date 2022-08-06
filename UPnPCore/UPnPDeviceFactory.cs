@@ -105,7 +105,7 @@ namespace OSTL.UPnP
             lock (CreateTable)
             {
                 CreateTable.Remove(sender);
-                sender.Shutdown();
+                sender.Shutdown();//todo: ansehen was dieser shutdown bewirkt? kann ich den evtl. verwenden um ein Remove zu machen ohne komplett zu reseten?
             }
             OnFailed?.Invoke(this, URL, e, urn);
         }

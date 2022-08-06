@@ -16,7 +16,6 @@ namespace Sonos.Classes.Events
             Discovery = sd;
         }
         public SonosPlayer Player { get; set; } = null;
-        public string Message { get; set; }
         public SonosDiscovery Discovery { get; set; } = null;
         public SonosEnums.EventingEnums EventType { get; set; }
     }

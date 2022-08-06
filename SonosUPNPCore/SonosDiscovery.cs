@@ -172,7 +172,7 @@ namespace SonosUPnP
             ZoneSwGen1.GlobalSonosChange += ZoneSwGen_GlobalSonosChange;
             ZoneSwGen2.GlobalSonosChange += ZoneSwGen_GlobalSonosChange;
             ZoneProperties = new DiscoveryZoneProperties(ZoneSwGen1, ZoneSwGen2);
-            ControlPoint = new UPnPSmartControlPoint(OnDeviceAdded, OnServiceAdded, "urn:schemas-upnp-org:device:ZonePlayer:0");
+            StartScan();
 
         }
         /// <summary>
@@ -728,7 +728,7 @@ namespace SonosUPnP
         /// </summary>
         private void StartScan()
         {
-            ControlPoint = new UPnPSmartControlPoint(OnDeviceAdded, OnServiceAdded, "urn:schemas-upnp-org:device:ZonePlayer:0");
+            ControlPoint = new UPnPSmartControlPoint(OnDeviceAdded, OnServiceAdded, "urn:schemas-upnp-org:device:ZonePlayer:0","RINCON");
         }
         /// <summary>
         /// Start Scan. Use Config for minimum foundet Player with Timeout.
