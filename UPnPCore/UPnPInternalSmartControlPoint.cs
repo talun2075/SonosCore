@@ -182,7 +182,7 @@ namespace OSTL.UPnP
         /// </summary>
         private void UPnPControlPointSearchSink(IPEndPoint source, IPEndPoint local, Uri LocationURL, String USN, String SearchTarget, int MaxAge)
         {
-            if (!USN.ToUpper().StartsWith(UsnFilter)) return; //todo: reicht das hier aus um nur noch die Rincon Geräte zu haben?
+            if (!USN.ToUpper().StartsWith(UsnFilter)) return;
 
                 // A bit like getting a SSDP notification, but we don't do automatic
                 // source change in this case. The only valid scenario of a search

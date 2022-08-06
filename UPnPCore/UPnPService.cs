@@ -29,6 +29,7 @@ using OpenSource.Utilities;
 
 namespace OSTL.UPnP
 {
+    //todo: Classen in eigene Dateien
     /// <summary>
     /// An interface that is used by the Code generator to encapsulate an implementation
     /// </summary>

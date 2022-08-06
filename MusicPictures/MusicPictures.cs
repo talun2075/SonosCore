@@ -66,7 +66,7 @@ namespace SonosSQLiteWrapper
                 {
                     if(item == null)
                     {
-                        var k = "test";
+                        return new SonosItem();
                     }
                     if (string.IsNullOrEmpty(item.AlbumArtURI) || item.AlbumArtURI.StartsWith(SonosConstants.CoverHashPathForBrowser)) return item;
                     var covershort = SonosConstants.RemoveVersionInUri(item.AlbumArtURI);
