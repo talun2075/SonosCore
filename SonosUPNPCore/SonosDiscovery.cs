@@ -728,7 +728,9 @@ namespace SonosUPnP
         /// </summary>
         private void StartScan()
         {
-            ControlPoint = new UPnPSmartControlPoint(OnDeviceAdded, OnServiceAdded, "urn:schemas-upnp-org:device:ZonePlayer:0","RINCON");
+            ControlPoint = new UPnPSmartControlPoint(null, null, "urn:schemas-upnp-org:device:ZonePlayer:0","RINCON");
+            ControlPoint.OnAddedDevice += OnDeviceAdded;
+            ControlPoint.OnAddedService+=OnServiceAdded;
         }
         /// <summary>
         /// Start Scan. Use Config for minimum foundet Player with Timeout.

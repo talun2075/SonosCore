@@ -28,10 +28,10 @@ namespace OSTL.UPnP
     /// devices that change IP address or change subnet. The class will also gather all the
     /// relevent UPnP device information prior to informing the user about the device.
     /// </summary>
-    public sealed class UPnPSmartControlPoint //todo: auch über DI machen //todo: Prüfen warum der Filter nicht zieht.
+    public sealed class UPnPSmartControlPoint //todo: auch über DI machen
     {
         #region Vars
-        internal static UPnPInternalSmartControlPoint iSCP;
+        internal static UPnPInternalSmartControlPoint iSCP; //todo: zusammmen führen um zu sehen, was ich auch wirklich brauche. 
         private readonly string[] PartialMatchFilters = { "upnp:rootdevice" };
         private readonly double[] MinimumVersion = { 1.0 };
         private readonly string UsnFilter = "RINCON";
@@ -60,17 +60,6 @@ namespace OSTL.UPnP
         public event ServiceHandler OnRemovedService;
         #endregion
         #region ctor
-
-        /// <summary>
-        /// Keep track of all UPnP devices on the network. The user can expect the OnAddedDeviceSink
-        /// delegate to immidiatly be called for each device that is already known.
-        /// </summary>
-        /// <param name="OnAddedDeviceSink"></param>
-        /// <param name="DevicePartialMatchFilter"></param>
-        public UPnPSmartControlPoint(DeviceHandler OnAddedDeviceSink, string DevicePartialMatchFilter, string usnfilter)
-            : this(OnAddedDeviceSink, null, DevicePartialMatchFilter, usnfilter)
-        {
-        }
 
         /// <summary>
         /// Keep track of all UPnP devices on the network. The user can expect the OnAddedDeviceSink or OnAddedServiceSink
@@ -152,14 +141,6 @@ namespace OSTL.UPnP
             }
             iSCP.SSDPNotifySink(null, null, null, false, root.UniqueDeviceName, "upnp:rootdevice", 0, null);//todo testen ob dies das nicht vorhandene Gerät ist.
         }
-        /// <summary>
-        /// Rescans the network
-        /// </summary>
-        public static void Rescan()
-        {
-            iSCP.Rescan();
-        }
-
         public static void UnicastSearch(IPAddress RemoteAddress)
         {
             iSCP.UnicastSearch(RemoteAddress);
@@ -167,7 +148,7 @@ namespace OSTL.UPnP
         public void RemoveDevice(UPnPDevice device)
         {
             iSCP.RemoveMe(device);
-            Rescan();
+            iSCP.Rescan();
         }
         #endregion
         #region private methods
