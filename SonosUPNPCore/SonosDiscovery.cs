@@ -377,10 +377,6 @@ namespace SonosUPnP
         public IList<SonosPlayer> Players { get; set; } = new List<SonosPlayer>();
         #endregion Propertys
         #region Devices
-        private void OnServiceAdded(UPnPSmartControlPoint sender, UPnPService service)
-        {
-
-        }
         /// <summary>
         /// Wenn ein Gerät gefunden wird, wird dieses den 
         /// </summary>
@@ -728,10 +724,16 @@ namespace SonosUPnP
         /// </summary>
         private void StartScan()
         {
-            ControlPoint = new UPnPSmartControlPoint(null, null, "urn:schemas-upnp-org:device:ZonePlayer:0","RINCON");
+            ControlPoint = new UPnPSmartControlPoint();
             ControlPoint.OnAddedDevice += OnDeviceAdded;
-            ControlPoint.OnAddedService+=OnServiceAdded;
+            ControlPoint.OnRemovedDevice += OnRemovedDevice;
         }
+
+        private void OnRemovedDevice(UPnPSmartControlPoint sender, UPnPDevice device)
+        {
+            throw new NotImplementedException("Gerät ist weg");//todo: implementieren. Evtl. das was ich brauche, wenn ein Gerät weg ist.
+        }
+
         /// <summary>
         /// Start Scan. Use Config for minimum foundet Player with Timeout.
         /// </summary>

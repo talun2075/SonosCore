@@ -17,7 +17,6 @@ limitations under the License.
 using System;
 using System.Net;
 using System.Collections;
-using System.Globalization;
 
 namespace OSTL.UPnP
 {
@@ -32,12 +31,8 @@ namespace OSTL.UPnP
     {
         #region Vars
         internal static UPnPInternalSmartControlPoint iSCP; //todo: zusammmen führen um zu sehen, was ich auch wirklich brauche. 
-        private readonly string[] PartialMatchFilters = { "upnp:rootdevice" };
-        private readonly double[] MinimumVersion = { 1.0 };
-        private readonly string UsnFilter = "RINCON";
         public delegate void DeviceHandler(UPnPSmartControlPoint sender, UPnPDevice device);
         public delegate void ServiceHandler(UPnPSmartControlPoint sender, UPnPService service);
-
         /// <summary>
         /// Triggered when a Device that passes the filter appears on the network
         /// <para>
@@ -60,7 +55,10 @@ namespace OSTL.UPnP
         public event ServiceHandler OnRemovedService;
         #endregion
         #region ctor
+        public UPnPSmartControlPoint() : this(null, null, null)
+        {
 
+        }
         /// <summary>
         /// Keep track of all UPnP devices on the network. The user can expect the OnAddedDeviceSink or OnAddedServiceSink
         /// delegate to immidiatly be called for each device that is already known.
@@ -70,44 +68,15 @@ namespace OSTL.UPnP
         /// </summary>
         /// <param name="OnAddedDeviceSink"></param>
         /// <param name="OnAddedServiceSink"></param>
-        /// <param name="Filters">Array of strings, which represent the search criteria</param>
-        public UPnPSmartControlPoint(DeviceHandler OnAddedDeviceSink, ServiceHandler OnAddedServiceSink, string[] Filters, string _usnFilter)
+        /// <param name="_usnFilter">string, which represent the search criteria, leave empty for NO Filter. Default is RINCON for Sonos Devices.</param>
+        public UPnPSmartControlPoint(DeviceHandler OnAddedDeviceSink, ServiceHandler OnAddedServiceSink, string _usnFilter)
         {
-
-            if (!string.IsNullOrEmpty(_usnFilter))
-            {
-                UsnFilter = _usnFilter;
-            }
-            iSCP = new UPnPInternalSmartControlPoint(UsnFilter);
-            PartialMatchFilters = new String[Filters.Length];//todo: Filter komplett auf String statt array umstellen. 
-            MinimumVersion = new double[Filters.Length];
-            for (int i = 0; i < PartialMatchFilters.Length; ++i)
-            {
-                if (Filters[i].Length > 15 && Filters[i].Length > UPnPStringFormatter.GetURNPrefix(Filters[i]).Length)
-                {
-                    PartialMatchFilters[i] = UPnPStringFormatter.GetURNPrefix(Filters[i]);
-                    try
-                    {
-                        MinimumVersion[i] = double.Parse(Filters[i].Substring(PartialMatchFilters[i].Length), new CultureInfo("en-US").NumberFormat);
-                    }
-                    catch
-                    {
-                        MinimumVersion[i] = 1.0;
-                    }
-                }
-                else
-                {
-                    PartialMatchFilters[i] = Filters[i];
-                    MinimumVersion[i] = 1.0;
-                }
-
-            }
-
+            iSCP = new UPnPInternalSmartControlPoint(_usnFilter);
             if (OnAddedDeviceSink != null) { OnAddedDevice += OnAddedDeviceSink; }
             if (OnAddedServiceSink != null) { OnAddedService += OnAddedServiceSink; }
 
             iSCP.OnAddedDevice += HandleAddedDevice;
-            iSCP.OnDeviceExpired += HandleExpiredDevice;
+            iSCP.OnDeviceExpired += HandleRemovedDevice;
             iSCP.OnRemovedDevice += HandleRemovedDevice;
             iSCP.OnUpdatedDevice += HandleUpdatedDevice;
 
@@ -118,19 +87,6 @@ namespace OSTL.UPnP
             }
         }
 
-        /// <summary>
-        /// Keep track of all UPnP devices on the network. The user can expect the OnAddedDeviceSink
-        /// delegate to immidiatly be called for each device that is already known that matches the
-        /// filter.
-        /// </summary>
-        /// <param name="OnAddedDeviceSink">Delegate called when a UPnP device is detected that match the filter</param>
-        /// <param name="OnAddedServiceSink"></param>
-        /// <param name="DevicePartialMatchFilter">Sets the filter to UPnP devices that start with this string</param>
-        public UPnPSmartControlPoint(DeviceHandler OnAddedDeviceSink, ServiceHandler OnAddedServiceSink, string DevicePartialMatchFilter, string usnFilter)
-            : this(OnAddedDeviceSink, OnAddedServiceSink, new[] { DevicePartialMatchFilter }, usnFilter)
-        {
-
-        }
         #endregion
         #region public methods
         public static void ForceDisposeDevice(UPnPDevice root)
@@ -161,92 +117,8 @@ namespace OSTL.UPnP
         {
             if ((OnAddedDevice != null) || (OnAddedService != null))
             {
-                ArrayList dList = new();
-                ArrayList sList = new();
-                Hashtable h = new();
-
-                bool MatchAll = true;
-                for (int filterIndex = 0; filterIndex < PartialMatchFilters.Length; ++filterIndex)
-                {
-                    string filter = PartialMatchFilters[filterIndex];
-                    double Version = MinimumVersion[filterIndex];
-
-                    if (CheckDeviceAgainstFilter(filter, Version, device, out object[] r) == false)
-                    {
-                        MatchAll = false;
-                        break;
-                    }
-                    foreach (object x in r)
-                    {
-                        if (x.GetType().FullName == "OSTL.UPnP.UPnPDevice")
-                        {
-                            dList.Add(x);
-                            if (PartialMatchFilters.Length == 1)
-                            {
-                                OnAddedDevice?.Invoke(this, (UPnPDevice)x);
-                            }
-                        }
-                        else
-                        {
-                            sList.Add(x);
-                            if (PartialMatchFilters.Length == 1)
-                            {
-                                OnAddedService?.Invoke(this, (UPnPService)x);
-                            }
-                        }
-                    }
-                }
-                if (MatchAll)
-                {
-                    if (PartialMatchFilters.Length == 1)
-                    {
-                        return;
-                    }
-                    foreach (UPnPDevice dev in dList)
-                    {
-                        bool _OK_ = true;
-                        foreach (string filter in PartialMatchFilters)
-                        {
-                            if (dev.GetDevices(filter).Length == 0)
-                            {
-                                if (dev.GetServices(filter).Length == 0)
-                                {
-                                    _OK_ = false;
-                                    break;
-                                }
-                            }
-                        }
-                        if (_OK_)
-                        {
-                            h[dev] = dev;
-                        }
-                    }
-                    foreach (UPnPService serv in sList)
-                    {
-                        bool _OK_ = true;
-                        foreach (string filter in PartialMatchFilters)
-                        {
-                            if (serv.ParentDevice.GetServices(filter).Length == 0)
-                            {
-                                _OK_ = false;
-                                break;
-                            }
-                        }
-                        if (_OK_)
-                        {
-                            if (h.ContainsKey(serv.ParentDevice) == false)
-                            {
-                                h[serv.ParentDevice] = serv.ParentDevice;
-                            }
-                        }
-                    }
-                }
-
-                IDictionaryEnumerator ide = h.GetEnumerator();
-                while (ide.MoveNext())
-                {
-                    OnAddedDevice?.Invoke(this, (UPnPDevice)ide.Value);
-                }
+                OnAddedDevice?.Invoke(this, device);
+                return;
             }
 
         }
@@ -270,110 +142,9 @@ namespace OSTL.UPnP
         {
             if ((OnRemovedDevice != null) || (OnRemovedService != null))
             {
-                ArrayList dList = new();
-                ArrayList sList = new();
-                Hashtable h = new();
-
-                bool MatchAll = true;
-                for (int filterIndex = 0; filterIndex < PartialMatchFilters.Length; ++filterIndex)
-                {
-                    string filter = PartialMatchFilters[filterIndex];
-                    double Version = MinimumVersion[filterIndex];
-
-                    if (CheckDeviceAgainstFilter(filter, Version, device, out object[] r) == false)
-                    {
-                        MatchAll = false;
-                        break;
-                    }
-                    foreach (object x in r)
-                    {
-                        if (x.GetType().FullName == "OSTL.UPnP.UPnPDevice")
-                        {
-                            dList.Add(x);
-                            if (PartialMatchFilters.Length == 1)
-                            {
-                                OnRemovedDevice?.Invoke(this, (UPnPDevice)x);
-                            }
-                        }
-                        else
-                        {
-                            sList.Add(x);
-                            if (PartialMatchFilters.Length == 1)
-                            {
-                                OnRemovedDevice?.Invoke(this, (UPnPDevice)x);
-                            }
-                        }
-                    }
-                }
-                if (MatchAll)
-                {
-                    if (PartialMatchFilters.Length == 1)
-                    {
-                        if (OnRemovedService != null)
-                        {
-                            foreach (UPnPService S in sList)
-                            {
-                                OnRemovedService(this, S);
-                            }
-                        }
-                        return;
-                    }
-                    foreach (UPnPDevice dev in dList)
-                    {
-                        bool _OK_ = true;
-                        foreach (string filter in PartialMatchFilters)
-                        {
-                            if (dev.GetDevices(filter).Length == 0)
-                            {
-                                if (dev.GetServices(filter).Length == 0)
-                                {
-                                    _OK_ = false;
-                                    break;
-                                }
-                            }
-                        }
-                        if (_OK_)
-                        {
-                            h[dev] = dev;
-                        }
-                    }
-                    foreach (UPnPService serv in sList)
-                    {
-                        bool _OK_ = true;
-                        foreach (string filter in PartialMatchFilters)
-                        {
-                            if (serv.ParentDevice.GetServices(filter).Length == 0)
-                            {
-                                _OK_ = false;
-                                break;
-                            }
-                        }
-                        if (_OK_)
-                        {
-                            if (h.ContainsKey(serv.ParentDevice) == false)
-                            {
-                                h[serv.ParentDevice] = serv.ParentDevice;
-                            }
-                        }
-                    }
-                }
-
-                IDictionaryEnumerator ide = h.GetEnumerator();
-                while (ide.MoveNext())
-                {
-                    OnRemovedDevice?.Invoke(this, (UPnPDevice)ide.Value);
-                }
+                OnRemovedDevice?.Invoke(this, device);
+                return;
             }
-        }
-
-        /// <summary>
-        /// Forward the HandleExpiredDevice event to the user as an OnRemovedDevice event.
-        /// </summary>
-        /// <param name="sender">UPnPInternalSmartControlPoint that sent the event</param>
-        /// <param name="device">The UPnPDevice object that was removed from the network</param>
-        private void HandleExpiredDevice(UPnPInternalSmartControlPoint sender, UPnPDevice device)
-        {
-            HandleRemovedDevice(sender, device);
         }
 
         private bool CheckDeviceAgainstFilter(string filter, double Version, UPnPDevice device, out object[] MatchingObject)

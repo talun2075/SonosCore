@@ -86,27 +86,10 @@ namespace OSTL.UPnP
             public IPEndPoint PendingSourceEP;
         }
 
-        public UPnPInternalSmartControlPoint()
+        public UPnPInternalSmartControlPoint(string usnfilter = null)
         {
-            deviceFactory.OnDevice += DeviceFactoryCreationSink;
-            deviceFactory.OnFailed += DeviceFactoryFailedSink;
-            deviceLifeTimeClock.OnExpired += DeviceLifeTimeClockSink;
-            deviceUpdateClock.OnExpired += DeviceUpdateClockSink;
-
-            hostNetworkInfo = new NetworkInfo(NetworkInfoNewInterfaceSink);
-            hostNetworkInfo.OnInterfaceDisabled += NetworkInfoOldInterfaceSink;
-
-            // Launch a search for all devices and start populating the
-            // internal smart control point device list.
-            genericControlPoint = new UPnPControlPoint();
-            genericControlPoint.OnSearch += UPnPControlPointSearchSink;
-            genericControlPoint.OnNotify += SSDPNotifySink;
-
-            genericControlPoint.FindDeviceAsync("upnp:rootdevice");
-        }
-        public UPnPInternalSmartControlPoint(string usnfilter)
-        {
-            UsnFilter = usnfilter;
+            if(usnfilter != null)
+                UsnFilter = usnfilter;
             deviceFactory.OnDevice += DeviceFactoryCreationSink;
             deviceFactory.OnFailed += DeviceFactoryFailedSink;
             deviceLifeTimeClock.OnExpired += DeviceLifeTimeClockSink;
@@ -181,7 +164,7 @@ namespace OSTL.UPnP
         /// </summary>
         private void UPnPControlPointSearchSink(IPEndPoint source, IPEndPoint local, Uri LocationURL, String USN, String SearchTarget, int MaxAge)
         {
-            if (!USN.ToUpper().StartsWith(UsnFilter)) return;
+            if (!string.IsNullOrEmpty(UsnFilter) && !USN.ToUpper().StartsWith(UsnFilter)) return;
 
                 // A bit like getting a SSDP notification, but we don't do automatic
                 // source change in this case. The only valid scenario of a search
@@ -296,7 +279,7 @@ namespace OSTL.UPnP
         {
             UPnPDevice removedDevice = null;
             // Simple ignore everything that is not root
-            if (SearchTarget != "upnp:rootdevice" || !USN.ToUpper().StartsWith(UsnFilter)) return;
+            if (SearchTarget != "upnp:rootdevice" || (!string.IsNullOrEmpty(UsnFilter) && !USN.ToUpper().StartsWith(UsnFilter))) return;
 
             if (IsAlive == false)
             {
