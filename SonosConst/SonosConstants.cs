@@ -16,11 +16,11 @@ namespace SonosConst
         public const string SchlafzimmerName = "Schlafzimmer";
         public const int SchlafzimmerVolume = 9;
         public const string IanzimmerName = "Ian";
-        public const int IanzimmerVolume = 10;
+        public const int IanzimmerVolume = 6;
         public const string FinnzimmerName = "Finn";
-        public const int FinnzimmerVolume = 10;
+        public const int FinnzimmerVolume = 6;
         public const string ArbeitszimmerName = "Arbeit";
-        public const int ArbeitzimmerVolume = 10;
+        public const int ArbeitzimmerVolume = 15;
         public const string defaultPlaylist = "3 Sterne Beide";
         /// <summary>
         /// Wird genommen, wenn man dem Player sagen möchte, dass er eine Playlist von einem Player (sich selber eingeschlossen) abspielen soll.

@@ -56,6 +56,7 @@ namespace OSTL.UPnP
         private readonly SSDP SSDPServer;
         private readonly Hashtable SSDPSessions;
         private readonly LifeTimeMonitor Lifetime;
+        private readonly string UsnFilter = "RINCON";
 
         private struct DeviceNode
         {
@@ -71,11 +72,12 @@ namespace OSTL.UPnP
         /// <summary>
         /// Constructs a new Control Point, and waits for your commands and receives events
         /// </summary>
-        public UPnPControlPoint()
+        public UPnPControlPoint(string _usnFilter)
         {
+            if (_usnFilter != null)
+                UsnFilter = _usnFilter;
             CreateTable = Hashtable.Synchronized(new Hashtable());
             NetInfo = new NetworkInfo(NewInterface);
-            //SyncData = ArrayList.Synchronized(new ArrayList());
             SSDPSessions = Hashtable.Synchronized(new Hashtable());
             Lifetime = new LifeTimeMonitor();
             Lifetime.OnExpired += HandleExpired;
@@ -83,29 +85,6 @@ namespace OSTL.UPnP
             SSDPServer = new SSDP(65535);
             SSDPServer.OnNotify += HandleNotify;
         }
-
-        public UPnPControlPoint(NetworkInfo ni)
-        {
-            CreateTable = Hashtable.Synchronized(new Hashtable());
-            NetInfo = ni;
-            //SyncData = ArrayList.Synchronized(new ArrayList());
-            SSDPSessions = Hashtable.Synchronized(new Hashtable());
-            Lifetime = new LifeTimeMonitor();
-            Lifetime.OnExpired += HandleExpired;
-
-            SSDPServer = new SSDP(65535);
-            SSDPServer.OnNotify += HandleNotify;
-        }
-
-        //private void PreProcessNotify(IPEndPoint source, String LocationURL, bool IsAlive, String USN, String ST, int MaxAge)
-        //{
-
-        //}
-
-        //private void HandleAlert(Object sender, Object RObj)
-        //{
-
-        //}
 
         private void NewInterface(NetworkInfo sender, IPAddress Intfce)
         {
@@ -113,8 +92,8 @@ namespace OSTL.UPnP
 
         private void HandleNotify(IPEndPoint source, IPEndPoint local, Uri LocationURL, bool IsAlive, String USN, String ST, int MaxAge, HTTPMessage Packet)
         {
-            if (IsAlive && LocationURL != null) EventLogger.Log(this, EventLogEntryType.SuccessAudit, LocationURL.ToString());
-            OnNotify?.Invoke(source, local, LocationURL, IsAlive, USN, ST, MaxAge, Packet);
+            if (UsnFilter != null && USN.ToUpper().StartsWith(UsnFilter))
+                OnNotify?.Invoke(source, local, LocationURL, IsAlive, USN, ST, MaxAge, Packet);
         }
 
         /// <summary>
@@ -213,7 +192,7 @@ namespace OSTL.UPnP
                 catch (Exception ex)
                 {
                     EventLogger.Log(this, EventLogEntryType.Error, "CP Failure: " + localaddr.ToString());
-                    EventLogger.Log(ex,"UPNPControlPoint");
+                    EventLogger.Log(ex, "UPNPControlPoint");
                 }
             }
         }
@@ -232,16 +211,16 @@ namespace OSTL.UPnP
                     return;
                 }
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
-                EventLogger.Log(ex,"UPNPControlPoint");
+                EventLogger.Log(ex, "UPNPControlPoint");
             }
             try
             {
-                IPEndPoint local = (IPEndPoint) client.Client.LocalEndPoint;
+                IPEndPoint local = (IPEndPoint)client.Client.LocalEndPoint;
                 SSDPSessions.Remove(local.Address);
             }
-            catch(Exception x)
+            catch (Exception x)
             {
                 var k = x;
             }
@@ -257,7 +236,7 @@ namespace OSTL.UPnP
             }
             catch (Exception ex)
             {
-                EventLogger.Log(ex,"UPNPControlPoint");
+                EventLogger.Log(ex, "UPNPControlPoint");
                 msg = new HTTPMessage();
                 msg.Directive = "---";
                 msg.DirectiveObj = "---";

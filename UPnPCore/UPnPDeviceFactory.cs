@@ -94,8 +94,7 @@ namespace OSTL.UPnP
             lock (CreateTable)
             {
                 // 2TODO: Fix the failed callback
-                UPnPDeviceFactory x = new(DescLocation, MaxSeconds, HandleFactory,
-                    FactoryFailedSink, localaddr, usn);
+                UPnPDeviceFactory x = new(DescLocation, MaxSeconds, HandleFactory,FactoryFailedSink, localaddr, usn);
                 CreateTable[x] = x;
             }
         }
@@ -105,7 +104,7 @@ namespace OSTL.UPnP
             lock (CreateTable)
             {
                 CreateTable.Remove(sender);
-                sender.Shutdown();//todo: ansehen was dieser shutdown bewirkt? kann ich den evtl. verwenden um ein Remove zu machen ohne komplett zu reseten?
+                sender.Shutdown();
             }
             OnFailed?.Invoke(this, URL, e, urn);
         }

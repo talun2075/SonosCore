@@ -28,8 +28,8 @@ namespace SonosUPnP
         private string OnZoneGroupStateChangedValue = String.Empty;
         public event EventHandler<SonosPlayer> PlayerChange = delegate { };
         public event EventHandler<SonosDiscovery> GlobalSonosChange = delegate { };
-        private ZonePerSoftwareGeneration ZoneSwGen1;
-        private ZonePerSoftwareGeneration ZoneSwGen2;
+        private readonly ZonePerSoftwareGeneration ZoneSwGen1;
+        private readonly ZonePerSoftwareGeneration ZoneSwGen2;
         private readonly IConfiguration _config;
         private readonly ILogging Logger;
         private readonly IServiceProvider _provider;
@@ -154,25 +154,25 @@ namespace SonosUPnP
         /// <param name="playerToRemove"></param>
         public void RemoveDevice(SonosPlayer playerToRemove)
         {
-            foreach (SonosPlayer item in Players)
-            {
-                item.Player_Changed -= Player_Changed;
-            }
+            //foreach (SonosPlayer item in Players)
+            //{
+            //    item.Player_Changed -= Player_Changed;
+            //}
             var dev = playerDevices[playerToRemove.UUID];
-            ControlPoint.RemoveDevice(dev);
+            ControlPoint.ForceDisposeDevice(dev);
             //Players.Remove(playerToRemove);
-            Players.Clear();
-            playerDevices.Clear();
-            ControlPoint = null;
-            ZoneSwGen1.GlobalSonosChange -= ZoneSwGen_GlobalSonosChange;
-            ZoneSwGen2.GlobalSonosChange -= ZoneSwGen_GlobalSonosChange;
-            ZoneMethods = new ZoneMethods();
-            ZoneSwGen1 = new ZonePerSoftwareGeneration(Logger);
-            ZoneSwGen2 = new ZonePerSoftwareGeneration(Logger);
-            ZoneSwGen1.GlobalSonosChange += ZoneSwGen_GlobalSonosChange;
-            ZoneSwGen2.GlobalSonosChange += ZoneSwGen_GlobalSonosChange;
-            ZoneProperties = new DiscoveryZoneProperties(ZoneSwGen1, ZoneSwGen2);
-            StartScan();
+            //Players.Clear();
+            //playerDevices.Clear();
+            //ControlPoint = null;
+            //ZoneSwGen1.GlobalSonosChange -= ZoneSwGen_GlobalSonosChange;
+            //ZoneSwGen2.GlobalSonosChange -= ZoneSwGen_GlobalSonosChange;
+            //ZoneMethods = new ZoneMethods();
+            //ZoneSwGen1 = new ZonePerSoftwareGeneration(Logger);
+            //ZoneSwGen2 = new ZonePerSoftwareGeneration(Logger);
+            //ZoneSwGen1.GlobalSonosChange += ZoneSwGen_GlobalSonosChange;
+            //ZoneSwGen2.GlobalSonosChange += ZoneSwGen_GlobalSonosChange;
+            //ZoneProperties = new DiscoveryZoneProperties(ZoneSwGen1, ZoneSwGen2);
+            //StartScan();
 
         }
         /// <summary>
@@ -213,11 +213,18 @@ namespace SonosUPnP
                                 Logger.ServerErrorsAdd("GetSonosTimeStuff:FillProps:ListOfAlarms:Player:" + pl1.Name, ex, "Discovery");
                             }
                         }
-                        SonosPlayer pl2 = Players.FirstOrDefault(x => x.SoftwareGeneration == SoftwareGeneration.ZG2);
-                        if (pl2 != null)
+                        try
                         {
-                            ZoneSwGen2.ZoneProperties.CurrentSonosTime = await pl2.AlarmClock?.GetTimeNow();
-                            ZoneSwGen2.ZoneProperties.ListOfAlarms = await pl2.AlarmClock?.ListAlarms();
+                            SonosPlayer pl2 = Players.FirstOrDefault(x => x.SoftwareGeneration == SoftwareGeneration.ZG2);
+                            if (pl2 != null)
+                            {
+                                ZoneSwGen2.ZoneProperties.CurrentSonosTime = await pl2.AlarmClock?.GetTimeNow();
+                                ZoneSwGen2.ZoneProperties.ListOfAlarms = await pl2.AlarmClock?.ListAlarms();
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.ServerErrorsAdd("GetSonosTimeStuff:FillProps:ListOfAlarms:Player2", ex, "Discovery");
                         }
                     }
                     catch (Exception ex)
@@ -594,13 +601,9 @@ namespace SonosUPnP
                     //ZonenInfos laden:
                     PrepareZonesPerPlayer(pl);
                     // This can happen before or after the topology event...
-                    if (playerDevices.ContainsKey(player.UUID))
+                    if (playerDevices.ContainsKey(player.UUID) && player.Device == null)
                     {
                         player.SetDevice(playerDevices[player.UUID]);
-                    }
-                    else
-                    {
-                        ControlPoint.ForceDeviceAddition(player.DeviceLocation);
                     }
                 }
             }
@@ -728,10 +731,14 @@ namespace SonosUPnP
             ControlPoint.OnAddedDevice += OnDeviceAdded;
             ControlPoint.OnRemovedDevice += OnRemovedDevice;
         }
-
         private void OnRemovedDevice(UPnPSmartControlPoint sender, UPnPDevice device)
         {
-            throw new NotImplementedException("Gerät ist weg");//todo: implementieren. Evtl. das was ich brauche, wenn ein Gerät weg ist.
+            //throw new NotImplementedException("Gerät ist weg");//todo: implementieren. Evtl. das was ich brauche, wenn ein Gerät weg ist.
+            var dev = device as UPnPDevice;
+            var pl = GetPlayerbyUuid(dev.UniqueDeviceName);
+            pl.Player_Changed -= Player_Changed;
+            Players.Remove(pl);
+            playerDevices.Remove(dev.UniqueDeviceName);
         }
 
         /// <summary>

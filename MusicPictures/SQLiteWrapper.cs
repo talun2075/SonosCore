@@ -18,6 +18,7 @@ namespace SonosSQLiteWrapper
         private readonly SQLiteCommandBuilder builder;
         private readonly ILogging _logging;
         private readonly string cs = "";
+        private const string musictable = "musicpictures";
         /// <summary>
         /// Creates a timesheet object that determines if the filepath exists.
         /// If the filepath exists then it opens a database.
@@ -26,13 +27,17 @@ namespace SonosSQLiteWrapper
         /// <param name="filePath">The path to open or create a database file at.</param>
         public SQLiteWrapper(IConfiguration configuration, ILogging logging)
         {
-
+            //CREATE TABLE musicpictures (path text PRIMARY KEY,hash text NOT NULL)
             cs = @"URI=file:" + configuration["MusicPictureDBPath"];
             if (Debugger.IsAttached)
                 cs = @"URI=file:"+ configuration["MusicPictureDBPathDebug"];
             _logging = logging;
             sqlite = new SQLiteConnection(cs);
-            adapter = new SQLiteDataAdapter("Select path,hash from musicpictures", sqlite);
+            if(!tableAlreadyExists(sqlite, musictable))
+            {
+                Createtable(sqlite, musictable);
+            } 
+            adapter = new SQLiteDataAdapter("Select path,hash from "+ musictable, sqlite);
             builder = new SQLiteCommandBuilder(adapter);
             try
             {
@@ -46,6 +51,40 @@ namespace SonosSQLiteWrapper
             catch (Exception ex)
             {
                 _logging.ServerErrorsAdd("SQLiteWrapper:Ctor", ex, "SQLiteWrapper");
+            }
+        }
+
+        private bool tableAlreadyExists(SQLiteConnection openConnection, string tableName)
+        {
+            var sql = "SELECT name FROM sqlite_master WHERE type='table' AND name='" + tableName + "';";
+            OpenDatabase();
+            if (openConnection.State == ConnectionState.Open)
+            {
+                SQLiteCommand command = new SQLiteCommand(sql, openConnection);
+                SQLiteDataReader reader = command.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    return true;
+                }
+                return false;
+            }
+            else
+            {
+                throw new ArgumentException("Data.ConnectionState must be open");
+            }
+        }
+        private void Createtable(SQLiteConnection openConnection, string tableName)
+        {
+            var sql = "CREATE TABLE "+ tableName + " (path text PRIMARY KEY,hash text NOT NULL)";
+            OpenDatabase();
+            if (openConnection.State == ConnectionState.Open)
+            {
+                SQLiteCommand command = new SQLiteCommand(sql, openConnection);
+                command.ExecuteNonQuery();
+            }
+            else
+            {
+                throw new ArgumentException("Data.ConnectionState must be open");
             }
         }
         /// <summary>

@@ -19,8 +19,6 @@ using SonosUPNPCore.Interfaces;
 
 namespace SonosUPnP
 {
-    //todo: wenn enqueuedTransportURI leer ist evtl. mal die Position lesen?
-
     [Serializable]
     [DataContract]
     public class SonosPlayer : ISonosPlayer

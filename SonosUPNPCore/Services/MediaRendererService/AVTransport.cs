@@ -839,8 +839,10 @@ namespace SonosUPnP.Services.MediaRendererService
                     if (AlarmRunning != null)
                     {
                         var tctd = AlarmRunning.Attribute("val").Value;
-                        if (Boolean.TryParse(tctd, out bool ar))
-                        {
+                        Boolean ar = false;
+                        if (tctd == "1")
+                            ar = true;
+
                             if (pl.PlayerProperties.AlarmRunning != ar)
                             {
                                 pl.PlayerProperties.AlarmRunning = ar;
@@ -853,7 +855,7 @@ namespace SonosUPnP.Services.MediaRendererService
                                     ManuellStateChange(SonosEnums.EventingEnums.AlarmRunning, DateTime.Now);
                                 }
                             }
-                        }
+
                     }
                 }
                 catch (Exception ex)

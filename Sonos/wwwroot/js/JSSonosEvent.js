@@ -483,12 +483,14 @@ function ChangePlayerSettings(data) {
             var val = data.changedValues.ZoneGroupName;
             if (player.playerProperties.ZoneGroupTopology_ZoneGroupID !== val) {
                 player.playerProperties.ZoneGroupTopology_ZoneGroupID = val;
+                SonosZones.RenderDevices();
             }
             break;
         case "ZoneGroupID":
             var val = data.changedValues.ZoneGroupID;
             if (player.playerProperties.ZoneGroupTopology_ZoneGroupName !== val) {
                 player.playerProperties.ZoneGroupTopology_ZoneGroupName = val;
+                SonosZones.RenderDevices();
             }
             break;
         case "ZonePlayerUUIDsInGroup":

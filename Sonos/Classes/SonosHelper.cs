@@ -313,6 +313,7 @@ namespace Sonos.Classes
             try
             {
                 System.Net.Sockets.Socket sock = new(System.Net.Sockets.AddressFamily.InterNetwork, System.Net.Sockets.SocketType.Stream, System.Net.Sockets.ProtocolType.Tcp);
+                sock.SendTimeout = 6000;
                 sock.Connect(ipa, portno);
 
                 if (sock.Connected == true) // Port is in use and connection is successful
