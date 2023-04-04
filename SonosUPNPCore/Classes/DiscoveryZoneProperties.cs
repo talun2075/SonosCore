@@ -107,15 +107,15 @@ namespace SonosUPNPCore.Classes
         {
             get
             {
-                List<Alarm> retval = ZPG1.ZoneProperties.ListOfAlarms;
-                foreach (Alarm item in ZPG2.ZoneProperties.ListOfAlarms)
-                {
-                    var tempitem = ZPG1.ZoneProperties.ListOfAlarms.FirstOrDefault(x => x.ID == item.ID);
-                    if (tempitem == null)
-                    {
-                        retval.Add(item);
-                    }
-                }
+                List<Alarm> retval = ZPG1.ZoneProperties.ListOfAlarms.Union(ZPG1.ZoneProperties.ListOfAlarms).ToList();
+                //foreach (Alarm item in ZPG2.ZoneProperties.ListOfAlarms)
+                //{
+                //    var tempitem = ZPG1.ZoneProperties.ListOfAlarms.FirstOrDefault(x => x.ID == item.ID);
+                //    if (tempitem == null)
+                //    {
+                //        retval.Add(item);
+                //    }
+                //}
                 return retval;
             }
         }

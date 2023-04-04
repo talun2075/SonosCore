@@ -503,6 +503,9 @@ a {
 #RatingCheck {
     height: 15px;
     display: none;
+    position: absolute;
+    top: -1px;
+    right: -15px;
 }
 
 #Ratinglist, #Filterlist {
@@ -940,11 +943,11 @@ a {
     }
 
 #Akttitle {
-    height: 20px;
+    height: 23px;
     overflow: hidden;
 }
 #Aktartist {
-    height: 20px;
+    height: 23px;
     overflow: hidden;
 }
 

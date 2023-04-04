@@ -143,7 +143,7 @@ namespace OSTL.UPnP
             {
                 root = root.ParentDevice;
             }
-            SSDPNotifySink(null, null, null, false, root.UniqueDeviceName, "upnp:rootdevice", 0, null);//todo testen ob dies das nicht vorhandene Gerät ist.
+            SSDPNotifySink(null, null, null, false, root.UniqueDeviceName, "upnp:rootdevice", 0, null);
         }
         #endregion
         #region private methods

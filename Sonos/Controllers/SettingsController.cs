@@ -43,10 +43,7 @@ namespace Sonos.Controllers
         {
             try
             {
-                if (_sonos.ZoneProperties.ListOfAlarms.Count == 0)
-                {
-                    await _sonos.GetSonosTimeStuff();
-                }
+                await _sonos.GetSonosTimeStuff();
                 return _sonos.ZoneProperties.ListOfAlarms;
             }
             catch (Exception ex)
@@ -72,10 +69,7 @@ namespace Sonos.Controllers
                 if (v.ID != newAlarmID)
                 {
                     //Vorhandener Alarm
-                    if (_sonos.ZoneProperties.ListOfAlarms.Count == 0)
-                    {
-                        await _sonos.GetSonosTimeStuff();
-                    }
+                    await _sonos.GetSonosTimeStuff();
                     Alarm knowedalarm = _sonos.ZoneProperties.ListOfAlarms.FirstOrDefault(x => x.ID == v.ID);
                     if (knowedalarm.ContainerID != v.ContainerID) metaChange = true;
                     alarm = v;
@@ -105,7 +99,6 @@ namespace Sonos.Controllers
                 {
                     await pl.AlarmClock.UpdateAlarm(alarm);
                 }
-                await _sonos.GetSonosTimeStuff();
                 return true;
             }
             catch (Exception ex)
@@ -126,17 +119,14 @@ namespace Sonos.Controllers
             {
                 Alarm al;
                 if (!int.TryParse(v, out int alarmid)) return false;
-                if (_sonos.ZoneProperties.ListOfAlarms.Count == 0)
-                {
-                    await _sonos.GetSonosTimeStuff();
-                }
+                 await _sonos.GetSonosTimeStuff();
+
                 al = _sonos.ZoneProperties.ListOfAlarms.FirstOrDefault(alarm => alarm.ID == alarmid);//Alarm ermitteln und löschen.
                 if (al == null) return false;
                 SonosPlayer pl = _sonos.Players.FirstOrDefault(x => x.UUID == al.RoomUUID);
                 if (await pl?.AlarmClock?.DestroyAlarm(al))
                 {
                     _sonos.ZoneProperties.ListOfAlarms.Remove(al);
-                    //_sonos.GetSonosTimeStuff();
                     return true;
                 }
                 return false;
@@ -163,10 +153,8 @@ namespace Sonos.Controllers
                 {
                     return false;
                 }
-                if (_sonos.ZoneProperties.ListOfAlarms.Count == 0)
-                {
-                    await _sonos.GetSonosTimeStuff();
-                }
+                await _sonos.GetSonosTimeStuff();
+
                 Alarm al = _sonos.ZoneProperties.ListOfAlarms.FirstOrDefault(x => x.ID == alarmind && x.Enabled != ena);
                 if (al != null)
                 {

@@ -115,8 +115,9 @@
 
     #AktSongInfo {
         top: initial;
-        bottom: 140px;
+        bottom: 150px;
         left: 30px;
+        height:50px;
     }
 
     #CurrentMeta {
@@ -132,7 +133,7 @@
         }
 
     #CurrentSongRuntime {
-        left: 150px;
+        left: 200px;
     }
 
     #Cover {
@@ -145,7 +146,9 @@
     #Nextsong {
         max-width: 260px;
     }
-
+    #NextSongWrapper {
+        bottom: 65px;
+    }
     #Volumeup {
         top: 250px;
     }
@@ -192,8 +195,8 @@
     }
 
     #BewertungN {
-        top: initial;
-        bottom: 100px;
+        top: 600px;
+        bottom: initial;
         left: 20px;
     }
 

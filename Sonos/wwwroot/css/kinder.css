@@ -7,7 +7,15 @@
     background: URL("/images/settings_red.png");
     background-size: 100% 100%;
 }
-
+#ChildImage {
+    position: fixed;
+    bottom: 0px;
+    left: 5px;
+    height: 100px;
+    width: 100px;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
 #Settings {
     display: none;
     width: 330px;
