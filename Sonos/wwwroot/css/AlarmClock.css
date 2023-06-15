@@ -18,7 +18,7 @@
 }
 #AlarmClockWrapper{
 	overflow:auto;
-	height:500px;
+	/*height:500px;*/
 }
 
 .alarm:last-child {
@@ -46,9 +46,6 @@
 }
 .displayflex{
     display: flex;
-	display: -webkit-flexbox;
-	display: -ms-flexbox;
-	display: -webkit-flex;
 }
 
 #EditAlarmDaysSelectionWrapper > div {

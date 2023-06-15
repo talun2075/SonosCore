@@ -109,7 +109,7 @@
     #CurrentPlaylistOpen {
         display: block;
         position: absolute;
-        left: 280px;
+        left: 270px;
         bottom: 190px;
     }
 
@@ -162,7 +162,7 @@
     }
 
     #SleepModeButton {
-        left: 290px;
+        left: 270px;
         bottom: 260px;
     }
 
@@ -191,11 +191,11 @@
 
     #Settings {
         bottom: 230px;
-        left: 220px;
+        left: 200px;
     }
 
     #BewertungN {
-        top: 600px;
+        top: 500px;
         bottom: initial;
         left: 20px;
     }
@@ -400,7 +400,9 @@
         height: 250px;
         overflow: auto;
     }
-
+    .displayflex {
+        display: inline-block;
+    }
     #SleepModeWrapper:after, #CurrentMeta:after {
         border-style: none;
     }
