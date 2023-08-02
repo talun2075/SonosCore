@@ -10,18 +10,15 @@ namespace Sonos.Controllers
     public class ResetController : Controller
     {
         IHostApplicationLifetime applicationLifetime;
-        ISonosDiscovery sonos;
 
-        public ResetController(IHostApplicationLifetime appLifetime, ISonosDiscovery _sonos)
+        public ResetController(IHostApplicationLifetime appLifetime)
         {
             applicationLifetime = appLifetime;
-            sonos = _sonos;
         }
         [HttpGet("")]
         public bool Reset()
         {
             applicationLifetime.StopApplication();
-
             return true;
         }
     }
