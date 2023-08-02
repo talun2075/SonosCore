@@ -403,6 +403,9 @@
     .displayflex {
         display: inline-block;
     }
+    #EditAlarm{
+        left:auto;
+    }
     #SleepModeWrapper:after, #CurrentMeta:after {
         border-style: none;
     }

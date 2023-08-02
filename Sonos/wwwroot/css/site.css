@@ -651,11 +651,13 @@ a {
     max-height: 230px;
     overflow: hidden;
     z-index: 100;
-    width: 180px;
+    max-width: 180px;
+    width: 100%;
 }
 
 .deviceWrapper {
     max-height: 230px;
+    width: 100%;
     overflow: auto;
     padding-bottom: 5px;
 }

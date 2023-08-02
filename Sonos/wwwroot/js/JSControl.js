@@ -352,25 +352,19 @@ function GroupDeviceShow() {
                 wbydevice = "355px"
             }
             SoDo.devicesWrapper.addClass("groupdevicesshown").css("z-index", SoVa.szindex + 100);
-            SoDo.devicesWrapper.animate({ width: wbydevice }, 500, function () {
+            SoDo.devices.animate({ "max-width": wbydevice, maxHeight: "400px" }, 500, function () {
                 $(".groupdeviceclass").css("display", "table");
                 SoDo.groupDeviceShow.text("<<");
+                SoVa.groupDeviceShowBool = true;
             });
-            SoDo.devices.animate({ width: wbydevice }, 500);
-            SoDo.devices.animate({ maxHeight: "400px" }, 500);
-            SoDo.devicesWrapper.animate({ maxHeight: "400px" }, 500);
-            SoVa.groupDeviceShowBool = true;
         } else {
-            $(".groupdeviceclass").css("display", "none");
-            SoDo.devicesWrapper.animate({ width: "180px" }, 1000, function () {
+            SoDo.devices.animate({ "max-width": "180px", maxHeight: "230px" }, 1000, function () {
                 SoDo.devicesWrapper.removeClass("groupdevicesshown");
                 SoDo.groupDeviceShow.text(">>");
+                SoDo.devicesWrapper.css("z-index", 100);
+                SoVa.groupDeviceShowBool = false;
             });
-            SoDo.devices.animate({ width: "180px" }, 1000);
-            SoDo.devices.animate({ maxHeight: "230px" }, 500);
-            SoDo.devicesWrapper.animate({ maxHeight: "230px" }, 500);
-            SoDo.devicesWrapper.addClass("groupdevicesshown").css("z-index", 100);
-            SoVa.groupDeviceShowBool = false;
+            $(".groupdeviceclass").css("display", "none");
         }
     }
     catch (Ex) {
