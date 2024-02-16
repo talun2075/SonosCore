@@ -71,6 +71,7 @@
     flex-wrap: wrap;
     border-bottom: 5px double black;
     width: 100%;
+    justify-content: center;
 }
 
 .parentItem {
@@ -95,7 +96,7 @@
     position: absolute;
     margin-top: 50px;
     height: auto;
-    background-color: rgba(255,255,255,0.5);
+    background-color: rgba(255,255,255,0.8);
     width: 150px;
     text-align: center;
     opacity: 1;
@@ -304,3 +305,20 @@ label {
         transform: translate(0);
         opacity: 1;
     }
+
+@media screen and (max-width: 400px) {
+    .childItem {
+        height: 15em;
+        width: 15em;
+/*        margin-left: auto;
+        margin-right: auto;*/
+    }
+    .childImage {
+        height: 15em;
+        width: 15em;
+    }
+    .childTitle {
+        margin-top: 25%;
+        width: 15em;
+    }
+}

@@ -730,8 +730,8 @@ namespace Sonos.Controllers
             }
         }
         #endregion Guest
-        #region Private Methods
-        private async Task<Boolean> GenericRoomOn(string Playlist, string Playername, int Volume, Boolean startPlaying = true)
+        [HttpGet("GenericRoomOn/{Playlist}/{Playername}/{Volume}/{startPlaying?}")]
+        public async Task<Boolean> GenericRoomOn(string Playlist, string Playername, int Volume, Boolean startPlaying = true)
         {
             try
             {
@@ -787,7 +787,9 @@ namespace Sonos.Controllers
                 throw;
             }
         }
-        private async Task<Boolean> GenericRoomOff(string playername)
+
+        [HttpGet("GenericRoomOff/{playername}")]
+        public async Task<Boolean> GenericRoomOff(string playername)
         {
             
             try
@@ -809,6 +811,7 @@ namespace Sonos.Controllers
                 throw;
             }
         }
+        #region Private Methods
         private async Task<Boolean> GenericStopOrMakeCoordinatorbySelf(SonosPlayer pl)
         {
             try

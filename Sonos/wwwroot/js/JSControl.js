@@ -1420,12 +1420,14 @@ function ShowCurrentSongMeta() {
     if (cut.mP3 !== null) {
         var data = cut.mP3;
         var prop = Object.getOwnPropertyNames(data);
+        var CurrentMetaWrapper = $("<div id='CurrentMetaWrapper'></div>");
+        CurrentMetaWrapper.appendTo(SoDo.currentMeta);
         for (var i = 0; i < prop.length; i++) {
             var k = prop[i];
             if (SoVa.metaUse.indexOf(k) !== -1) {
                 if (data[k] !== "" && data[k] !== null && data[k] !== "leer" && data[k] !== 0) {
                     //erstes zeichen groß schreiben
-                    $("<div><b>" + k.charAt(0).toUpperCase() + k.slice(1) + "</b>: " + data[k] + "</div>").appendTo(SoDo.currentMeta);
+                    $("<div><b>" + k.charAt(0).toUpperCase() + k.slice(1) + "</b>: " + data[k] + "</div>").appendTo(CurrentMetaWrapper);
                 }
             }
         }

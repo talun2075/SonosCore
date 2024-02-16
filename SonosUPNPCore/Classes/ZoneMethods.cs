@@ -166,7 +166,7 @@ namespace SonosUPNPCore.Classes
                 }
                 else
                 {
-                    IList<SonosItem> k = await Browsing(pl, v);
+                    IList<SonosItem> k = await Browsing(pl, v, true);
                     SonosItem multi = new();
                     int counter = 0;
                     foreach (SonosItem item in k)

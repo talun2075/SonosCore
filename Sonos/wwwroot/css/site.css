@@ -48,6 +48,7 @@ a {
     box-shadow: 5px 5px 7px #888;
 }
 
+
     #CurrentMeta:after {
         border-color: #000 transparent transparent;
         border-style: solid;
@@ -59,7 +60,10 @@ a {
         right: 60%;
         width: 0;
     }
-
+#CurrentMetaWrapper {
+    overflow-x: hidden;
+    height: 250px;
+}
 #EventErrorDiv {
     display: none;
     background: white none repeat scroll 0 0;

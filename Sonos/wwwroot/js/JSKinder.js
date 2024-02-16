@@ -108,11 +108,11 @@
             let parentdom = document.createElement("div");
             parentdom.setAttribute("id", "Parent_" + i);
             parentdom.classList.add("parentItem");
-            parentdom.setAttribute("onClick", "Child.RenderClickParent(" + i + ")");
+            parentdom.setAttribute("onClick", "Child.RenderClickParent(" + i + ",1)");
             parentdom.append(imagedom);
             parentsroot.append(parentdom);
         }
-        this.RenderClickParent(0);
+        this.RenderClickParent(0,0);
     }
     this.SendClickChild = function (parent, child) {
         var uri = this.SonosItemList[parent].childs[child].containerID;
@@ -142,7 +142,7 @@
         }
         
     }
-    this.RenderClickParent = function (parent) {
+    this.RenderClickParent = function (parent, jump) {
         let childwrapper = document.getElementById("Childwrapper");
         childwrapper.innerHTML = ''
         for (var i = 0; i < this.SonosItemList[parent].childs.length; i++) {
@@ -151,22 +151,6 @@
                 image = "http://" + this.baseUrl + this.SonosItemList[parent].childs[i].albumArtURI;
             }
             let title = this.SonosItemList[parent].childs[i].title;
-            //let hours = this.SonosItemList[parent].childs[i].duration.hours;
-            //let minutes = this.SonosItemList[parent].childs[i].duration.minutes
-            //let seconds = this.SonosItemList[parent].childs[i].duration.seconds;
-            //let secondsstring = seconds;
-            //let minutesstring = minutes;
-            //let hoursstring = "";
-            //if (seconds < 10) {
-            //    secondsstring = "0" + seconds;
-            //}
-            //if (hours > 0) {
-            //    hoursstring = hours+":";
-            //}
-            //if (hours > 0 && minutes < 10) {
-            //    minutesstring = "0" + minutes;
-            //}
-            //let duration = hoursstring+minutesstring+ ":" + secondsstring;
             let imagedom = document.createElement("img");
             imagedom.setAttribute("src", image);
             imagedom.classList.add("childImage");
@@ -192,6 +176,8 @@
         }
         console.log("blub");
         this.AjaxLoader.style.display = "none";
+        if(jump ===1)
+            window.scrollTo(0, childwrapper.offsetTop);
     }
     this.SetVolume = function (v) {
         Send("SetVolume/"+v);
