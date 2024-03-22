@@ -9,6 +9,8 @@ using Sonos.Classes.Interfaces;
 using SonosData.DataClasses;
 using SonosSQLiteWrapper.Interfaces;
 using SonosUPNPCore.Interfaces;
+using Sonos.Classes;
+using SonosUPnP;
 
 namespace Sonos.Controllers
 {
@@ -60,7 +62,16 @@ namespace Sonos.Controllers
         {
            return await ReplacePlaylist(v, SonosConstants.FinnzimmerVolume);
         }
-
+        /// <summary>
+        /// Aktuelle Wiedergabeliste ersetzen
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="v"></param>
+        [HttpGet("ReplacePlaylistGet/{id}")]
+        public async Task<Boolean> ReplacePlaylistGet(string id)
+        {
+            return await ReplacePlaylistGet(id, SonosConstants.FinnzimmerVolume);
+        }
         [HttpPost("SetButton/{id}/{RemoveOld}")]
         public async Task<QueueData> SetButton(string id, Boolean RemoveOld, [FromBody] string containerid)
         {

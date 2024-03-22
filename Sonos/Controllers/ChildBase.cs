@@ -187,7 +187,60 @@ namespace Sonos.Controllers
             }
 
         }
-        public async Task<Boolean> ReplacePlaylist([FromBody] string v, int volume)
+        public async Task<Boolean> ReplacePlaylistGet(string pl, int volume)
+        {
+            try
+            {
+                SonosPlayer pp = GetChild();
+                if (pp == null) return false;
+                if (!string.IsNullOrEmpty(pl))
+                {
+                    if (_sonos.ZoneProperties.ListOfAllPlaylist.Count == 0)
+                        await _sonosHelper.GetAllPlaylist();
+                    var playlist = _sonos.ZoneProperties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.ToLower() == pl.ToLower());
+                    if (playlist == null)
+                    {
+                        await _sonosHelper.GetAllPlaylist();
+                    }
+                    playlist = _sonos.ZoneProperties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.ToLower() == pl.ToLower());
+                    Boolean loadPlaylist = false;
+                    if (playlist == null)
+                    {
+                        return false;
+                    }
+                    if (playlist != null)
+                    {
+                        loadPlaylist = _sonosHelper.CheckPlaylist(playlist, pp);
+                    }
+                    if (loadPlaylist)
+                    {
+                        if (!await _sonosHelper.LoadPlaylist(playlist, pp))
+                            return false;
+                    }
+                }
+                await pp.GroupRenderingControl?.GetGroupVolume();
+                if (pp.PlayerProperties.GroupRenderingControl_GroupVolume != volume)
+                {
+                    try
+                    {
+                        await pp.GroupRenderingControl?.SetGroupVolume(volume);
+                    }
+                    catch
+                    {
+                        //ignore
+                    }
+                }
+                await Task.Delay(300);
+                return await pp?.AVTransport?.Play();
+            }
+            catch (Exception ex)
+            {
+                _logger.ServerErrorsAdd("ReplacePlaylistGet", ex, "Childbase");
+                throw;
+            }
+        }
+
+        public async Task<Boolean> ReplacePlaylist(string v, int volume)
         {
             try
             {
@@ -210,6 +263,7 @@ namespace Sonos.Controllers
                 throw;
             }
         }
+
         public async Task<Boolean> Random(string _playlist, int volume)
         {
             try
