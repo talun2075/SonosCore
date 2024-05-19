@@ -26,15 +26,19 @@ function Fehlerbehandlung(Nachricht, Datei, Zeile) {
 function WroteSysteminfos() {
     var fehler = "SonosZones:ActiveSonosZone:" + SonosZones.ActiveZoneUUID + "<br />" +
         "SonosZones:ActiveName:" + SonosZones.ActiveZoneName + "<br />" +
-        "SonosPlayer:Name:" + SonosZones[SonosZones.ActiveZoneUUID].ZoneName + "<br />" +
-        "SonosPlayer:Baseurl:" + SonosZones[SonosZones.ActiveZoneUUID].baseUrl + "<br />" +
-        "SonosPlayer:NumberofTRacks:" + SonosZones[SonosZones.ActiveZoneUUID].numberOfTracks + "<br />" +
-        "SonosPlayer:CurrentTRackTitel:" + SonosZones[SonosZones.ActiveZoneUUID].playerProperties.currentTrack.title + "<br />" +
-        "SonosPlayer:Active:" + SonosZones[SonosZones.ActiveZoneUUID].ActiveZone + "<br />" +
+        "SonosPlayer:Name:" + SonosPlayers[SonosZones.ActiveZoneUUID].ZoneName + "<br />" +
+        "SonosPlayer:Baseurl:" + SonosPlayers[SonosZones.ActiveZoneUUID].baseUrl + "<br />" +
+        "SonosPlayer:NumberofTRacks:" + SonosPlayers[SonosZones.ActiveZoneUUID].numberOfTracks + "<br />" +
+        "SonosPlayer:CurrentTRackTitel:" + SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.currentTrack.title + "<br />" +
+        "SonosPlayer:Active:" + SonosPlayers[SonosZones.ActiveZoneUUID].ActiveZone + "<br />" +
         "GetTopologieID:" + SoVa.TopologieChangeID + "<br />" +
         "GetAktsongInfoID:" + SoVa.GetAktSongInfoTimerID + "<br />" +
         "AktuellerSong aus der Playlist:" + SoVa.aktcurpopdown + "<br />" +
-        "API PlayerURL:" + SoVa.apiPlayerURL + "<br />";
+        "API PlayerURL:" + SoVa.apiPlayerURL + "<br />"+
+    "innerHeight:" + window.innerHeight + "<br />"+
+    "innerWidth:" + window.innerWidth + "<br />"+
+    "clientHeight:" + document.body.clientHeight + "<br />"+
+    "clientWidth:" + document.body.clientWidth + "<br />";
     return fehler;
 }
 function WroteDebugInfos() {

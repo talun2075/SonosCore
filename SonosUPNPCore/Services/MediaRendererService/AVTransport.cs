@@ -214,7 +214,7 @@ namespace SonosUPnP.Services.MediaRendererService
                             if (pl.PlayerProperties.TransportState != tsenum)
                             {
                                 Debug.WriteLine(pl.Name + " Transportstate wechsel:" + tsenum);
-                                pl.PlayerProperties.TransportState = tsenum;
+                               pl.PlayerProperties.TransportState = tsenum;
                                 if (LastChangeDates[SonosEnums.EventingEnums.TransportState].Ticks == 0)
                                 {
                                     LastChangeDates[SonosEnums.EventingEnums.TransportState] = DateTime.Now;

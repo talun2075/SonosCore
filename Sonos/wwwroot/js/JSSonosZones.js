@@ -392,9 +392,16 @@ function SonosZonesObject() {
             uuid = this.ActiveZoneUUID;
         }
         let player = SonosPlayers[uuid];
-        let curt = player.playerProperties.currentTrack;
         if (typeof player === "undefined") return;
-
+        if (typeof player.playerProperties === "undefined") {
+            alert(player.name + " PlayerProps undefined");
+            return;
+        } 
+        if (typeof player.playerProperties.currentTrack === "undefined") {
+            alert(player.name + " currentTrack undefined");
+            return;
+        } 
+        let curt = player.playerProperties.currentTrack;
         if (!this.CheckStreamShowElements(uuid) && (curt.duration === null || curt.duration.totalSeconds === 0)) {
             if (SoDo.runtimeCurrentSong.is(":visible")) {
                 SoDo.runtimeCurrentSong.hide();

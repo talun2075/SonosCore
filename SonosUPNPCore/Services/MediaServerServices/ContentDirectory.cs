@@ -524,7 +524,7 @@ namespace SonosUPnP.Services.MediaServerServices
             var arguments = new UPnPArgument[1];
             arguments[0] = new UPnPArgument("IsIndexing", null);
             await Invoke("GetShareIndexInProgress", arguments, 100);
-            await ServiceWaiter.WaitWhileAsync(arguments, 0, 100, 10, WaiterTypes.String);
+            await ServiceWaiter.WaitWhileAsync(arguments, 0, 200, 10, WaiterTypes.String);
             if (Boolean.TryParse(arguments[0].DataValue.ToString(), out bool inpro) && pl.PlayerProperties.ContentDirectory_ShareIndexInProgress != inpro)
             {
                 pl.PlayerProperties.ContentDirectory_ShareIndexInProgress = inpro;

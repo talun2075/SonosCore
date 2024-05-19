@@ -325,6 +325,7 @@ namespace Sonos.Controllers
                 try
                 {
                     await player.AVTransport.RemoveAllTracksFromQueue();
+                    await Task.Delay(300);//todo: untersuchen warum nach Strom aus, hier die Buttons nicht funktionieren.
                     foreach (var item in ItemstoPlay)
                     {
                         await player.AVTransport.AddURIToQueue(item);

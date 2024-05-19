@@ -228,7 +228,7 @@ a {
     left: 0;
     width: 1020px;
     height: 99%;
-    min-height: 635px;
+    min-height: 605px;
     border-radius: 25px 25px 25px 25px;
     border: 1px solid;
     border-color: black;
@@ -275,14 +275,13 @@ a {
 }
 
 #BewertungN {
-    bottom: 90px;
+    bottom: 110px;
     position: absolute;
-    right: 120px;
+    right: 170px;
     margin-right: 1px;
     width: 150px;
     height: 30px;
-    background: url("/images/grau.png") 0 0 repeat-x;
-    background-size: 30px 30px;
+    background: url("/images/grau.png") 0px 0px / 30px 30px repeat-x;
 }
 
 #BewertungL {
@@ -917,10 +916,10 @@ a {
     -webkit-box-shadow: 5px 5px 7px #888;
     box-shadow: 5px 5px 7px #888;
     border-radius: 25px 25px 25px 25px;
-    width: 300px;
-    height: 300px;
-    right: 115px;
-    bottom: 80px;
+    width: 250px;
+    height: 250px;
+    right: 165px;
+    bottom: 100px;
     -o-transition: all 1s ease-in-out;
     -webkit-transition: all 1s ease-in-out;
     transition: all 1s ease-in-out;
