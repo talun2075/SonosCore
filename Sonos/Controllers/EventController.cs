@@ -91,8 +91,22 @@ namespace Sonos.Controllers
                             {
                                 _logger.ServerErrorsAdd("SubscribeEvents:Json:EventType:" + eventArgs.Notification.EventType, ex, "EventController");
                             }
-                            await Response.WriteAsync($"event:sonos\n", cancellationToken);
-                            await Response.WriteAsync($"data:{json}\n\n", cancellationToken);
+                            try
+                            {
+                                await Response.WriteAsync($"event:sonos\n", cancellationToken);
+                            }
+                            catch(Exception ex)
+                            {
+                                _logger.ServerErrorsAdd("SubscribeEvents:WriteAsync:Event:" + eventArgs.Notification.EventType + " Json:" + json, ex, "EventController");
+                            }
+                            try
+                            {
+                                await Response.WriteAsync($"data:{json}\n\n", cancellationToken);
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.ServerErrorsAdd("SubscribeEvents:WriteAsync:data:" + eventArgs.Notification.EventType + " Json:" + json, ex, "EventController");
+                            }
                             await Response.Body.FlushAsync(cancellationToken);
                         }
                     }
@@ -374,9 +388,9 @@ namespace Sonos.Controllers
             try
             {
                 Response.StatusCode = 200;
-                Response.Headers.Add("Content-Type", "text/event-stream");
-                Response.Headers.Add("Cache-Control", "no-cache");
-                Response.Headers.Add("Connection", "keep-alive");
+                Response.Headers.Append("Content-Type", "text/event-stream");
+                Response.Headers.Append("Cache-Control", "no-cache");
+                Response.Headers.Append("Connection", "keep-alive");
             }
             catch (Exception ex)
             {

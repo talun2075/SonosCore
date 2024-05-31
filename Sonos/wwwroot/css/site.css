@@ -114,8 +114,8 @@ a {
 
 #SleepModeButton {
     position: absolute;
-    left: 5px;
-    bottom: 100px;
+    right: 15px;
+    bottom: 200px;
     Background: URL("/images/sleepmode.png");
     background-size: 100% 100%;
     background-repeat: no-repeat;
@@ -129,11 +129,11 @@ a {
     box-shadow: 5px 5px 7px #888;
     display: none;
     height: 100px;
-    left: 90px;
+    left: 800px;
     padding-left: 10px;
     padding-top: 10px;
     position: absolute;
-    bottom: 80px;
+    bottom: 170px;
     width: 110px;
 }
 
@@ -152,17 +152,17 @@ a {
         text-align: center;
     }
 
-    #SleepModeWrapper:after {
-        border-color: transparent #000 transparent transparent;
-        border-style: solid;
-        border-width: 25px;
-        content: "";
-        height: 0;
-        right: 110%;
-        position: absolute;
-        top: 25%;
-        width: 0;
-    }
+#SleepModeWrapper:after {
+    border-color: transparent transparent transparent rgb(0, 0, 0);
+    border-style: solid;
+    border-width: 25px;
+    content: "";
+    height: 0;
+    left: 100%;
+    position: absolute;
+    top: 25%;
+    width: 0;
+}
 
 #SleepModeSave {
     border: 2px solid;
@@ -923,6 +923,7 @@ a {
     -o-transition: all 1s ease-in-out;
     -webkit-transition: all 1s ease-in-out;
     transition: all 1s ease-in-out;
+    z-index:2
 }
 
     #Cover.moveright, #AktSongInfo.moveright {
@@ -1239,10 +1240,10 @@ a {
 }
 
 #LabelVolume {
-    left: 77px;
+    left: 105px;
     position: absolute;
     text-align: center;
-    top: 535px;
+    top: 427px;
     width: 30px;
 }
 /* LYRIC */
@@ -1584,7 +1585,7 @@ a {
 /* Settings Boxen*/
 #Settings {
     position: absolute;
-    left: 125px;
+    right: 15px;
     bottom: 100px;
     Background: URL("/images/settings_red.png");
     background-size: 100% 100%;
@@ -1601,6 +1602,18 @@ a {
     display: none;
 }
 
+#Settingsbox::after {
+    border-style: solid;
+    border-width: 25px;
+    content: "";
+    height: 0px;
+    position: absolute;
+    top: 50%;
+    width: 0px;
+    border-color: transparent transparent transparent rgb(0, 0, 0);
+    left: 100%;
+}
+
 #Settingsclose {
     display: none;
 }
@@ -1610,20 +1623,20 @@ a {
     -webkit-overflow-scrolling: touch;
     height: 160px;
 }
-
 .box_settings {
     background-color: white;
     border: 4px solid #000000;
     border-radius: 25px 25px 25px 25px;
     box-shadow: 5px 5px 7px #888888;
     height: 200px;
-    left: 260px;
+    left: 375px;
     width: 500px;
     padding: 20px;
     position: absolute;
     bottom: 25px;
     z-index: 20;
 }
+/*
 
     .box_settings:after, .box_settings:before {
         right: 100%;
@@ -1649,7 +1662,7 @@ a {
         top: 59%;
         margin-top: -81px;
     }
-
+*/
 /*SettingsBox end*/
 
 #SaveQueueImg {
