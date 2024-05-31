@@ -13,7 +13,7 @@
 
   <ItemGroup>
     <Reference Include="MP3">
-      <HintPath>..\..\CommonCore\HomeCommon\MP3\bin\Debug\net6.0\MP3.dll</HintPath>
+      <HintPath>..\..\CommonCore\HomeCommon\MP3\bin\Debug\net8.0\MP3.dll</HintPath>
     </Reference>
   </ItemGroup>
 

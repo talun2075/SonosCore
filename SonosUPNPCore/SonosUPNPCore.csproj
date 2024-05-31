@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -17,10 +17,10 @@
 
   <ItemGroup>
     <Reference Include="HomeLoggingCore">
-      <HintPath>..\..\CommonCore\HomeCommon\HomeLoggingCore\bin\Debug\net6.0\HomeLoggingCore.dll</HintPath>
+      <HintPath>..\..\CommonCore\HomeCommon\HomeLoggingCore\bin\Debug\net8.0\HomeLoggingCore.dll</HintPath>
     </Reference>
     <Reference Include="MP3">
-      <HintPath>..\..\CommonCore\HomeCommon\MP3\bin\Debug\net6.0\MP3.dll</HintPath>
+      <HintPath>..\..\CommonCore\HomeCommon\MP3\bin\Debug\net8.0\MP3.dll</HintPath>
     </Reference>
   </ItemGroup>
 
