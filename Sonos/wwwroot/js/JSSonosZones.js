@@ -581,8 +581,8 @@ function SonosZonesObject() {
             if ($(".currentplaylist").length > 0) {
                 $(".currentplaylist").remove();
             }
-            if (SoDo.playlistLoader.is(":visible")) {
-                SoDo.playlistLoader.slideUp();
+            if (IsVisible(SoDo.playlistLoader)) {
+                SetHide(SoDo.playlistLoader)
             }
         }
         //Ende Neu wegen Stream
@@ -592,21 +592,21 @@ function SonosZonesObject() {
         if (typeof SonosPlayers[uuid] === "undefined") return;
         //Neu wegen Stream
         if (!this.CheckStreamShowElements(uuid)) {
-            if (SoDo.playlistCount.is(":visible")) {
-                SoDo.playlistCount.hide();
+            if (IsVisible(SoDo.playlistCount)) {
+                SetHide(SoDo.playlistCount);
             }
         } else {
-            if (SoDo.playlistCount.is(":hidden")) {
-                SoDo.playlistCount.show();
+            if (!IsVisible(SoDo.playlistCount)) {
+                SetVisible(SoDo.playlistCount);
             }
-            if (parseInt(SoDo.playlistAkt.html()) !== SonosPlayers[uuid].playerProperties.currentTrackNumber) {
-                SoDo.playlistAkt.html(SonosPlayers[uuid].playerProperties.currentTrackNumber);
+            if (parseInt(SoDo.playlistAkt.textContent) !== SonosPlayers[uuid].playerProperties.currentTrackNumber) {
+                SoDo.playlistAkt.textContent=SonosPlayers[uuid].playerProperties.currentTrackNumber;
             }
             if (SonosPlayers[uuid].playerProperties.numberOfTracks == 0 && SonosPlayers[uuid].playerProperties.playlist.playListItems.length > 0) {
                 SonosPlayers[uuid].playerProperties.numberOfTracks = SonosPlayers[uuid].playerProperties.playlist.playListItems.length;
             }
-            if (parseInt(SoDo.playlistTotal.html()) !== SonosPlayers[uuid].playerProperties.numberOfTracks) {
-                SoDo.playlistTotal.html(SonosPlayers[uuid].playerProperties.numberOfTracks);
+            if (parseInt(SoDo.playlistTotal.textContent) !== SonosPlayers[uuid].playerProperties.numberOfTracks) {
+                SoDo.playlistTotal.textContent=SonosPlayers[uuid].playerProperties.numberOfTracks;
             }
         }
 
@@ -843,7 +843,7 @@ function SonosZonesObject() {
         }
     }
     this.ReplacePlaylist = function (item) {
-        SoDo.playlistLoader.slideDown();
+        SetVisible(SoDo.playlistLoader)
         SoDo.browseLoader.slideDown();
         $(".currentplaylist").remove();
         var uri = SonosZones.AllPlaylists[item].containerID;

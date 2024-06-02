@@ -536,8 +536,8 @@ function SonosPlayer(_uuid, _name,_swgen) {
         this.playlist.RenderPlaylist = function (t) {
             //Neu wegen Stream
             try {
-                if (SoDo.playlistLoader.is(":hidden")) {
-                    SoDo.playlistLoader.slideDown();
+                if (!IsVisible(SoDo.playlistLoader)) {
+                   SetVisible(SoDo.playlistLoader);
                 }
                 if ($(".currentplaylist").length > 0) {
                     $(".currentplaylist").remove();
@@ -549,8 +549,8 @@ function SonosPlayer(_uuid, _name,_swgen) {
                     return;
                 }
                 if (isempty || !SonosZones.CheckActiveZone()) {
-                    if (SoDo.playlistLoader.is(":visible")) {
-                        SoDo.playlistLoader.slideUp();
+                    if (IsVisible(SoDo.playlistLoader)) {
+                        SetHide(SoDo.playlistLoader);
                     }
                     return;
                 }
@@ -568,7 +568,7 @@ function SonosPlayer(_uuid, _name,_swgen) {
                         $('<div id="Currentplaylist_' + (i) + '" class="currentplaylist"><DIV class="currentrackinplaylist" onclick="ShowSongInfos(this)">' + item.title.replace("</","&#x3C;/") + '</div><DIV class="curpopdown"><DIV class="playlistcover" data-url="' + songcover + '" data-uri="' + item.uri + '" data-plid="' + item.itemID + '"></DIV><DIV class="playlistplaysmall" onclick="PlayPressSmall(this)"></DIV><DIV class="mediabuttonsmal" onclick="RemoveFromPlaylist(this);return false;"><img src="Images/erase_red.png"></DIV><div class="bomb" onclick="ShowPlaylistRating(this)"><img src="/images/bombe.png" alt="playlistbomb"/></DIV><DIV onclick="ShowPlaylistRating(this)" class="rating_bar" style="margin-top: 14px;" Style="float:left;"><DIV style="width:0%;"></DIV></DIV><div OnMouseOver="MakeCurrentPlaylistSortable()" OnTouchStart="MakeCurrentPlaylistSortable()" OnTouchEnd="ResortPlaylistDisable()" OnMouseOut="ResortPlaylistDisable()" class="moveCurrentPlaylistTrack"></div><DIV class ="addFavItemPlaylist" onclick="AddFavItem(this,\'playlist\');"></DIV></DIV></div>').appendTo(SoDo.currentplaylistwrapper);
                     }
                 }
-                SoDo.playlistLoader.slideUp();
+                SetHide(SoDo.playlistLoader);
                 SoVa.currentplaylistScrolled = false;
                 SonosZones.RenderCurrentTrackinPlaylist(SonosZones.ActiveZoneUUID, SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.currentTrackNumber, "RenderPlaylistFromPlayer");
             }
@@ -579,50 +579,6 @@ function SonosPlayer(_uuid, _name,_swgen) {
 
             //Ende Neu wegen Stream
             return;
-            //try {
-            //    if (SoDo.playlistLoader.is(":hidden")) {
-            //        SoDo.playlistLoader.slideDown();
-            //    }
-            //    if ($(".currentplaylist").length > 0) {
-            //        $(".currentplaylist").remove();
-            //    }
-
-            //    var isempty = this.CheckIsEmpty(t);
-            //    if ((isempty || t.playerProperties.numberOfTracks !== t.playerProperties.playlist.totalMatches) && t.playerProperties.playlist.totalMatches !== -1) {
-            //        this.LoadPlaylist(t, false,"RenderPlaylist");
-            //        return;
-            //    }
-            //    if (isempty || !SonosZones.CheckActiveZone()) {
-            //        if (SoDo.playlistLoader.is(":visible")) {
-            //            SoDo.playlistLoader.slideUp();
-            //        }
-            //        return;
-            //    }
-            //    if (typeof stream === "undefined") {
-            //        stream = false;
-            //    }
-            //    if (stream === true || isempty === true) {
-            //        SoDo.playlistLoader.slideUp();
-            //    } else {
-            //        var pl = t.playerProperties.playlist.playListItems;
-            //        for (var i = 0; i < pl.length; i++) {
-            //            var songcover = '';
-            //            var item = pl[i];
-            //            if (item !== null) {
-            //                if (item.albumArtURI != null && item.albumArtURI !== '' && item.albumArtURI !== "leer") {
-            //                    songcover = 'http://' + t.playerProperties.baseUrl + item.albumArtURI;
-            //                }
-            //                $('<div id="Currentplaylist_' + (i) + '" class="currentplaylist"><DIV class="currentrackinplaylist" onclick="ShowSongInfos(this)">' + item.title + '</div><DIV class="curpopdown"><DIV class="playlistcover" data-url="' + songcover + '" data-uri="' + item.uri + '" data-plid="' + item.itemID + '"></DIV><DIV class="playlistplaysmall" onclick="PlayPressSmall(this)"></DIV><DIV class="mediabuttonsmal" onclick="RemoveFromPlaylist(this);return false;"><img src="Images/erase_red.png"></DIV><div class="bomb" onclick="ShowPlaylistRating(this)"><img src="/images/bombe.png" alt="playlistbomb"/></DIV><DIV onclick="ShowPlaylistRating(this)" class="rating_bar" style="margin-top: 14px;" Style="float:left;"><DIV style="width:0%;"></DIV></DIV><div OnMouseOver="MakeCurrentPlaylistSortable()" OnTouchStart="MakeCurrentPlaylistSortable()" OnTouchEnd="ResortPlaylistDisable()" OnMouseOut="ResortPlaylistDisable()" class="moveCurrentPlaylistTrack"></div><DIV class ="addFavItemPlaylist" onclick="AddFavItem(this,\'playlist\');"></DIV></DIV></div>').appendTo(SoDo.currentplaylistwrapper);
-            //            }
-            //        }
-            //        SoDo.playlistLoader.slideUp();
-            //        SoVa.currentplaylistScrolled = false;
-            //        SonosZones.RenderCurrentTrackinPlaylist(SonosZones.ActiveZoneUUID, SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.currentTrackNumber, "RenderPlaylistFromPlayer");
-            //    }
-            //}
-            //catch (fehlernachricht) {
-            //    alert(fehlernachricht + " Fehler bei:" + fehlernachricht.fileName + "\n" + "Meldung:" + fehlernachricht.message + "\n" + "Zeile:" + fehlernachricht.lineNumber);
-            //}
         };//done
         this.playlist.RemoveFromPlaylist = function (t, rem) {
             try {

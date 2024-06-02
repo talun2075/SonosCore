@@ -683,7 +683,7 @@ function AddToPlaylist(item) {
 }
 //Ersetzen der Playlist und entsprechend der Auswahl daten neu laden.
 function ReplacePlaylist(item) {
-    SoDo.playlistLoader.slideDown();
+    SetVisible(SoDo.playlistLoader)
     SoDo.browseLoader.slideDown();
     $(".currentplaylist").remove();
     var uri = $(item).parent().attr("data-containerid");
@@ -778,7 +778,7 @@ function ShowSongInfos(t) {
             }
             return;
         }
-        SoDo.playlistLoader.slideDown();
+        SetVisible(SoDo.playlistLoader)
         //Metadaten des Songs laden.
 
         var request = SonosAjax("GetSongMeta", { '': plcover.attr("data-uri") });
@@ -803,7 +803,8 @@ function ShowSongInfos(t) {
                 }
                 podo.children(".rating_bar").children().css("width", data.bewertung);
             }
-            SoDo.playlistLoader.slideUp();
+            SetHide(SoDo.playlistLoader);
+            
         });
         request.fail(function () {
             ReloadSite("JsControl:ShowSongInfos");
@@ -842,6 +843,18 @@ function ShowPlaylistLyricCurrent() {
         MoveAktArtist();
     }
 };//done
+function IsVisible(DomElement) {
+    return DomElement.style.display !== "none";
+
+};//done
+function SetVisible(DomElement) {
+    DomElement.style.display = "block";
+
+};//done
+function SetHide(DomElement) {
+    DomElement.style.display = "none";
+
+};//done
 function MoveAktArtist() {
 
     if (document.body.clientWidth < 850) {
@@ -851,28 +864,28 @@ function MoveAktArtist() {
     if (SoVa.ratingonlycurrent === false && hivi === false) {
         SoDo.aktSongInfo.addClass("moveright");
         SoDo.cover.addClass("moveright");
-        SoDo.playlistCount.addClass("movedown");
+        SoDo.playlistCount.classList.add("movedown");
     }
     if (SoVa.ratingonlycurrent === false && hivi === true) {
         SoDo.aktSongInfo.removeClass("moveright");
         SoDo.cover.removeClass("moveright");
-        SoDo.playlistCount.removeClass("movedown");
+        SoDo.playlistCount.classList.remove("movedown");
     }
     if (SoVa.ratingonlycurrent === true && hivi === false && SoDo.ratingListBox.is(":hidden")) {
         SoDo.aktSongInfo.addClass("moveright");
         SoDo.cover.addClass("moveright");
-        SoDo.playlistCount.addClass("movedown");
+        SoDo.playlistCount.classList.add("movedown");
     }
     if (SoVa.ratingonlycurrent === true && hivi === true && SoDo.ratingListBox.is(":hidden")) {
         SoDo.aktSongInfo.removeClass("moveright");
         SoDo.cover.removeClass("moveright");
-        SoDo.playlistCount.removeClass("movedown");
+        SoDo.playlistCount.classList.remove("movedown");
     }
     if (SoVa.ratingonlycurrent === true && hivi === true && SoDo.ratingListBox.is(":visible")) {
-        SoDo.playlistCount.removeClass("movedown");
+        SoDo.playlistCount.classList.remove("movedown");
     }
     if (SoVa.ratingonlycurrent === true && hivi === false && SoDo.ratingListBox.is(":visible")) {
-        SoDo.playlistCount.addClass("movedown");
+        SoDo.playlistCount.classList.add("movedown");
     }
 };//done
 //Entfernt ein Song aus der Playlist
@@ -999,8 +1012,8 @@ function ResetAll() {
     $(".next").text("");
     SoDo.aktArtist.html("");
     SoDo.aktTitle.html("");
-    SoDo.playlistAkt.html("0");
-    SoDo.playlistTotal.html("0");
+    SoDo.playlistAkt.textContent= "0";
+    SoDo.playlistTotal.textContent= "0";
     SoDo.bewertungWidth.width("0%");
     SoDo.devicesWrapper.children(".groupdevicewrapper").remove();
     SoDo.deviceLoader.show();

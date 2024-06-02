@@ -109,10 +109,10 @@ function SonosDOMObjects() {
     this.onlyCurrentSwitch = $(".curonoffswitch-checkbox"); //Nur Currentrating anzeigen?
     this.overlay = $("#Overlay"); //Wenn beim SonosWindows ein Overlay benötigt wird.
     this.playButton = $("#Play"); //Mediabutton
-    this.playlistCount = $("#PlaylistCount");//Playlist Box
-    this.playlistAkt = $("#PlaylistCountAkt"); //Aktuelle Titel Nummer
-    this.playlistTotal = $("#PlaylistCountTotal");//Gesamtanzahl
-    this.playlistLoader = $("#PlaylistLoader"); //Loader der currentplaylist
+    this.playlistCount = document.getElementById("PlaylistCount");//Playlist Box
+    this.playlistAkt = document.getElementById("PlaylistCountAkt") //Aktuelle Titel Nummer
+    this.playlistTotal = document.getElementById("PlaylistCountTotal");//Gesamtanzahl
+    this.playlistLoader = document.getElementById("PlaylistLoader"); //Loader der currentplaylist
     this.playlistwrapper = $("#Playlistwrapper"); //Wrapper beim Container für alle Playlisten
     this.prevButton = $("#Pre");//Mediabutton
     this.ratingCheck = $("#RatingCheck"); //Feedback, wenn Rating erfolgreich durchgeführt
