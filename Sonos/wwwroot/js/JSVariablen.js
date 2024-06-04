@@ -45,27 +45,28 @@ function SonosVariablen() {
     this.volumeConfirmCounter = 20; //Wenn die Lautstärke erhöht wird, gibt es diesen Schwellenwert ab dem gefragt wird ob die Lautstärke wirklich erhöht werden soll. 
     this.VisibilityProperty = "unkowing";//entspricht der Property um zu prüfen, ob die Seite gesehen wird oder nicht.
     this.SSE_Event_Source; //die SSE Variable extern gelagert um die Verbindung zu schließen.
+    this.aktiv = "aktiv" //wird für die CSS Klassen benutzt um dinge aktiv zu setzen.
 }
 
 //Globale Varibalen auf DOM Objekten
 //Sonos DOM Elemente wird als SoDo bi Doc Ready initialisiert.
 function SonosDOMObjects() {
-    this.aktArtist = $("#Aktartist"); //Currenttrack Artist
-    this.aktSongInfo = $("#AktSongInfo"); //Wrapper für aktartist, akttitle, currentmeta
-    this.aktTitle = $("#Akttitle"); //Currenttrack Titel
-    this.ankerlist = $("#Ankerlist"); //Beim Browsen die Buchstabenliste
+    this.aktArtist = document.getElementById("Aktartist"); //Currenttrack Artist
+    this.aktSongInfo = document.getElementById("AktSongInfo"); //Wrapper für aktartist, akttitle, currentmeta
+    this.aktTitle = document.getElementById("Akttitle"); //Currenttrack Titel
+    this.ankerlist = document.getElementById("Ankerlist"); //Beim Browsen die Buchstabenliste
     this.artistplSwitch = $(".artistplaylistonoffswitch-checkbox"); //Interpretenplaylist Schalter
-    this.audioInButton = $("#AudioIn"); //Button um zu Zeigen, ob AudioIn verfügbar und ggf. aktiv bzw. aktivieren.
+    this.audioInButton = document.getElementById("AudioIn"); //Button um zu Zeigen, ob AudioIn verfügbar und ggf. aktiv bzw. aktivieren.
     this.aufweckenSwitch = $(".aufweckenonoffswitch-checkbox"); //AufweckenPlaylist Schalter
-    this.bewertungWidth = $("#BewertungL"); // beim Currenttrack am Cover die Bewertungsbreite (goldene Sterne)
-    this.bewertungStars = $("#BewertungN"); // beim Currenttrack am Cover die Bewertung (graue Sterne)
-    this.bodydiv = $("#Bodydiv"); //Primärer Container in dem alles hinterlegt ist.
-    this.browseBackButton = $("#Browseback"); //beim Browsing der Back Button
-    this.browseButton = $("#Browse"); //Button um die Browsebox zu öffnen
-    this.browse = $("#Browsebox"); //Browsebox, die alles fürs Brwosing hält, wie ankerlist, browseloader, warpper etc.
-    this.browseWrapper = $("#Browseboxwrapper"); //Wrapper mit der Ergebnisliste.
-    this.browseLoader = $("#BrowseLoader"); //Loader beim Browse
-    this.cover = $("#Cover"); //Currentcover
+    this.bewertungWidth = document.getElementById("BewertungL"); // beim Currenttrack am Cover die Bewertungsbreite (goldene Sterne)
+    this.bewertungStars = document.getElementById("BewertungN"); // beim Currenttrack am Cover die Bewertung (graue Sterne)
+    this.bodydiv = $("#Bodydiv"); //Primärer Container in dem alles hinterlegt ist. //todo: Alarm
+    this.browseBackButton = document.getElementById("Browseback"); //beim Browsing der Back Button
+    this.browseButton = document.getElementById("Browse"); //Button um die Browsebox zu öffnen
+    this.browse = document.getElementById("Browsebox"); //Browsebox, die alles fürs Brwosing hält, wie ankerlist, browseloader, warpper etc.
+    this.browseWrapper = document.getElementById("Browseboxwrapper"); //Wrapper mit der Ergebnisliste.
+    this.browseLoader = document.getElementById("BrowseLoader"); //Loader beim Browse
+    this.cover = document.getElementById("Cover"); //Currentcover
     this.currentBomb = $("#CurrentBomb"); //Currentbomb
     this.currentMeta = $("#CurrentMeta"); //Zeigt mit klick die aktuellen Meta Daten eines Songs an.
     this.currentplaylistwrapper = $("#Currentplaylistwrapper"); //Wrapper für die current Playlist
@@ -79,7 +80,7 @@ function SonosDOMObjects() {
     this.errorloggingDOM = $('<DIV id="ShowerrorlogingButton" class="mediabuttonring">Log</DIV>'); //DIV für das Errorlogging
     this.errorloggingwrapper = $('#ShowerrorlogingWrapper');//DIV für das Errorlogging
     this.eventError = $("#EventErrorDiv");//Wird benutzt, wenn Fehler bei der Server Kommunikation auftreten.
-    this.fadeButton = $("#Fade"); //Fade Mediabutton
+    this.fadeButton = document.getElementById("Fade"); //Fade Mediabutton
     this.filterListBox = $("#Filterlist"); //Filter Box
     this.filterListRatingBar = $("#Filterlist .rating_bar"); //Rating in der FIlter Box
     this.filterListStimmungChilds = $("#FilterStimmungendiv > DIV");
@@ -93,37 +94,36 @@ function SonosDOMObjects() {
     this.groupDeviceShow = $("#GroupDeviceShow"); //Button um die Gruppierung zu aktivieren und einzelne Player zu Pausieren bzw. abzuspielen.
     this.geschwindigkeitChildren = $("#Geschwindigkeitendiv > DIV");
     this.labelVolume = $("#LabelVolume"); //Label unterhalb des Volume Sliders um die Lautstärke anzuzeigen.
-    this.lyricButton = $("#Lyric"); //LyricButton
-    this.lyric = $("#Lyricbox"); //Lyric Box
-    this.lyricWrapper = $("#Lyricboxwrapper");//Wrapper in der Lyric Box
-    this.lyricsPlaylist = $("#LyricPlaylist"); //Lyric Box aus Playlist
+    this.lyricButton = document.getElementById("Lyric"); //LyricButton
+    this.lyric = document.getElementById("Lyricbox"); //Lyric Box
+    this.lyricWrapper = document.getElementById("Lyricboxwrapper");//Wrapper in der Lyric Box
+    this.lyricsPlaylist = document.getElementById("LyricPlaylist"); //Lyric Box aus Playlist
     this.multiVolume = $("#MultiVolume"); //Box mit der Lautstärke, falls mehr als ein Player in Zone
     this.musikIndex = $("#MusikIndex"); //Musik Index Box
     this.musikIndexCheck = $("#MIUCheck"); //Gibt Feedback, wenn Index Komplett
     this.musikIndexLoader = $("#MusikIndexLoader"); //Loader für den Musikindex
-    this.muteButton = $("#SetMute");//Mediabutton
-    this.nextButton = $("#Next");//Mediabutton
-    this.nextcover = $("#Nextcover"); //Nextsong Cover
-    this.nextSongWrapper = $("#NextSongWrapper"); //Warpper für den Netxsong
-    this.nextTitle = $("#Nextsong"); //titel für den NextSong
+    this.muteButton = document.getElementById("SetMute");//Mediabutton
+    this.nextButton = document.getElementById("Next");//Mediabutton
+    this.playButton = document.getElementById("Play"); //Mediabutton
+    this.prevButton = document.getElementById("Pre");//Mediabutton
+    this.nextcover = document.getElementById("Nextcover"); //Nextsong Cover
+    this.nextSongWrapper = document.getElementById("NextSongWrapper"); //Warpper für den Netxsong
+    this.nextTitle = document.getElementById("Nextsong"); //titel für den NextSong
     this.onlyCurrentSwitch = $(".curonoffswitch-checkbox"); //Nur Currentrating anzeigen?
-    this.overlay = $("#Overlay"); //Wenn beim SonosWindows ein Overlay benötigt wird.
-    this.playButton = $("#Play"); //Mediabutton
+    this.overlay = document.getElementById("Overlay"); //Wenn beim SonosWindows ein Overlay benötigt wird.
     this.playlistCount = document.getElementById("PlaylistCount");//Playlist Box
     this.playlistAkt = document.getElementById("PlaylistCountAkt") //Aktuelle Titel Nummer
     this.playlistTotal = document.getElementById("PlaylistCountTotal");//Gesamtanzahl
     this.playlistLoader = document.getElementById("PlaylistLoader"); //Loader der currentplaylist
     this.playlistwrapper = $("#Playlistwrapper"); //Wrapper beim Container für alle Playlisten
-    this.prevButton = $("#Pre");//Mediabutton
     this.ratingCheck = $("#RatingCheck"); //Feedback, wenn Rating erfolgreich durchgeführt
     this.ratingErrorList = $("#RatingerrorsList"); //Wenn beim Rateing ein Fehlerauftritt auf dem Server, dann wird diese liste Gefüllt.
     this.ratingErrors = $("#Ratingerrors"); //Box mit der Liste der Errors.
     this.ratingBomb = $("#rating_id_bomb");//bombe in der Ratingliste
-    //this.ratingFilterRatingBarComination = $("#Ratinglist .rating_bar, #Filterlist .rating_bar"); //Wird zum Animieren beim Resize genutzt. Abstände zwischen den Sternen
     this.ratingListBox = $("#Ratinglist"); //Liste für die Bewertung
     this.ratingListRatingBar = $("#Ratinglist .rating_bar"); //Aus der Ratingliste die Rating Bar
     this.ratingMineSelector = $("#RatingMineSelector"); //Selection für Mine Rating
-    this.repeatButton = $("#Repeat");//Mediabutton
+    this.repeatButton = document.getElementById("Repeat");//Mediabutton
     this.runtimeCurrentSong = $("#CurrentSongRuntime"); //Box mit der Laufzeit
     this.runtimeRelTime = $("#CurrentSongRuntimeRelTime"); // Abgelaufene Zeit
     this.runtimeDuration = $("#CurrentSongRuntimeDuration"); //Gesamtzeit
@@ -132,19 +132,19 @@ function SonosDOMObjects() {
     this.saveQueue = $("#SaveQueue"); //Inputfeld mit dem Namen der Wiedergabeliste
     this.saveQueueLoader = $("#SaveQueueLoader"); //Animation, wenn Playlist gespeichert bzw. exportiert werden soll.
     this.setGroupMembers = $("#SetGroupMembers"); //Box mit allen Playern um auszuwählen, wer mit wem zusammengehört.
-    this.settingsBox = $("#Settingsbox"); //Inhalt der Settings DIV
-    this.settingsbutton = $("#Settings"); //Settingsbutton
-    this.settingsClosebutton = $("#Settingsclose"); //Settingsbutton
-    this.BrowseClosebutton = $("#Browseclose");
-    this.shuffleButton = $("#Shuffle");//Mediabutton
-    this.sleepMode = $("#SleepMode"); //Box für Sleepmode
-    this.sleepModeButton = $("#SleepModeButton"); //Button Sleepmode
-    this.sleepModeSelection = $("#SleepModeSelection"); //Auswahl mit Zeiten
-    this.sleepModeState = $("#SleepModeState"); //Text mit dem Status
+    this.settingsBox = document.getElementById("Settingsbox"); //Inhalt der Settings DIV
+    this.settingsbutton = document.getElementById("Settings"); //Settingsbutton
+    this.settingsClosebutton = document.getElementById("Settingsclose"); //Settingsbutton
+    this.BrowseClosebutton = document.getElementById("Browseclose");
+    this.shuffleButton = document.getElementById("Shuffle");//Mediabutton
+    this.sleepMode = document.getElementById("SleepMode"); //Box für Sleepmode
+    this.sleepModeButton = document.getElementById("SleepModeButton"); //Button Sleepmode
+    this.sleepModeSelection = document.getElementById("SleepModeSelection"); //Auswahl mit Zeiten
+    this.sleepModeState = document.getElementById("SleepModeState"); //Text mit dem Status
     this.suggestionInput = $('#Suggestion'); //Enthält das Inputfeld, welches den Namen der zu speichernden/exportierenden Playlist enthält
     this.stimmungenChildren = $("#Stimmungendiv > DIV"); //Stimmungs DIV Kinder Elemente
     this.volumeSlider = $("#Volume");//Slider mit der Lautstärke
-    this.debug = $("#Debug");//Debug Button
+    this.debug = document.getElementById("Debug");//Debug Button
     //Wenn Fehler als Log angezeigt werden sollen.
     this.SetErrorLogging = function() {
         this.errorlogging.appendTo(this.bodydiv);
