@@ -113,7 +113,6 @@ function SonosDOMObjects() {
     this.playlistAkt = document.getElementById("PlaylistCountAkt") //Aktuelle Titel Nummer
     this.playlistTotal = document.getElementById("PlaylistCountTotal");//Gesamtanzahl
     this.playlistLoader = document.getElementById("PlaylistLoader"); //Loader der currentplaylist
-
     this.playlistwrapper = $("#Playlistwrapper"); //Wrapper beim Container für alle Playlisten
     this.prevButton = $("#Pre");//Mediabutton
     this.ratingCheck = $("#RatingCheck"); //Feedback, wenn Rating erfolgreich durchgeführt
