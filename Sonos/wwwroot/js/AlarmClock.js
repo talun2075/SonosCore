@@ -23,7 +23,7 @@ $(document).ready(function () {
     alarmClockWrapper = $("#AlarmClockWrapper");
     alarmClockDOM.on("click", function () {
         LoadPlayers();
-        alarmClockDOM.toggleClass("aktiv");
+        alarmClockDOM.toggleClass(SoVa.aktiv);
     });
     SonosLog("Alarm Clock Initinal End");
 });

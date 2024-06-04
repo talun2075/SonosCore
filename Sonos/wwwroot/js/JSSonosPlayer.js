@@ -299,13 +299,13 @@ function SonosPlayer(_uuid, _name,_swgen) {
                     if (!curt.albumArtURI.startsWith("/getaa") || curt.albumArtURI == jack) {
                         albumart = curt.albumArtURI;
                     }
-                    if (SoDo.cover.attr("src") !== albumart) {
-                        SoDo.cover.attr("src", albumart);
+                    if (SoDo.cover.getAttribute("src") !== albumart) {
+                        SoDo.cover.setAttribute("src", albumart);
                     }
                     UpdateImageOnErrors();
                 } else {
-                    if (SoDo.cover.attr("src") !== SoVa.nocoverpfad) {
-                        SoDo.cover.attr("src", SoVa.nocoverpfad);
+                    if (SoDo.cover.getAttribute("src") !== SoVa.nocoverpfad) {
+                        SoDo.cover.setAttribute("src", SoVa.nocoverpfad);
                     }
                 }
             } else {
@@ -318,54 +318,54 @@ function SonosPlayer(_uuid, _name,_swgen) {
                         } else if (SonosZones.CheckStringIsNullOrEmpty(etu.protocolInfo)) {
                             albumart = 'http://' + this.playerProperties.baseUrl + this.playerProperties.currentTrack.albumArtURI;
                         }
-                        if (SoDo.cover.attr("src") !== albumart) {
-                            SoDo.cover.attr("src", albumart);
+                        if (SoDo.cover.getAttribute("src") !== albumart) {
+                            SoDo.cover.setAttribute("src", albumart);
                         }
                         UpdateImageOnErrors();
                     } else {
-                        if (SoDo.cover.attr("src") !== SoVa.nocoverpfad) {
-                            SoDo.cover.attr("src", SoVa.nocoverpfad);
+                        if (SoDo.cover.getAttribute("src") !== SoVa.nocoverpfad) {
+                            SoDo.cover.setAttribute("src", SoVa.nocoverpfad);
                         }
                     }
-                    if (SoDo.bewertungWidth.is(":visible")) {
-                        SoDo.bewertungWidth.hide();
+                    if (IsVisible(SoDo.bewertungWidth)) {
+                        SetHide(SoDo.bewertungWidth);
                     }
-                    if (SoDo.bewertungStars.is(":visible")) {
-                        SoDo.bewertungStars.hide();
+                    if (IsVisible(SoDo.bewertungStars)) {
+                       SetHide(SoDo.bewertungStars);
                     }
-                    SoDo.lyricWrapper.children().remove();
+                    SoDo.lyricWrapper.innerHTML = "";
                     if (!SonosZones.CheckStringIsNullOrEmpty(etu.title)) {
-                        if (SoDo.aktTitle.text() !== etu.title) {
-                            SoDo.aktTitle.text(etu.title);
+                        if (SoDo.aktTitle.textContent !== etu.title) {
+                            SoDo.aktTitle.textContent=etu.title;
                         }
                     } else if (!SonosZones.CheckStringIsNullOrEmpty(curt.title)) { }
-                    if (SoDo.aktTitle.text() !== curt.title) {
-                        SoDo.aktTitle.text(curt.title);
+                    if (SoDo.aktTitle.textContent !== curt.title) {
+                        SoDo.aktTitle.textContent=curt.title;
                     }
                     else {
-                        if (SoDo.aktTitle.text() !== "") {
-                            SoDo.aktTitle.text("");
+                        if (SoDo.aktTitle.textContent !== "") {
+                            SoDo.aktTitle.textContent="";
                         }
                     }
                     if (!SonosZones.CheckStringIsNullOrEmpty(curt.streamContent)) {
                         //description / title
                         let streamcontent = curt.artist + " (" + curt.streamContent + ":" + etu.description + "/" + etu.title + ")";
-                        if (SoDo.aktArtist.text() !== streamcontent) {
-                            SoDo.aktArtist.text(streamcontent);
+                        if (SoDo.aktArtist.textContent !== streamcontent) {
+                            SoDo.aktArtist.textContent = streamcontent;
                         }
                     } else {
                         if (!SonosZones.CheckStringIsNullOrEmpty(etu.artist)) {
-                            if (SoDo.aktArtist.text() !== etu.artist) {
-                                SoDo.aktArtist.text(etu.artist);
+                            if (SoDo.aktArtist.textContent !== etu.artist) {
+                                SoDo.aktArtist.textContent=etu.artist;
                             }
                         } else if (!SonosZones.CheckStringIsNullOrEmpty(curt.artist)) {
-                            if (SoDo.aktArtist.text() !== curt.artist) {
-                                SoDo.aktArtist.text(curt.artist);
+                            if (SoDo.aktArtist.textContent !== curt.artist) {
+                                SoDo.aktArtist.textContent=curt.artist;
                             }
                         }
                         else {
-                            if (SoDo.aktArtist.text() !== "") {
-                                SoDo.aktArtist.text("");
+                            if (SoDo.aktArtist.textContent !== "") {
+                                SoDo.aktArtist.textContent = "";
                             }
                         }
                     }//ende Radio
@@ -375,45 +375,45 @@ function SonosPlayer(_uuid, _name,_swgen) {
         this.ShowCurrentTrack = function() {
             var curt = this.playerProperties.currentTrack;
             if (!SonosZones.CheckStringIsNullOrEmpty(curt.title)) {
-                if (SoDo.aktTitle.text() !== curt.title) {
-                    SoDo.aktTitle.text(curt.title);
+                if (SoDo.aktTitle.textContent !== curt.title) {
+                    SoDo.aktTitle.textContent=curt.title;
                 }
             } else {
-                if (SoDo.aktTitle.text() !== "") {
-                    SoDo.aktTitle.text("");
+                if (SoDo.aktTitle.textContent !== "") {
+                    SoDo.aktTitle.textContent="";
                 }
             }
             if (!SonosZones.CheckStringIsNullOrEmpty(curt.artist)) {
-                if (SoDo.aktArtist.text() !== curt.artist) {
-                    SoDo.aktArtist.text(curt.artist);
+                if (SoDo.aktArtist.textContent !== curt.artist) {
+                    SoDo.aktArtist.textContent=curt.artist;
                 }
             } else {
-                if (SoDo.aktArtist.text() !== "") {
-                    SoDo.aktArtist.text("");
+                if (SoDo.aktArtist.textContent !== "") {
+                    SoDo.aktArtist.textContent="";
                 }
             }
-            SoDo.lyricWrapper.children().remove();
+            SoDo.lyricWrapper.innerHTML = "";
             if (!SonosZones.CheckStringIsNullOrEmpty(curt.mP3.lyric)) {
-                $('<div>' + curt.mP3.lyric + '</div>').appendTo(SoDo.lyricWrapper);
+                SoDo.lyricWrapper.innerHTML = '<div>' + curt.mP3.lyric + '</div>';
             } else {
-                $('<div>No Lyrics in Song</div>').appendTo(SoDo.lyricWrapper);
+                SoDo.lyricWrapper.innerHTML= '<div>No Lyrics in Song</div>';
             }
             if (curt.stream === true) {
-                if (SoDo.bewertungWidth.is(":visible")) {
-                    SoDo.bewertungWidth.hide();
+                if (IsVisible(SoDo.bewertungWidth)) {
+                    SetHide(SoDo.bewertungWidth);
                 }
-                if (SoDo.bewertungStars.is(":visible")) {
-                    SoDo.bewertungStars.hide();
+                if (IsVisible(SoDo.bewertungStars)) {
+                   SetHide(SoDo.bewertungStars);
                 }
                 return;
             }
-            if (SoDo.bewertungWidth.is(":hidden")) {
-                SoDo.bewertungWidth.show();
+            if (!IsVisible(SoDo.bewertungWidth)) {
+                SetVisible(SoDo.bewertungWidth);
             }
-            if (SoDo.bewertungStars.is(":hidden")) {
-                SoDo.bewertungStars.show();
+            if (!IsVisible(SoDo.bewertungStars)) {
+                SetVisible(SoDo.bewertungStars);
             }
-            SoDo.bewertungWidth.width(curt.mP3.bewertung + "%");
+            SoDo.bewertungWidth.style.width =curt.mP3.bewertung + "%";
             if (parseInt(curt.mP3.bewertung) === -1) {
                 if (SoDo.currentBomb.is(":hidden")) {
                     SoDo.currentBomb.show();
@@ -425,20 +425,20 @@ function SonosPlayer(_uuid, _name,_swgen) {
             }
         }
         this.HideCurrentTrack = function() {
-            if (SoDo.cover.attr("src") !== SoVa.nocoverpfad) {
-                SoDo.cover.attr("src", SoVa.nocoverpfad);
+            if (SoDo.cover.getAttribute("src") !== SoVa.nocoverpfad) {
+                SoDo.cover.setAttribute("src", SoVa.nocoverpfad);
             }
-            if (SoDo.bewertungWidth.is(":visible")) {
-                SoDo.bewertungWidth.hide();
+            if (IsVisible(SoDo.bewertungWidth)) {
+                SetHide(SoDo.bewertungWidth);
             }
-            if (SoDo.bewertungStars.is(":visible")) {
-                SoDo.bewertungStars.hide();
+            if (IsVisible(SoDo.bewertungStars)) {
+               SetHide(SoDo.bewertungStars);
             }
-            if (SoDo.aktTitle.text() !== "") {
-                SoDo.aktTitle.text("");
+            if (SoDo.aktTitle.textContent !== "") {
+                SoDo.aktTitle.textContent="";
             }
-            if (SoDo.aktArtist.text() !== "") {
-                SoDo.aktArtist.text("");
+            if (SoDo.aktArtist.textContent !== "") {
+                SoDo.aktArtist.textContent="";
             }
         };
         this.playlist = {};

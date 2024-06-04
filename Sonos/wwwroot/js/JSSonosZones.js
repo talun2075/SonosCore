@@ -81,13 +81,9 @@ function SonosZonesObject() {
                     }
                 }
                 if (typeof SonosPlayers[SonosZones.ActiveZoneUUID] !== "undefined" && typeof SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.transportStateString !== "undefined" && SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.transportStateString === "PLAYING") {
-                    if (!SoDo.playButton.hasClass("aktiv")) {
-                        SoDo.playButton.addClass("aktiv");
-                    }
+                    AddClass(SoDo.playButton, SoVa.aktiv);
                 } else {
-                    if (SoDo.playButton.hasClass("aktiv")) {
-                        SoDo.playButton.removeClass("aktiv");
-                    }
+                    RemoveClass(SoDo.playButton, SoVa.aktiv);
                 }
                 this.ZonesCount = zcounter;
                 if (SoDo.deviceLoader.is(":visible")) {
@@ -276,21 +272,19 @@ function SonosZonesObject() {
         var player = SonosPlayers[uuid];
         if (typeof player === "undefined") return;
         if (player.playerProperties.AudioInput_LineInConnected === true) {
-            if (SoDo.audioInButton.is(":hidden")) {
-                SoDo.audioInButton.show();
+            
+            if (!IsVisible(SoDo.audioInButton)) {
+                SetVisible(SoDo.audioInButton);
             }
             if (player.playerProperties.currentTrack.stream === true && (player.playerProperties.currentTrack.streamContent === "Audio Eingang" || player.playerProperties.currentTrack.title === "Heimkino")) {
-                if (!SoDo.audioInButton.hasClass("akt")) {
-                    SoDo.audioInButton.addClass("akt");
-                }
+                AddClass(SoDo.audioInButton)
             } else {
-                if (SoDo.audioInButton.hasClass("akt")) {
-                    SoDo.audioInButton.removeClass("akt");
-                }
+                RemoveClass(SoDo.audioInButton)
             }
         } else {
-            if (SoDo.audioInButton.is(":visible")) {
-                SoDo.audioInButton.hide();
+
+            if (IsVisible(SoDo.audioInButton)) {
+               SetHide(SoDo.audioInButton);
             }
         }
     };//done
@@ -323,13 +317,9 @@ function SonosZonesObject() {
         //Großer Playbuttom
         if (uuid === this.ActiveZoneUUID) {
             if (value === "PLAYING") {
-                if (!SoDo.playButton.hasClass("aktiv")) {
-                    SoDo.playButton.addClass("aktiv");
-                }
+                AddClass(SoDo.playButton, SoVa.aktiv);
             } else {
-                if (SoDo.playButton.hasClass("aktiv")) {
-                    SoDo.playButton.removeClass("aktiv");
-                }
+                RemoveClass(SoDo.playButton, SoVa.aktiv);
             }
         }
         //Devicelist
@@ -364,23 +354,19 @@ function SonosZonesObject() {
         if (typeof player === "undefined") return;
         if (uuid === this.ActiveZoneUUID) {
             if (player.playerProperties.groupRenderingControl_GroupMute === true) {
-                if (!SoDo.muteButton.hasClass("aktiv")) {
-                    SoDo.muteButton.addClass("aktiv");
-                }
+                AddClass(SoDo.muteButton, SoVa.aktiv);
             } else {
-                if (SoDo.muteButton.hasClass("aktiv")) {
-                    SoDo.muteButton.removeClass("aktiv");
-                }
+                RemoveClass(SoDo.muteButton, SoVa.aktiv);
             }
         }
         var multivolmute = $("#MultiVolumeMute_" + uuid);
         if (multivolmute.length === 1) {
             if (player.playerProperties.mute === true) {
-                if (!multivolmute.hasClass("aktiv"))
-                    multivolmute.addClass("aktiv");
+                if (!multivolmute.hasClass(SoVa.aktiv))
+                    multivolmute.addClass(SoVa.aktiv);
             } else {
-                if (multivolmute.hasClass("aktiv"))
-                    multivolmute.removeClass("aktiv");
+                if (multivolmute.hasClass(SoVa.aktiv))
+                    multivolmute.removeClass(SoVa.aktiv);
             }
         }
     };//done
@@ -437,13 +423,9 @@ function SonosZonesObject() {
     this.RenderCrossFadeMode = function (uuid) {
         if (typeof SonosPlayers[uuid] === "undefined") return;
         if (SonosPlayers[uuid].playerProperties.currentCrossFadeMode === true) {
-            if (!SoDo.fadeButton.hasClass("aktiv")) {
-                SoDo.fadeButton.addClass("aktiv");
-            }
+            AddClass(SoDo.fadeButton, SoVa.aktiv);
         } else {
-            if (SoDo.fadeButton.hasClass("aktiv")) {
-                SoDo.fadeButton.removeClass("aktiv");
-            }
+            RemoveClass(SoDo.fadeButton, SoVa.aktiv);
         }
     };//done
     this.RenderPlayMode = function (uuid) {
@@ -451,81 +433,39 @@ function SonosZonesObject() {
         var v = SonosPlayers[uuid].playerProperties.currentPlayModeString;
         switch (v) {
             case "NORMAL":
-                if (SoDo.repeatButton.hasClass("aktiv")) {
-                    SoDo.repeatButton.removeClass("aktiv");
-                }
-                if (SoDo.repeatButton.hasClass("aktiv_one")) {
-                    SoDo.repeatButton.removeClass("aktiv_one");
-                }
-                if (SoDo.shuffleButton.hasClass("aktiv")) {
-                    SoDo.shuffleButton.removeClass("aktiv");
-                }
+                RemoveClass(SoDo.repeatButton, SoVa.aktiv);
+                RemoveClass(SoDo.repeatButton, "aktiv_one");
+                RemoveClass(SoDo.shuffleButton, SoVa.aktiv);
                 break;
             case "REPEAT_ALL":
-                if (!SoDo.repeatButton.hasClass("aktiv")) {
-                    SoDo.repeatButton.addClass("aktiv");
-                }
-                if (SoDo.repeatButton.hasClass("aktiv_one")) {
-                    SoDo.repeatButton.removeClass("aktiv_one");
-                }
-                if (SoDo.shuffleButton.hasClass("aktiv")) {
-                    SoDo.shuffleButton.removeClass("aktiv");
-                }
+                AddClass(SoDo.repeatButton, SoVa.aktiv);
+                RemoveClass(SoDo.repeatButton, "aktiv_one");
+                RemoveClass(SoDo.shuffleButton, SoVa.aktiv);
                 break;
             case "REPEAT_ONE":
-                if (SoDo.repeatButton.hasClass("aktiv")) {
-                    SoDo.repeatButton.removeClass("aktiv");
-                }
-                if (!SoDo.repeatButton.hasClass("aktiv_one")) {
-                    SoDo.repeatButton.addClass("aktiv_one");
-                }
-                if (SoDo.shuffleButton.hasClass("aktiv")) {
-                    SoDo.shuffleButton.removeClass("aktiv");
-                }
+                RemoveClass(SoDo.repeatButton, SoVa.aktiv)
+                AddClass(SoDo.repeatButton, "aktiv_one");
+                RemoveClass(SoDo.shuffleButton, SoVa.aktiv);
                 break;
             case "SHUFFLE_NOREPEAT":
-                if (SoDo.repeatButton.hasClass("aktiv")) {
-                    SoDo.repeatButton.removeClass("aktiv");
-                }
-                if (SoDo.repeatButton.hasClass("aktiv_one")) {
-                    SoDo.repeatButton.removeClass("aktiv_one");
-                }
-                if (!SoDo.shuffleButton.hasClass("aktiv")) {
-                    SoDo.shuffleButton.addClass("aktiv");
-                }
+                RemoveClass(SoDo.repeatButton, SoVa.aktiv)
+                RemoveClass(SoDo.repeatButton, "aktiv_one");
+                AddClass(SoDo.shuffleButton, SoVa.aktiv);
                 break;
             case "SHUFFLE":
-                if (!SoDo.repeatButton.hasClass("aktiv")) {
-                    SoDo.repeatButton.addClass("aktiv");
-                }
-                if (SoDo.repeatButton.hasClass("aktiv_one")) {
-                    SoDo.repeatButton.removeClass("aktiv_one");
-                }
-                if (!SoDo.shuffleButton.hasClass("aktiv")) {
-                    SoDo.shuffleButton.addClass("aktiv");
-                }
+                AddClass(SoDo.repeatButton, SoVa.aktiv);
+                RemoveClass(SoDo.repeatButton, "aktiv_one");
+                AddClass(SoDo.shuffleButton, SoVa.aktiv);
                 break;
             case "SHUFFLE_REPEAT_ONE":
-                if (SoDo.repeatButton.hasClass("aktiv")) {
-                    SoDo.repeatButton.removeClass("aktiv");
-                }
-                if (!SoDo.repeatButton.hasClass("aktiv_one")) {
-                    SoDo.repeatButton.addClass("aktiv_one");
-                }
-                if (!SoDo.shuffleButton.hasClass("aktiv")) {
-                    SoDo.shuffleButton.addClass("aktiv");
-                }
+                RemoveClass(SoDo.repeatButton, SoVa.aktiv);
+                AddClass(SoDo.repeatButton, "aktiv_one");
+                AddClass(SoDo.shuffleButton, SoVa.aktiv);
                 break;
             default:
-                if (SoDo.repeatButton.hasClass("aktiv")) {
-                    SoDo.repeatButton.removeClass("aktiv");
-                }
-                if (SoDo.repeatButton.hasClass("aktiv_one")) {
-                    SoDo.repeatButton.removeClass("aktiv_one");
-                }
-                if (SoDo.shuffleButton.hasClass("aktiv")) {
-                    SoDo.shuffleButton.removeClass("aktiv");
-                }
+                RemoveClass(SoDo.repeatButton, SoVa.aktiv);
+                RemoveClass(SoDo.repeatButton, "aktiv_one");
+                RemoveClass(SoDo.shuffleButton, SoVa.aktiv);
         }
     };//done;
     this.RenderVolume = function (uuid) {
@@ -617,8 +557,8 @@ function SonosZonesObject() {
         if (typeof player === "undefined") return;
         //new
         if (!SonosZones.CheckStringIsNullOrEmpty(player.playerProperties.nextTrack.uri)) {
-            if (SoDo.nextSongWrapper.is(":hidden")) {
-                SoDo.nextSongWrapper.show();
+            if (!IsVisible(SoDo.nextSongWrapper)) {
+                SetVisible(SoDo.nextSongWrapper);
             }
             var seap = " - ";
             var text = "";
@@ -631,33 +571,33 @@ function SonosZonesObject() {
             if (!SonosZones.CheckStringIsNullOrEmpty(player.playerProperties.nextTrack.title)) {
                 text = text + player.playerProperties.nextTrack.title;
             }
-            if (SoDo.nextTitle.text() !== text) {
-                SoDo.nextTitle.text(text);
+            if (SoDo.nextTitle.textContent !== text) {
+                SoDo.nextTitle.textContent =text;
             }
 
             if (SonosZones.CheckStringIsNullOrEmpty(player.playerProperties.nextTrack.albumArtURI)) {
-                if (SoDo.nextcover.is(":visible")) {
-                    SoDo.nextcover.hide();
+                if (IsVisible(SoDo.nextcover)) {
+                   SetHide(SoDo.nextcover);
                 }
             } else {
-                if (SoDo.nextcover.is(":hidden")) {
-                    SoDo.nextcover.show();
+                if (!IsVisible(SoDo.nextcover)) {
+                   SetVisible(SoDo.nextcover);
                 }
                 //Wenn nicht mit /getaa startet nicht BASEURL nehmen, dann ist das evtl. DLNA
                 var albumart = 'http://' + player.playerProperties.baseUrl + player.playerProperties.nextTrack.albumArtURI;
                 if (!player.playerProperties.nextTrack.albumArtURI.startsWith("/getaa")) {
                     albumart = player.playerProperties.nextTrack.albumArtURI;
                 }
-                if (SoDo.nextcover.attr("src") !== albumart) {
-                    SoDo.nextcover.attr("src", albumart);
+                if (SoDo.nextcover.getAttribute("src") !== albumart) {
+                    SoDo.nextcover.setAttribute("src", albumart);
                 }
                 UpdateImageOnErrors();
             }
 
         } else {
             //todo: prüfen auf is empty und ob die playlist geladen ist, dann kann man ein nächten track anzeigen? Stream?
-            if (SoDo.nextSongWrapper.is(":visible")) {
-                SoDo.nextSongWrapper.hide();
+            if (IsVisible(SoDo.nextSongWrapper)) {
+               SetHide(SoDo.nextSongWrapper);
             }
         }
         return;
@@ -721,18 +661,14 @@ function SonosZonesObject() {
         var isrunning = SonosPlayers[uuid].playerProperties.sleepTimerRunning;
         var duration = SonosPlayers[uuid].playerProperties.remainingSleepTimerDuration
         if (duration !== "" && duration !== "aus" && duration !== "00:00:00" && isrunning === true) {
-            if (!SoDo.sleepModeButton.hasClass("aktiv")) {
-                SoDo.sleepModeButton.addClass("aktiv");
-            }
-            if (SoDo.sleepModeState.text() !== duration) {
-                SoDo.sleepModeState.text(duration);
+            AddClass(SoDo.sleepModeButton, SoVa.aktiv);
+            if (SoDo.sleepModeState.textContent !== duration) {
+                SoDo.sleepModeState.textContent =duration;
             }
         } else {
-            if (SoDo.sleepModeButton.hasClass("aktiv")) {
-                SoDo.sleepModeButton.removeClass("aktiv");
-            }
-            if (SoDo.sleepModeState.text() !== "") {
-                SoDo.sleepModeState.text("");
+            RemoveClass(SoDo.sleepModeButton, SoVa.aktiv);
+            if (SoDo.sleepModeState.textContent !== "") {
+                SoDo.sleepModeState.textContent ="";
             }
         }
     };//done
@@ -819,7 +755,7 @@ function SonosZonesObject() {
                         playlisttype = "sonos";
                     }
                     if (item.uri === uri) {
-                        acclass = "aktiv";
+                        acclass = SoVa.aktiv;
                     }
                     //Wiedergabeliste befüllen
                     $('<div id="Playlist_' + i + '" class="playlist ' + playlisttype + ' ' + acclass + '"><div onclick="SonosZones.ReplacePlaylist(' + i + ');">' + item.title + '</DIV></div>').appendTo(SoDo.playlistwrapper);
@@ -827,11 +763,11 @@ function SonosZonesObject() {
                 SoDo.globalPlaylistLoader.slideUp();
             } else {
                 //Es wurde schon gerendert und somit nur noch die angezeigte wechseln.
-                $(".playlist").removeClass("aktiv");
+                $(".playlist").removeClass(SoVa.aktiv);
                 if (this.AllPlaylists.length === 0 || this.CheckStringIsNullOrEmpty(uri)) return;
                 for (var i = 0; i < this.AllPlaylists.length; i++) {
                     if (this.AllPlaylists[i].uri === uri) {
-                        $("#Playlist_" + i).addClass("aktiv");
+                        $("#Playlist_" + i).addClass(SoVa.aktiv);
                         break;
                     }
                 }
@@ -844,7 +780,9 @@ function SonosZonesObject() {
     }
     this.ReplacePlaylist = function (item) {
         SetVisible(SoDo.playlistLoader)
-        SoDo.browseLoader.slideDown();
+        if (!IsVisible(SoDo.browseLoader)) {
+            SetVisible(SoDo.browseLoader);
+        }
         $(".currentplaylist").remove();
         var uri = SonosZones.AllPlaylists[item].containerID;
         var player = SonosPlayers[this.ActiveZoneUUID];
@@ -861,7 +799,9 @@ function SonosZonesObject() {
             player.playerProperties.enqueuedTransportURI = SonosZones.AllPlaylists[item].uri;
             SonosZones.RenderAllPlaylist();
             player.playlist.ClearPlaylist(player);
-            SoDo.browseLoader.slideUp();
+            if (IsVisible(SoDo.browseLoader)) {
+                SetHide(SoDo.browseLoader);
+            }
         });
     };
     this.CheckVisibility = function () {
