@@ -415,12 +415,12 @@ function SonosPlayer(_uuid, _name,_swgen) {
             }
             SoDo.bewertungWidth.style.width =curt.mP3.bewertung + "%";
             if (parseInt(curt.mP3.bewertung) === -1) {
-                if (SoDo.currentBomb.is(":hidden")) {
-                    SoDo.currentBomb.show();
-                }
+                if (!IsVisible(SoDo.currentBomb)) {
+                    SetVisible(SoDo.currentBomb);
+                } 
             } else {
-                if (SoDo.currentBomb.is(":visible")) {
-                    SoDo.currentBomb.hide();
+                if (IsVisible(SoDo.currentBomb)) {
+                    SetHide(SoDo.currentBomb);
                 }
             }
         }

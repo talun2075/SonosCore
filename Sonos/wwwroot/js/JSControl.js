@@ -15,7 +15,6 @@
 
 window.onerror = Fehlerbehandlung;
 var debug = false; //Wenn true wird kein Refesh gemacht		
-var showerrors = false; //Wenn auf true, wird ein Button eingebunden und die Console logt zusätzlich in ein DIV welches man über den button öffnen kann.
 var wroteDebugInfos = false;
 function Fehlerbehandlung(Nachricht, Datei, Zeile) {
     var fehler = "Fehlermeldung:\n" + Nachricht + "\n" + Datei + "\n" + Zeile;
@@ -101,13 +100,6 @@ $(document).ready(function () {
             SoVa.SSE_Event_Source.close();
         }
     });
-    SoDo.errorloggingDOM.on("click", function () {
-        SonosWindows(SoDo.errorlogging);
-    });
-    if (showerrors === true) {
-        SoDo.SetErrorLogging();
-        SoDo.errorloggingDOM.show();
-    }
     LoadDevices();
     $(window).on("resize", function () {
         //SetHeight();
@@ -119,10 +111,10 @@ $(document).ready(function () {
     SoDo.saveExportPlaylistSwitch.on("change", function () {
         var c = SoDo.saveExportPlaylistSwitch.prop("checked");
         if (c) {
-            SoDo.saveQueue.attr("placeholder", SoVa.exportPlaylistInputText);
+            SoDo.saveQueue.setAttribute("placeholder", SoVa.exportPlaylistInputText);
             SoVa.exportplaylist = true;
         } else {
-            SoDo.saveQueue.attr("placeholder", SoVa.savePlaylistInputText);
+            SoDo.saveQueue.setAttribute("placeholder", SoVa.savePlaylistInputText);
             SoVa.exportplaylist = false;
         }
     });
@@ -141,12 +133,16 @@ $(document).ready(function () {
         }
     });
     //Initialisierung Musikindexaktualisierung
-    SoDo.musikIndex.on("click", function () { UpdateMusicIndex(); });
+    SoDo.musikIndex.addEventListener("click", function () {
+        UpdateMusicIndex();
+    });
     //Ratingmine änderunbgen abfangen
     SoDo.ratingMineSelector.on("change", function () {
         SetRatingMine(SoDo.ratingMineSelector.find("option:selected").val());
     });
-    SoDo.filterListButton.on("click", function () { SonosWindows(SoDo.filterListBox); });
+    SoDo.filterListButton.addEventListener("click", function () {
+        SonosWindows(SoDo.filterListBox);
+    });
     //Settingswurde gedrückt
     SoDo.settingsbutton.addEventListener("click", function () {
         SonosWindows(SoDo.settingsBox);
@@ -209,9 +205,7 @@ $(document).ready(function () {
             if (minutes < 10) { minutes = "0" + minutes; }
             if (seconds < 10) { seconds = "0" + seconds; }
             var convertedstring = hours + ':' + minutes + ':' + seconds;
-            SoDo.runtimeRelTime.html(convertedstring);
-
-            //SoDo.runtimeRelTime.html(ui.value.toString().toHHMMSS());
+            SoDo.runtimeRelTime.textContent =convertedstring;
         }
     });
 
@@ -227,7 +221,7 @@ $(document).ready(function () {
             if (ui.value > SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume && ui.value - SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume > SoVa.volumeConfirmCounter) {
                 var answer = confirm("Du willst die Lautstärke um " + SoVa.volumeConfirmCounter + " von 100 Schritten erhöhen. Klicke Ok, wenn das gewollt ist");
                 if (!answer) {
-                    SoDo.labelVolume.html(SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume);
+                    SoDo.labelVolume.textContent =SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume;
                     SoDo.volumeSlider.slider({ value: SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume });
                     return false;
                 }
@@ -237,27 +231,27 @@ $(document).ready(function () {
             return true;
         },
         slide: function (event, ui) {
-            SoDo.labelVolume.html(ui.value);
+            SoDo.labelVolume.textContent =ui.value;
         }
     });
     //Autovervollständigung
-    SoDo.saveQueue.keyup(function (e) {
+    SoDo.saveQueue.addEventListener("keyup",function (e) {
         try {
             // 'enter' key was pressed
-            var $suggest = SoDo.suggestionInput;
+            var suggest = SoDo.suggestionInput;
             var code = e.keyCode ? e.keyCode : e.which;
             if (code === 13) {
-                $(this).val($suggest.val());
-                $suggest.val("");
+                SoDo.saveQueue.value =suggest.value;
+                suggest.value="";
                 return false;
             }
 
             // some other key was pressed
-            var needle = $(this).val();
+            var needle = SoDo.saveQueue.value;
 
             // is the field empty?
-            if (!$.trim(needle).length) {
-                $suggest.val("");
+            if ((needle.trim()).length < 1) {
+                suggest.value = "";
                 return false;
             }
             var foundeplaylist;
@@ -269,9 +263,9 @@ $(document).ready(function () {
                 }
             });
             if (typeof foundeplaylist !== "undefined") {
-                $suggest.val(foundeplaylist.title);
+                suggest.value = foundeplaylist.title;
             } else {
-                $suggest.val("");
+                suggest.value = "";
             }
             return true;
         }
@@ -356,19 +350,22 @@ function GroupDeviceShow() {
             if (document.body.clientWidth < 400) {
                 wbydevice = "355px"
             }
-            SoDo.devicesWrapper.addClass("groupdevicesshown").css("z-index", SoVa.szindex + 100);
-            SoDo.devices.animate({ "max-width": wbydevice, maxHeight: "400px" }, 500, function () {
-                $(".groupdeviceclass").css("display", "table");
-                SoDo.groupDeviceShow.text("<<");
+            AddClass(SoDo.devicesWrapper, "groupdevicesshown");
+            SoDo.devicesWrapper.style.zIndex = SoVa.szindex + 100;
+            SoDo.devicesWrapper.style.maxHeight = "400px";
+            SoDo.devices.style.maxHeight = "400px";
+            SoDo.devices.style.maxWidth = wbydevice;
+            $(".groupdeviceclass").css("display", "table");
+                SoDo.groupDeviceShow.textContent ="<<";
                 SoVa.groupDeviceShowBool = true;
-            });
         } else {
-            SoDo.devices.animate({ "max-width": "180px", maxHeight: "230px" }, 1000, function () {
-                SoDo.devicesWrapper.removeClass("groupdevicesshown");
-                SoDo.groupDeviceShow.text(">>");
-                SoDo.devicesWrapper.css("z-index", 100);
+                RemoveClass(SoDo.devicesWrapper, "groupdevicesshown");
+                SoDo.devicesWrapper.style.zIndex = 100;
+                SoDo.devicesWrapper.style.maxHeight = "230px";
+                SoDo.devices.style.maxHeight = "230px";
+                SoDo.devices.style.maxWidth = "180px";
+                SoDo.groupDeviceShow.textContent = ">>";
                 SoVa.groupDeviceShowBool = false;
-            });
             $(".groupdeviceclass").css("display", "none");
         }
     }
@@ -381,18 +378,18 @@ function SetDeviceGroupFor(v) {
     try {
         var player = SonosPlayers[v];
         if (SoVa.setGroupMemberInitSoftWareGen != player.SoftwareGeneration) {
-            SoDo.setGroupMembers.empty();
-            $('<br>').appendTo(SoDo.setGroupMembers);
+            SoDo.setGroupMembers.innerHTML = "";
+            SoDo.setGroupMembers.innerHTML = '<br>';
             var prop = Object.getOwnPropertyNames(SonosPlayers);
             for (var i = 0; i < prop.length; i++) {
                 var p = prop[i];
                 var feplayer = SonosPlayers[p];
                 if (feplayer.SoftwareGeneration == player.SoftwareGeneration) {
-                    $('<div class="groupcheck"><input type="checkbox" id="groupcheckchecker_' + p + '" class="groupcheckchecker" value="' + p + '"><span onclick="$(this).parent().children(\'INPUT\').prop(\'checked\', !$(this).parent().children(\'INPUT\').prop(\'checked\'));">' + SonosPlayers[p].name + '</span></div>').appendTo(SoDo.setGroupMembers);
+                    SoDo.setGroupMembers.innerHTML += '<div class="groupcheck"><input type="checkbox" id="groupcheckchecker_' + p + '" class="groupcheckchecker" value="' + p + '"><span onclick="$(this).parent().children(\'INPUT\').prop(\'checked\', !$(this).parent().children(\'INPUT\').prop(\'checked\'));">' + SonosPlayers[p].name + '</span></div>';
                 }
             }
-            $('<div id="Groupcheckset" onclick="SetGroup()">Set</div>').appendTo(SoDo.setGroupMembers);
-            $('<div id="GroupCheckClose" onclick="HideGroupFor()">X</div>').appendTo(SoDo.setGroupMembers);
+            SoDo.setGroupMembers.innerHTML += '<div id="Groupcheckset" onclick="SetGroup()">Set</div>';
+            SoDo.setGroupMembers.innerHTML += '<div id="GroupCheckClose" onclick="HideGroupFor()">X</div>';
             SoVa.setGroupMemberInitSoftWareGen = player.SoftwareGeneration;
         }
         $(".groupcheckchecker").prop('checked', false);
@@ -533,11 +530,40 @@ function SetVolume(k) {
     k = parseInt(k);
     var cordplayer = SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.zoneGroupTopology_ZonePlayerUUIDsInGroup;
     if (cordplayer.length > 1) {
-        SoDo.multiVolume.empty();
-        //SonosWindows(multiVolumeDIV,false);
+        SoDo.multiVolume.innerHTML="";
         SonosWindows(SoDo.multiVolume, false, { overlay: true, selecteddivs: [SoDo.playButton, SoDo.muteButton, SoDo.nextButton] });
-        var mvc = $('<div id="multivolume_close">X</DIV>').appendTo(SoDo.multiVolume);
-        mvc.on("click", function () { SonosWindows(SoDo.multiVolume, true); });
+        SoDo.multiVolume.innerHTML = '<div id="multivolume_close" OnClick="SonosWindows(SoDo.multiVolume, true);">X</DIV>'
+        //Hier nun den Player für alle machen.
+        SoDo.multiVolume.innerHTML += '<div id="MultivolumeAll">Alle<DIV id="MultivolumesliderAll" class="multivolumeslider"></div><div class="multivolumesliderVolumeNumber" id="MultivolumeAllNumber">' + SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume + '</DIV></DIV>';
+        $("#MultivolumesliderAll").slider({
+            orientation: "horizontal",
+            range: "min",
+            min: 1,
+            max: 100,
+            value: SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume,
+            stop: function (event, ui) {
+                //Prüfen, ob die Läutstärke über 80% verändert wird. 
+                if (ui.value > SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume && ui.value - SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume > SoVa.volumeConfirmCounter) {
+                    var answer = confirm("Du willst die Lautstärke um " + SoVa.volumeConfirmCounter + " von 100 Schritten erhöhen. Klicke Ok, wenn das gewollt ist");
+                    if (!answer) {
+                        $("#multivolumesliderAll").slider({ value: SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume });
+                        return false;
+                    }
+                    SetGroupVolumeDevice(SonosZones.ActiveZoneUUID, ui.value);
+                    SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume = ui.value;
+                    return true;
+                }
+                SetGroupVolumeDevice(SonosZones.ActiveZoneUUID, ui.value);
+                return true;
+            },
+            slide: function (event, ui) {
+                $("#MultivolumeAllNumber").html(ui.value);
+                SoDo.volumeSlider.slider({ value: ui.value });
+                SoDo.labelVolume.textContent = ui.value;
+            }
+        });
+
+
         $.each(cordplayer, function (i, item) {
             var player = SonosPlayers[item];
             var name = player.name;
@@ -546,7 +572,7 @@ function SetVolume(k) {
             if (player.playerProperties.mute === true) {
                 muteactive = SoVa.aktiv;
             }
-            $('<div id="multivolume_' + item + '"><DIV class="multiVolumeNameMuteWrapper"><DIV class="multiVolumeName">' + name + '</DIV><DIV class="multiVolumeMute ' + muteactive + '" id="MultiVolumeMute_' + item + '" onClick="SetMute(\'' + item + '\')"></DIV></DIV><DIV id="Multivolumeslider_' + item + '" class="multivolumeslider"></div><div class="multivolumesliderVolumeNumber" id="MultivolumesliderVolumeNumber_' + item + '">' + volume + '</div></DIV>').appendTo(SoDo.multiVolume);
+            SoDo.multiVolume.innerHTML += '<div id="multivolume_' + item + '"><DIV class="multiVolumeNameMuteWrapper"><DIV class="multiVolumeName">' + name + '</DIV><DIV class="multiVolumeMute ' + muteactive + '" id="MultiVolumeMute_' + item + '" onClick="SetMute(\'' + item + '\')"></DIV></DIV><DIV id="Multivolumeslider_' + item + '" class="multivolumeslider"></div><div class="multivolumesliderVolumeNumber" id="MultivolumesliderVolumeNumber_' + item + '">' + volume + '</div></DIV>';
             $("#Multivolumeslider_" + item).slider({
                 orientation: "horizontal",
                 range: "min",
@@ -572,35 +598,6 @@ function SetVolume(k) {
                     $("#MultivolumesliderVolumeNumber_" + item).html(ui.value);
                 }
             });
-        });
-        //Hier nun den Player für alle machen.
-        $('<div id="MultivolumeAll">Alle<DIV id="MultivolumesliderAll" class="multivolumeslider"></div><div class="multivolumesliderVolumeNumber" id="MultivolumeAllNumber">' + SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume + '</DIV></DIV>').prependTo(SoDo.multiVolume);
-        $("#MultivolumesliderAll").slider({
-            orientation: "horizontal",
-            range: "min",
-            min: 1,
-            max: 100,
-            value: SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume,
-            stop: function (event, ui) {
-                //Prüfen, ob die Läutstärke über 80% verändert wird. 
-                if (ui.value > SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume && ui.value - SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume > SoVa.volumeConfirmCounter) {
-                    var answer = confirm("Du willst die Lautstärke um " + SoVa.volumeConfirmCounter + " von 100 Schritten erhöhen. Klicke Ok, wenn das gewollt ist");
-                    if (!answer) {
-                        $("#multivolumesliderAll").slider({ value: SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume });
-                        return false;
-                    }
-                    SetGroupVolumeDevice(SonosZones.ActiveZoneUUID, ui.value);
-                    SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume = ui.value;
-                    return true;
-                }
-                SetGroupVolumeDevice(SonosZones.ActiveZoneUUID, ui.value);
-                return true;
-            },
-            slide: function (event, ui) {
-                $("#MultivolumeAllNumber").html(ui.value);
-                SoDo.volumeSlider.slider({ value: ui.value });
-                SoDo.labelVolume.html(ui.value);
-            }
         });
     } else {
         //Steps von 5 oder 1
@@ -633,10 +630,10 @@ function SetGroupVolumeDevice(dev, v) {
 //Speichern/Exportieren der aktuellen Playlist
 function SaveQueue() {
     try {
-        var title = SoDo.saveQueue.val();
+        var title = SoDo.saveQueue.value;
         var queuetype = "SaveQueue";
         if (title.length > 0) {
-            SoDo.saveQueueLoader.show();
+            SetVisible(SoDo.saveQueueLoader);
             if (SoVa.exportplaylist === true) {
                 queuetype = "ExportQueue";
             }
@@ -648,13 +645,17 @@ function SaveQueue() {
                 } else {
                     alert("Beim laden der Aktion:" + queuetype + "(" + title + ") ist ein Fehler aufgetreten.");
                 }
-                SoDo.saveQueueLoader.hide();
+                if (IsVisible(SoDo.saveQueueLoader)) {
+                    SetHide(SoDo.saveQueueLoader);
+                }
             });
             request.fail(function (jqXHR) {
                 if (jqXHR.statusText === "Internal Server Error") {
                     ReloadSite("SaveQueue");
                 } else { alert("Beim laden der Aktion:SaveQueue(" + title + ") ist ein Fehler aufgetreten."); }
-                SoDo.saveQueueLoader.hide();
+                if (IsVisible(SoDo.saveQueueLoader)) {
+                    SetHide(SoDo.saveQueueLoader);
+                }
             });
         }
     }
@@ -989,8 +990,8 @@ function ResetAll() {
     SoDo.nextcover.setAttribute("src", SoVa.nocoverpfad);
     SetHide(SoDo.nextcover);
     $(".akt").text("");
-    SoDo.runtimeDuration.html("");
-    SoDo.runtimeRelTime.html("");
+    SoDo.runtimeDuration.textContent = "";
+    SoDo.runtimeRelTime.textContent = "";
     $(".next").text("");
     SoDo.aktArtist.textContent = "";
     SoDo.aktTitle.textContent = "";
@@ -998,7 +999,7 @@ function ResetAll() {
     SoDo.playlistTotal.textContent= "0";
     SoDo.bewertungWidth.style.width("0%");
     SoDo.devicesWrapper.children(".groupdevicewrapper").remove();
-    SoDo.deviceLoader.show();
+    SetVisible(SoDo.deviceLoader);
 } //Ende Reset
 
 //} PrüfMethoden, Hintergrundaktualisierungen
@@ -1394,8 +1395,9 @@ function SetAnker(buchstabe, art) {
 //Aktualisieren des Musikindexes
 function UpdateMusicIndex() {
     if (SoVa.updateMusikIndex === false) {
-        if (SoDo.musikIndexLoader.is(":hidden"))
-            SoDo.musikIndexLoader.show();
+        if (!IsVisible(SoDo.musikIndexLoader)) {
+            SetVisible(SoDo.musikIndexLoader)
+        }
         var request = SonosAjax("SetUpdateMusicIndex");
         request.fail(function (jqXHR) {
             if (jqXHR.statusText === "Internal Server Error") {
@@ -1412,34 +1414,39 @@ function ShowCurrentSongMeta() {
         return;
     }
     SonosWindows(SoDo.currentMeta);
-    if (SoDo.currentMeta.is(":hidden")) return;
-    SoDo.currentMeta.empty();
+
+    if (!IsVisible(SoDo.currentMeta)) return;
+    SoDo.currentMeta.innerHTML=""
     if (cut.mP3 !== null) {
         var data = cut.mP3;
         var prop = Object.getOwnPropertyNames(data);
-        var CurrentMetaWrapper = $("<div id='CurrentMetaWrapper'></div>");
-        CurrentMetaWrapper.appendTo(SoDo.currentMeta);
+        let wrapper = document.createElement("DIV");
+        wrapper.id = "CurrentMetaWrapper";
         for (var i = 0; i < prop.length; i++) {
             var k = prop[i];
             if (SoVa.metaUse.indexOf(k) !== -1) {
                 if (data[k] !== "" && data[k] !== null && data[k] !== "leer" && data[k] !== 0) {
                     //erstes zeichen groß schreiben
-                    $("<div><b>" + k.charAt(0).toUpperCase() + k.slice(1) + "</b>: " + data[k] + "</div>").appendTo(CurrentMetaWrapper);
+                    wrapper.innerHTML += "<div><b>" + k.charAt(0).toUpperCase() + k.slice(1) + "</b>: " + data[k] + "</div>";
                 }
             }
         }
+        SoDo.currentMeta.appendChild(wrapper);
     } else {
         SonosAjax("GetSongMeta", { '': cut.uri }).success(function (datanull) {
             var propnull = Object.getOwnPropertyNames(datanull);
+            let wrapper = document.createElement("DIV");
+            wrapper.id = "CurrentMetaWrapper";
             for (var y = 0; y < propnull.length; y++) {
                 var kp = propnull[y];
                 if (SoVa.metaUse.indexOf(kp) !== -1) {
                     if (datanull[kp] !== null && datanull[kp] !== "") {
                         //erstes zeichen groß schreiben
-                        $("<div><b>" + kp.charAt(0).toUpperCase() + kp.slice(1) + "</b>: " + datanull[kp] + "</div>").appendTo(SoDo.currentMeta);
+                        wrapper.innerHTML += "<div><b>" + kp.charAt(0).toUpperCase() + kp.slice(1) + "</b>: " + datanull[kp] + "</div>";
                     }
                 }
             }
+            SoDo.currentMeta.appendChild(wrapper);
         });
     }
 };//done
@@ -1449,15 +1456,15 @@ function GetMusicIndexInProgress() {
     var request = SonosAjax("GetUpdateIndexInProgress");
     request.success(function (data) {
         if (data === true) {
-            if (SoDo.musikIndexLoader.is(":hidden")) {
-                SoDo.musikIndexLoader.show();
+            if (!IsVisible(SoDo.musikIndexLoader)) {
+                SetVisible(SoDo.musikIndexLoader);
             }
         } else {
-            if (SoDo.musikIndexLoader.is(":visible")) {
-                SoDo.musikIndexLoader.hide();
-                SoDo.musikIndexCheck.show().hide(2000, function () {
-                    window.setTimeout("SonosZones.RenderAllPlaylist(true)", 2000);
-                });
+            if (IsVisible(SoDo.musikIndexLoader)) {
+                SetHide(SoDo.musikIndexLoader);
+                SetVisible(SoDo.musikIndexCheck);
+                window.setTimeout("SetHide(SoDo.musikIndexCheck);", 1000);
+                window.setTimeout("SonosZones.RenderAllPlaylist(true)", 2000);
             }
         }
     });
@@ -1465,7 +1472,9 @@ function GetMusicIndexInProgress() {
         if (jqXHR.statusText === "Internal Server Error" || jqXHR.statusText === "error") {
             ReloadSite("GetMusicIndexInProgress");
         } else { alert("Beim aktualiseren des Musikindexes ist ein Fehler aufgetreten."); }
-        SoDo.musikIndexLoader.hide();
+        if (IsVisible(SoDo.musikIndexLoader)) {
+            SetHide(SoDo.musikIndexLoader);
+        }
     });
 };//done
 //Funktion zum Absenden ohne Rückmeldung
@@ -1494,15 +1503,13 @@ function doitValue(d, v) {
 } //Ende von DO2
 //Beim DEbug In die Console loggen
 function SonosLog(v) {
-    if (debug === false && showerrors === false) {
+    if (debug === false) {
         return;
     }
     if (debug === true) {
         console.log(v);
     }
-    if (showerrors === true) {
-        SoDo.errorloggingwrapper.prepend("<br />" + v);
-    }
+
 }
 /*Folgender aufrufe als erklärung
 SonosWindows(ratinglist,false,{overlay:true,selecteddivs:[$("#Next"),$("#Play")]});

@@ -641,7 +641,7 @@ a {
     cursor: pointer;
 }
 
-.devices {
+#Devices {
     position: absolute;
     top: 10px;
     left: 5px;
@@ -657,6 +657,7 @@ a {
     z-index: 100;
     max-width: 180px;
     width: 100%;
+    transition: 600ms linear;
 }
 
 .deviceWrapper {
@@ -1028,6 +1029,7 @@ a {
     top: -2px;
     width: 30px;
     height: 30px;
+    cursor: pointer;
 }
 
 #Playlist {
@@ -1279,6 +1281,7 @@ a {
 
 #MusikIndex {
     height: 20px;
+    display: inline-flex;
 }
 
 #MusikIndexLoader {

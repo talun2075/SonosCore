@@ -168,27 +168,28 @@ function Eventing() {
 function ChangeGlobalSettings(data) {
     switch (data.changeType) {
         case "SavedQueuesUpdateID":
-            SonosZones.RenderAllPlaylist(true);
+            //SonosZones.RenderAllPlaylist(true);
             break;
         case "ShareListUpdateID":
-            if (SoDo.musikIndexLoader.is(":visible")) {
-                SoDo.musikIndexLoader.hide();
-                SoDo.musikIndexCheck.show().hide(2000, function () {
-                    window.setTimeout("SonosZones.RenderAllPlaylist(true)", 2000);
-                });
-            }
+            //if (IsVisible(SoDo.musikIndexLoader)) {
+            //    SetHide(SoDo.musikIndexLoader);
+            //    SetVisible(SoDo.musikIndexCheck);
+            //    window.setTimeout("SetHide(SoDo.musikIndexCheck);", 1000);
+            //    window.setTimeout("SonosZones.RenderAllPlaylist(true)", 2000);
+            //}
             break;
         case "ShareIndexInProgress":
             var val = data.changedValues.ShareIndexInProgress === "True";
             if (val === true) {
-                if (SoDo.musikIndexLoader.is(":hidden"))
-                    SoDo.musikIndexLoader.show();
+                if (!IsVisible(SoDo.musikIndexLoader)) {
+                    SetVisible(SoDo.musikIndexLoader);
+                }
             } else {
-                if (SoDo.musikIndexLoader.is(":visible")) {
-                    SoDo.musikIndexLoader.hide();
-                    SoDo.musikIndexCheck.show().hide(2000, function () {
-                        window.setTimeout("SonosZones.RenderAllPlaylist(true)", 2000);
-                    });
+                if (IsVisible(SoDo.musikIndexLoader)) {
+                    SetHide(SoDo.musikIndexLoader);
+                    SetVisible(SoDo.musikIndexCheck);
+                    window.setTimeout("SetHide(SoDo.musikIndexCheck);", 1500);
+                    window.setTimeout("SonosZones.RenderAllPlaylist(true)", 2000);
                 }
             }
             break;

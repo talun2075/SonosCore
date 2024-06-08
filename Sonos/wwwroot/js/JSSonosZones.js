@@ -17,11 +17,10 @@ function SonosZonesObject() {
     this.RenderDevices = function () {
         //Alles leeren
         try {
-
-            if (SoDo.deviceLoader.is(":hidden")) {
-                SoDo.deviceLoader.show();
+            if (!IsVisible(SoDo.deviceLoader)) {
+                SetVisible(SoDo.deviceLoader);
             }
-            SoDo.devicesWrapper.empty();
+            SoDo.devicesWrapper.innerHTML="";
             if (!SonosZones.CheckActiveZone()) {
                 if (SonosZones.CheckStringIsNullOrEmpty(SoVa.urldevice)) {
                     SonosZones.SetFirstZonetoActive();
@@ -43,7 +42,7 @@ function SonosZonesObject() {
                     console.log("Fehler bei GetZones, Data null");
                     return;
                 }
-                SoDo.devicesWrapper.empty();
+                SoDo.devicesWrapper.innerHTML ="";
                 for (var i = 0; i < data.zoneGroupStates.length; i++) {
                     var zuuid = data.zoneGroupStates[i].coordinatorUUID;
                     var zonemember = data.zoneGroupStates[i].zoneGroupMember;
@@ -76,7 +75,7 @@ function SonosZonesObject() {
                             playinternal = "Pause";
                         }
                         var image = '<img class="deviceIcon" src="' + SonosPlayers[p].playerProperties.icon + '">';
-                        $('<div class="groupdevicewrapper"><div id="' + SonosPlayers[p].uuid + '" class="device' + aktdev + '" onclick="SetDevice(\'' + uuid + '\');"><p>' + image + SonosPlayers[uuid].name + '</p>' + SonosZones.GetCordinatedPlayerasStringFormat(zone) + '</div><img id="deviceplayinggif_' + uuid + '" class="deviceplayinggif" ' + playstateimg + ' src="/images/playing.gif"><div id="GroupDevice_' + uuid + '" onclick="SetDeviceGroupFor(\'' + uuid + '\')" class="groupdeviceclass">&nbsp;&nbsp;Gruppe&nbsp;(' + SonosPlayers[uuid].SoftwareGeneration + ')&nbsp;</div><div class="groupdeviceclass groupdeviceclassplay ' + playclass + '" onclick="SonosPlayers[\'' + uuid + '\'].SendTransportState(\'' + playinternal + '\');" id="' + uuid + '_GroupPlayState"></div></div>').appendTo(SoDo.devicesWrapper);
+                        SoDo.devicesWrapper.innerHTML += '<div class="groupdevicewrapper"><div id="' + SonosPlayers[p].uuid + '" class="device' + aktdev + '" onclick="SetDevice(\'' + uuid + '\');"><p>' + image + SonosPlayers[uuid].name + '</p>' + SonosZones.GetCordinatedPlayerasStringFormat(zone) + '</div><img id="deviceplayinggif_' + uuid + '" class="deviceplayinggif" ' + playstateimg + ' src="/images/playing.gif"><div id="GroupDevice_' + uuid + '" onclick="SetDeviceGroupFor(\'' + uuid + '\')" class="groupdeviceclass">&nbsp;&nbsp;Gruppe&nbsp;(' + SonosPlayers[uuid].SoftwareGeneration + ')&nbsp;</div><div class="groupdeviceclass groupdeviceclassplay ' + playclass + '" onclick="SonosPlayers[\'' + uuid + '\'].SendTransportState(\'' + playinternal + '\');" id="' + uuid + '_GroupPlayState"></div></div>';
                         zcounter++;
                     }
                 }
@@ -86,11 +85,11 @@ function SonosZonesObject() {
                     RemoveClass(SoDo.playButton, SoVa.aktiv);
                 }
                 this.ZonesCount = zcounter;
-                if (SoDo.deviceLoader.is(":visible")) {
-                    SoDo.deviceLoader.hide();
+                if (IsVisible(SoDo.deviceLoader)) {
+                    SetHide(SoDo.deviceLoader);
                 }
-                if (SoDo.groupDeviceShow.is(":hidden")) {
-                    SoDo.groupDeviceShow.show();
+                if (!IsVisible(SoDo.groupDeviceShow)) {
+                    SetVisible(SoDo.groupDeviceShow);
                 }
                 SonosZones.RenderActiveZone(SonosZones.ActiveZoneUUID, true);
             });
@@ -389,16 +388,16 @@ function SonosZonesObject() {
         } 
         let curt = player.playerProperties.currentTrack;
         if (!this.CheckStreamShowElements(uuid) && (curt.duration === null || curt.duration.totalSeconds === 0)) {
-            if (SoDo.runtimeCurrentSong.is(":visible")) {
-                SoDo.runtimeCurrentSong.hide();
+            if (IsVisible(SoDo.runtimeCurrentSong)){
+                SetHide(SoDo.runtimeCurrentSong);
             }
             if (SoDo.runtimeSlider.is(":visible")) {
                 SoDo.runtimeSlider.hide();
             }
         } else {
             //Hier nun die Erweiterung machen. Um mit Stunden und Minuten zu Arbeiten
-            if (SoDo.runtimeCurrentSong.is(":hidden")) {
-                SoDo.runtimeCurrentSong.show();
+            if (!IsVisible(SoDo.runtimeCurrentSong)) {
+                SetVisible(SoDo.runtimeCurrentSong);
             }
             if (SoDo.runtimeSlider.is(":hidden")) {
                 SoDo.runtimeSlider.show();
@@ -410,13 +409,13 @@ function SonosZonesObject() {
                 SoDo.runtimeSlider.slider("option", "value", curt.relTime.totalSeconds);
             }
             let reltimedom = curt.relTime.stringWithoutZeroHours;
-            if (SoDo.runtimeRelTime.html() !== reltimedom) {
-                SoDo.runtimeRelTime.html(reltimedom);
+            if (SoDo.runtimeRelTime.textContent !== reltimedom) {
+                SoDo.runtimeRelTime.textContent = reltimedom;
             }
             //let durtimedom = curt.duration.totalSeconds.toString().toHHMMSS();
             let durtimedom = curt.duration.stringWithoutZeroHours;
-            if (SoDo.runtimeDuration.html() !== durtimedom) {
-                SoDo.runtimeDuration.html(durtimedom);
+            if (SoDo.runtimeDuration.textContent !== durtimedom) {
+                SoDo.runtimeDuration.textContent = durtimedom;
             }
         }
     };//done
@@ -488,9 +487,9 @@ function SonosZonesObject() {
         if (player.playerProperties.groupRenderingControl_GroupVolume !== val) {
             SoDo.volumeSlider.slider({ value: player.playerProperties.groupRenderingControl_GroupVolume });
         }
-        var htmlval = parseInt(SoDo.labelVolume.html());
+        var htmlval = parseInt(SoDo.labelVolume.textContent);
         if (isNaN(htmlval) || htmlval !== player.playerProperties.groupRenderingControl_GroupVolume) {
-            SoDo.labelVolume.html(player.playerProperties.groupRenderingControl_GroupVolume);
+            SoDo.labelVolume.textContent = player.playerProperties.groupRenderingControl_GroupVolume;
         }
         var oldValue = $("#MultivolumesliderAll").slider("value");
         var gvol = player.playerProperties.groupRenderingControl_GroupVolume;
@@ -711,13 +710,9 @@ function SonosZonesObject() {
             def = false;
         }
         if (def === false) {
-            if (!SoDo.filterListButton.hasClass("akt")) {
-                SoDo.filterListButton.addClass("akt");
-            }
+            AddClass(SoDo.filterListButton, "akt");
         } else {
-            if (SoDo.filterListButton.hasClass("akt")) {
-                SoDo.filterListButton.removeClass("akt");
-            }
+            RemoveClass(SoDo.filterListButton, "akt");
         }
     };//done
     this.RenderAllPlaylist = function (override) {
@@ -743,7 +738,9 @@ function SonosZonesObject() {
                 uri = player.playerProperties.enqueuedTransportURI;
             }
             if (SoDo.playlistwrapper.children().length === 0 || override === true) {
-                SoDo.globalPlaylistLoader.slideDown();
+                if (!IsVisible(SoDo.globalPlaylistLoader)) {
+                    SetVisible(SoDo.globalPlaylistLoader)
+                }
                 $(".playlist").remove();
                 if (this.AllPlaylists.length === 0) return;
                 $.each(this.AllPlaylists, function (i, item) {
@@ -760,7 +757,9 @@ function SonosZonesObject() {
                     //Wiedergabeliste befüllen
                     $('<div id="Playlist_' + i + '" class="playlist ' + playlisttype + ' ' + acclass + '"><div onclick="SonosZones.ReplacePlaylist(' + i + ');">' + item.title + '</DIV></div>').appendTo(SoDo.playlistwrapper);
                 });
-                SoDo.globalPlaylistLoader.slideUp();
+                if (IsVisible(SoDo.globalPlaylistLoader)) {
+                    SetHide(SoDo.globalPlaylistLoader)
+                }
             } else {
                 //Es wurde schon gerendert und somit nur noch die angezeigte wechseln.
                 $(".playlist").removeClass(SoVa.aktiv);
