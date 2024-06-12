@@ -108,7 +108,8 @@
             <div id="Aktartist" onClick="ShowCurrentSongMeta()" class="akt"></div>
         </div>
         <div id="AudioIn" class="mediabutton" onclick="SetAudioIn();"></div>
-        <div id="Slider"></div>
+        <div id="PlaylistSliderWrapper"><input type="range" min="0" max="100" value="50" step="1" class="slider" id="PlaylistSlider" name="PlaylistSlider"></div>
+
         <div id="Volumedown" class="mediabuttonring" onclick="SetVolume(0);"></div>
         <div id="Volumeup" class="mediabuttonring" onclick="SetVolume(1);"></div>
         <div id="Volume"></div><label for="Volume" id="LabelVolume"></label>

@@ -981,12 +981,15 @@ a {
     max-width: 470px;
 }
 
-#Slider {
+#PlaylistSliderWrapper {
     position: absolute;
     left: 25px;
     bottom: 10px;
     /*width: 960px;*/
     width: calc(100% - 50px);
+}
+#PlaylistSlider{
+    width:100%;
 }
 
 #Volume {

@@ -391,22 +391,22 @@ function SonosZonesObject() {
             if (IsVisible(SoDo.runtimeCurrentSong)){
                 SetHide(SoDo.runtimeCurrentSong);
             }
-            if (SoDo.runtimeSlider.is(":visible")) {
-                SoDo.runtimeSlider.hide();
+            if (IsVisible(SoDo.runtimeSlider)) {
+                SetHide(SoDo.runtimeSlider);
             }
         } else {
             //Hier nun die Erweiterung machen. Um mit Stunden und Minuten zu Arbeiten
             if (!IsVisible(SoDo.runtimeCurrentSong)) {
                 SetVisible(SoDo.runtimeCurrentSong);
             }
-            if (SoDo.runtimeSlider.is(":hidden")) {
-                SoDo.runtimeSlider.show();
+            if (!IsVisible(SoDo.runtimeSlider)) {
+                SetVisible(SoDo.runtimeSlider);
             }
             if (curt.duration !== null) {
-                SoDo.runtimeSlider.slider("option", "max", curt.duration.totalSeconds);
+                SoDo.runtimeSlider.setAttribute("max", curt.duration.totalSeconds);
             }
             if (curt.relTime !== null) {
-                SoDo.runtimeSlider.slider("option", "value", curt.relTime.totalSeconds);
+                SoDo.runtimeSlider.value = curt.relTime.totalSeconds;
             }
             let reltimedom = curt.relTime.stringWithoutZeroHours;
             if (SoDo.runtimeRelTime.textContent !== reltimedom) {

@@ -124,7 +124,7 @@ function SonosDOMObjects() {
     this.runtimeCurrentSong = document.getElementById("CurrentSongRuntime"); //Box mit der Laufzeit
     this.runtimeRelTime = document.getElementById("CurrentSongRuntimeRelTime"); // Abgelaufene Zeit
     this.runtimeDuration = document.getElementById("CurrentSongRuntimeDuration"); //Gesamtzeit
-    this.runtimeSlider = $("#Slider"); //Slider für die Laufzeit
+    this.runtimeSlider = document.getElementById("PlaylistSlider"); //Slider für die Laufzeit
     this.saveExportPlaylistSwitch = document.getElementById("Myonoffswitch"); //Schalter der definiert ob Playlisten Exportiert oder gespeichert werden sollen.
     this.saveQueue = document.getElementById("SaveQueue"); //Inputfeld mit dem Namen der Wiedergabeliste
     this.saveQueueLoader = document.getElementById("SaveQueueLoader"); //Animation, wenn Playlist gespeichert bzw. exportiert werden soll.

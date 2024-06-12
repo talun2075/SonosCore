@@ -78,215 +78,6 @@ Dieser Parameter wird genommen um die API zu initialisieren. Diese liefert die G
 apiPlayerURL	
 Dieser Parameter liefert alle Informationen zurück und wird für fast alle Functionen benötigt
 */
-
-
-//Dokument Ready
-$(document).ready(function () {
-    return;
-    //Polyfill IpadWand
-    if (!String.prototype.startsWith) {
-        String.prototype.startsWith = function (searchString, position) {
-            position = position || 0;
-            return this.indexOf(searchString, position) === position;
-        };
-    }
-
-    window.SoVa = new SonosVariablen();
-    window.SoDo = new SonosDOMObjects();
-    window.SonosZones = new SonosZonesObject();
-    $(window).on('beforeunload', function () {
-        //Close SSE on site leaving
-        if (typeof SoVa.SSE_Event_Source !== "undefined" && SoVa.SSE_Event_Source.readyState !== SoVa.SSE_Event_Source.CLOSE) {
-            SoVa.SSE_Event_Source.close();
-        }
-    });
-    LoadDevices();
-    $(window).on("resize", function () {
-        //SetHeight();
-    });
-    SoDo.lyricButton.addEventListener("click", function () {
-        ShowPlaylistLyricCurrent();
-    });
-    //Changes für das Exportieren /Speichern von Playlisten festhalten
-    SoDo.saveExportPlaylistSwitch.addEventListener("change", function () {
-        var c = SoDo.saveExportPlaylistSwitch.checked;
-        if (c) {
-            SoDo.saveQueue.setAttribute("placeholder", SoVa.exportPlaylistInputText);
-            SoVa.exportplaylist = true;
-        } else {
-            SoDo.saveQueue.setAttribute("placeholder", SoVa.savePlaylistInputText);
-            SoVa.exportplaylist = false;
-        }
-    });
-    //ScrollEvents
-    //Prüfvariable wird gesetzt, wenn gescrollt wird. Manuelles Scrollen
-    SoDo.currentplaylistwrapper.addEventListener("scroll", function () {
-        SoVa.currentplaylistScrolled = true;
-    });
-    //Prüfen ob nur noch current Ratings angezeigt werden soll.
-    SoDo.onlyCurrentSwitch.addEventListener("change", function () {
-        var c = SoDo.onlyCurrentSwitch.checked;
-        if (c) {
-            SoVa.ratingonlycurrent = true;
-        } else {
-            SoVa.ratingonlycurrent = false;
-        }
-    });
-    //Initialisierung Musikindexaktualisierung
-    SoDo.musikIndex.addEventListener("click", function () {
-        UpdateMusicIndex();
-    });
-    //Ratingmine änderunbgen abfangen
-    SoDo.ratingMineSelector.addEventListener("change", function () {
-        SetRatingMine(SoDo.ratingMineSelector.value);
-    });
-    SoDo.filterListButton.addEventListener("click", function () {
-        SonosWindows(SoDo.filterListBox);
-    });
-    //Settingswurde gedrückt
-    SoDo.settingsbutton.addEventListener("click", function () {
-        SonosWindows(SoDo.settingsBox);
-        SoDo.settingsbutton.classList.toggle("akt");
-    });
-    //Settingswurde gedrückt
-    SoDo.settingsClosebutton.addEventListener("click", function () {
-        SonosWindows(SoDo.settingsBox, true);
-        SoDo.settingsbutton.classList.toggle("akt");
-    });
-    SoDo.BrowseClosebutton.addEventListener("click", function () {
-        BrowsePress();
-        console.log("ok");
-    });
-    //Events verarbeiten, wenn ein Button geklickt wurde.
-    SoDo.nextButton.addEventListener("click", function () {
-        //Curenttrack ändern, danach die Nummer Ändern und somit den Nexttrack rendern.
-        if (SonosZones.CheckActiveZone()) {
-            doit('Next');
-            if (SoVa.ratingonlycurrent === false && IsVisible(SoDo.ratingListBox)) {
-                SonosWindows(SoDo.ratingListBox, true);
-            }
-        }
-    });
-
-    SoDo.prevButton.addEventListener("click", function (evt) {
-        if (SonosZones.CheckActiveZone()) {
-            SoVa.currentplaylistScrolled = false;
-            if (SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.transportStateString !== "REPEAT_ALL" && SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.transportStateString !== "SHUFFLE" && SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.currentTrackNumber === 1) {
-                return false;
-            }
-            doit('Previous');
-            if (SoVa.ratingonlycurrent === false && IsVisible(SoDo.ratingListBox)) {
-                SonosWindows(SoDo.ratingListBox, true);
-            }
-            return true;
-        }
-        return true;
-    });
-
-    //Abspieldauerslider
-    SoDo.runtimeSlider.slider({
-        orientation: "horizontal",
-        range: "min",
-        min: 0,
-        max: 100,
-        value: 50,
-        stop: function (event, ui) {
-            doitValue("Seek", ui.value);
-
-        }, start: function () {
-        },
-        slide: function (event, ui) {
-            var sec_num = parseInt(ui.value, 10); // don't forget the second param
-            var hours = Math.floor(sec_num / 3600);
-            var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
-            var seconds = sec_num - (hours * 3600) - (minutes * 60);
-
-            if (hours < 10) { hours = "0" + hours; }
-            if (minutes < 10) { minutes = "0" + minutes; }
-            if (seconds < 10) { seconds = "0" + seconds; }
-            var convertedstring = hours + ':' + minutes + ':' + seconds;
-            SoDo.runtimeRelTime.textContent =convertedstring;
-        }
-    });
-
-    //Lautstärkeregler initialisieren.
-    SoDo.volumeSlider.slider({
-        orientation: "vertical",
-        range: "min",
-        min: 1,
-        max: 100,
-        value: 1,
-        stop: function (event, ui) {
-            //Prüfen, ob die Läutstärke über 80% verändert wird. 
-            if (ui.value > SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume && ui.value - SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume > SoVa.volumeConfirmCounter) {
-                var answer = confirm("Du willst die Lautstärke um " + SoVa.volumeConfirmCounter + " von 100 Schritten erhöhen. Klicke Ok, wenn das gewollt ist");
-                if (!answer) {
-                    SoDo.labelVolume.textContent =SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume;
-                    SoDo.volumeSlider.slider({ value: SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume });
-                    return false;
-                }
-            }
-            SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume = ui.value;
-            SetGroupVolumeDevice(SonosZones.ActiveZoneUUID, ui.value);
-            return true;
-        },
-        slide: function (event, ui) {
-            SoDo.labelVolume.textContent =ui.value;
-        }
-    });
-    //Autovervollständigung
-    SoDo.saveQueue.addEventListener("keyup",function (e) {
-        try {
-            // 'enter' key was pressed
-            var suggest = SoDo.suggestionInput;
-            var code = e.keyCode ? e.keyCode : e.which;
-            if (code === 13) {
-                SoDo.saveQueue.value =suggest.value;
-                suggest.value="";
-                return false;
-            }
-
-            // some other key was pressed
-            var needle = SoDo.saveQueue.value;
-
-            // is the field empty?
-            if ((needle.trim()).length < 1) {
-                suggest.value = "";
-                return false;
-            }
-            var foundeplaylist;
-            var foundeplaylist;
-            SonosZones.AllPlaylists.forEach(function (item) {
-                if (item.title.toLowerCase().startsWith(needle.toLowerCase())) {
-                    foundeplaylist = item;
-                    return;
-                }
-            });
-            if (typeof foundeplaylist !== "undefined") {
-                suggest.value = foundeplaylist.title;
-            } else {
-                suggest.value = "";
-            }
-            return true;
-        }
-        catch (Ex) {
-            alert("Es ist ein Fehler beim SoDo.saveQueue.keyup aufgetreten:<br>" + Ex.message);
-        }
-    });
-
-    //SetHeight();
-    if (wroteDebugInfos === true) {
-        SetVisible(SoDo.debug);
-    }
-    //$(SoDo.currentplaylistwrapper).scroll(function () {
-    //    //        console.log("St:" + $(SoDo.currentplaylistwrapper).scrollTop());
-    //    //        console.log("WraperHeight" + $(SoDo.currentplaylistwrapper).height());
-    //    if ($(SoDo.currentplaylistwrapper).scrollTop() === $(document).height() - $(SoDo.currentplaylistwrapper).height()) {
-    //        console.log("scrolling");
-    //    }
-    //});
-});     //ENDE DOK READY
-
 function InitSystem() {
 
     //Polyfill IpadWand
@@ -387,31 +178,41 @@ function InitSystem() {
     });
 
     //Abspieldauerslider
-    SoDo.runtimeSlider.slider({
-        orientation: "horizontal",
-        range: "min",
-        min: 0,
-        max: 100,
-        value: 50,
-        stop: function (event, ui) {
-            doitValue("Seek", ui.value);
+    
 
-        }, start: function () {
-        },
-        slide: function (event, ui) {
-            var sec_num = parseInt(ui.value, 10); // don't forget the second param
-            var hours = Math.floor(sec_num / 3600);
-            var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
-            var seconds = sec_num - (hours * 3600) - (minutes * 60);
-
-            if (hours < 10) { hours = "0" + hours; }
-            if (minutes < 10) { minutes = "0" + minutes; }
-            if (seconds < 10) { seconds = "0" + seconds; }
-            var convertedstring = hours + ':' + minutes + ':' + seconds;
-            SoDo.runtimeRelTime.textContent = convertedstring;
+    SoDo.runtimeSlider.oninput = function () {
+        let sec_num = parseInt(this.value, 10); // don't forget the second param
+        let hours = Math.floor(sec_num / 3600);
+        let minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+        let seconds = sec_num - (hours * 3600) - (minutes * 60);
+        let convertedstring, hoursstring
+        convertedstring = "";
+        if (hours < 10) { hoursstring = "0" + hours; } else { hoursstring = hours; }
+        if (minutes < 10) { minutes = "0" + minutes; }
+        if (seconds < 10) { seconds = "0" + seconds; }
+        if (hours > 0) {
+            convertedstring = hoursstring+":";
         }
-    });
-
+         convertedstring += minutes + ':' + seconds;
+        SoDo.runtimeRelTime.textContent = convertedstring;
+    }
+    SoDo.runtimeSlider.onchange = function () {
+        let sec_num = parseInt(this.value, 10); // don't forget the second param
+        let hours = Math.floor(sec_num / 3600);
+        let minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+        let seconds = sec_num - (hours * 3600) - (minutes * 60);
+        let convertedstring, hoursstring
+        convertedstring = "";
+        if (hours < 10) { hoursstring = "0" + hours; } else { hoursstring = hours; }
+        if (minutes < 10) { minutes = "0" + minutes; }
+        if (seconds < 10) { seconds = "0" + seconds; }
+        if (hours > 0) {
+            convertedstring = hoursstring + ":";
+        }
+        convertedstring += minutes + ':' + seconds;
+        SoDo.runtimeRelTime.textContent = convertedstring;
+        doitValue("Seek", this.value);
+    }
     //Lautstärkeregler initialisieren.
     SoDo.volumeSlider.slider({
         orientation: "vertical",
@@ -480,6 +281,7 @@ function InitSystem() {
         SetVisible(SoDo.debug);
     }
 } //Ende Init
+
 
 function RepairActiveZone() {
     SonosAjax("FillPlayerPropertiesDefaults", "", SonosZones.ActiveZoneUUID, true);
