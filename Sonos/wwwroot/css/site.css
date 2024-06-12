@@ -267,7 +267,7 @@ a {
         position: absolute;
     }
 
-#rating_id_bomb {
+#Rating_id_bomb {
     position: absolute;
     right: 30px;
     top: 400px;
@@ -701,7 +701,7 @@ a {
 }
 
 .device {
-    width: 180px;
+    width: 140px;
     float: left;
     margin-top: 8px;
 }
@@ -1853,7 +1853,7 @@ a {
 }
 /*Export An / Aus Schalter  ENDE*/
 /*Aufwecken An / Aus Schalter  */
-#aufweckenonoffswitchWrapper, #RatingMine {
+#AufweckenonoffswitchWrapper, #RatingMine {
     width: 190px;
 }
 
@@ -2054,7 +2054,7 @@ a {
 }
 /*Nur CurrentRating An / Aus Schalter  ENDE*/
 /*ArtisPlaylist An / Aus Schalter  Anfang*/
-#artistplaylistonoffswitchWrapper {
+#ArtistplaylistonoffswitchWrapper {
     width: 190px;
 }
 

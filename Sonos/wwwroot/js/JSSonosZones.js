@@ -635,9 +635,9 @@ function SonosZonesObject() {
             NewEntry.addClass("aktsonginplaylist");
             //Ermitteln der Position des aktuellen Songs und dahin scrollen, wenn nicht manuell gescrollt wurde
             if (SoVa.currentplaylistScrolled === false) {
-                SoDo.currentplaylistwrapper.scrollTop(0);
+                SoDo.currentplaylistwrapper.scrollTop = 0;
                 var ctop = contactTopPosition.position().top;
-                SoDo.currentplaylistwrapper.scrollTop(ctop - 30);
+                SoDo.currentplaylistwrapper.scrollTop = ctop - 30;
                 window.setTimeout("SoVa.currentplaylistScrolled = false;", 100);//Beim Scrollen wird das auf true gesetzt, daher wieder rückgänig machen.
             }
         }
@@ -676,37 +676,50 @@ function SonosZonesObject() {
         if (typeof player === "undefined") return;
         var plrating = player.RatingFilter;
         if (typeof plrating === "undefined") return;
-        SoDo.filterListRatingBar.removeClass("rating_bar_aktiv");
-        SoDo.filterListGelegenheitChilds.removeClass("selected");
-        SoDo.filterListGeschwindigkeitChilds.removeClass("selected");
-        SoDo.filterListStimmungChilds.removeClass("selected");
-        SoDo.filterListAlbumInterpretChilds.removeClass("selected");
-        var def = true;
-        if (SoDo.filterListRatingBarBomb.hasClass("rating_bar_aktiv")) {
-            SoDo.filterListRatingBarBomb.removeClass("rating_bar_aktiv");
+        let frbar = SoDo.filterListRatingBar.querySelector(":scope > .rating_bar_aktiv");
+        if (frbar !== null) {
+            RemoveClass(frbar, "rating_bar_aktiv");
         }
+        let fgelegenheit = SoDo.filterListGelegenheit.querySelector(":scope > .selected");
+        if (fgelegenheit !== null) {
+            RemoveClass(fgelegenheit, SoVa.selected);
+        }
+        let fgeschwindigkeit = SoDo.filterListGeschwindigkeit.querySelector(":scope > .selected");
+        if (fgeschwindigkeit !== null) {
+            RemoveClass(fgeschwindigkeit, SoVa.selected);
+        }
+        let fstimmung = SoDo.filterListStimmung.querySelector(":scope > .selected");
+        if (fstimmung !== null) {
+            RemoveClass(fstimmung, SoVa.selected);
+        }
+        let falbum = SoDo.filterListAlbumInterpret.querySelector(":scope > .selected");
+        if (falbum !== null) {
+            RemoveClass(falbum, SoVa.selected);
+        }
+        var def = true;
+        RemoveClass(SoDo.filterListRatingBarBomb,"rating_bar_aktiv")
         if (plrating.rating > -2) {
             if (plrating.rating === -1) {
-                SoDo.filterListRatingBarBomb.addClass("rating_bar_aktiv");
+                AddClass(SoDo.filterListRatingBarBomb, "rating_bar_aktiv")
             } else {
-                $("#filter_rating_bar_" + plrating.rating).addClass("rating_bar_aktiv");
+                AddClass(document.getElementById("filter_rating_bar_" + plrating.rating), "rating_bar_aktiv");
             }
             def = false;
         }
         if (plrating.stimmung !== 6) {
-            $("#Filterstimmung_" + plrating.stimmung).addClass("selected");
+            AddClass(document.getElementById("Filterstimmung_" + plrating.stimmung), SoVa.selected)
             def = false;
         }
         if (plrating.gelegenheit !== 5) {
-            $("#Filtergelegenheit_" + plrating.gelegenheit).addClass("selected");
+            AddClass(document.getElementById("Filtergelegenheit_" + plrating.gelegenheit), SoVa.selected)
             def = false;
         }
         if (plrating.geschwindigkeit !== 6) {
-            $("#Filtergeschwindigkeit_" + plrating.geschwindigkeit).addClass("selected");
+            AddClass(document.getElementById("Filtergeschwindigkeit_" + plrating.geschwindigkeit), SoVa.selected)
             def = false;
         }
         if (plrating.albpumInterpretFilter !== "unset") {
-            $("#AlbumArtist" + plrating.albpumInterpretFilter).addClass("selected");
+            AddClass(document.getElementById("AlbumArtist" + plrating.albpumInterpretFilter), SoVa.selected)
             def = false;
         }
         if (def === false) {
@@ -737,13 +750,16 @@ function SonosZonesObject() {
             if (typeof player !== "undefined" && !this.CheckStringIsNullOrEmpty(player.playerProperties.enqueuedTransportURI)) {
                 uri = player.playerProperties.enqueuedTransportURI;
             }
-            if (SoDo.playlistwrapper.children().length === 0 || override === true) {
+            if (!SoDo.playlistwrapper.hasChildNodes() || override === true) {
                 if (!IsVisible(SoDo.globalPlaylistLoader)) {
                     SetVisible(SoDo.globalPlaylistLoader)
                 }
-                $(".playlist").remove();
+                if (!SoDo.playlistwrapper.hasChildNodes()) {
+                    SoDo.playlistwrapper.innerHTML = "";
+                }
                 if (this.AllPlaylists.length === 0) return;
-                $.each(this.AllPlaylists, function (i, item) {
+                let domlelemts = "";
+                this.AllPlaylists.forEach(function (item, i) { 
                     var playlisttype;
                     var acclass = "";
                     if (item.description === "M3U") {
@@ -754,9 +770,23 @@ function SonosZonesObject() {
                     if (item.uri === uri) {
                         acclass = SoVa.aktiv;
                     }
-                    //Wiedergabeliste befüllen
-                    $('<div id="Playlist_' + i + '" class="playlist ' + playlisttype + ' ' + acclass + '"><div onclick="SonosZones.ReplacePlaylist(' + i + ');">' + item.title + '</DIV></div>').appendTo(SoDo.playlistwrapper);
+                    domlelemts += '<div id="Playlist_' + i + '" class="playlist ' + playlisttype + ' ' + acclass + '"><div onclick="SonosZones.ReplacePlaylist(' + i + ');">' + item.title + '</DIV></div>';
                 });
+                SoDo.playlistwrapper.innerHTML = domlelemts;
+                //$.each(this.AllPlaylists, function (i, item) {
+                //    var playlisttype;
+                //    var acclass = "";
+                //    if (item.description === "M3U") {
+                //        playlisttype = "m3u";
+                //    } else {
+                //        playlisttype = "sonos";
+                //    }
+                //    if (item.uri === uri) {
+                //        acclass = SoVa.aktiv;
+                //    }
+                //    //Wiedergabeliste befüllen
+                //    $('<div id="Playlist_' + i + '" class="playlist ' + playlisttype + ' ' + acclass + '"><div onclick="SonosZones.ReplacePlaylist(' + i + ');">' + item.title + '</DIV></div>').appendTo(SoDo.playlistwrapper);
+                //});
                 if (IsVisible(SoDo.globalPlaylistLoader)) {
                     SetHide(SoDo.globalPlaylistLoader)
                 }

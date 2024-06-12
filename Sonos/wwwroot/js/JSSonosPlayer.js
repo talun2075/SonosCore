@@ -176,7 +176,7 @@ function SonosPlayer(_uuid, _name,_swgen) {
             }
         };
         this.CheckRatingFilter = function (s) {
-            //
+            //todo. wird irgendwo benutzt?
         };
         this.ChangeRatingFilter = function (typ, wert) {
             try {
@@ -278,7 +278,7 @@ function SonosPlayer(_uuid, _name,_swgen) {
                 return;
             }
             //CurrentRatingBox
-            if (SoDo.ratingListBox.is(":visible")) {
+            if (IsVisible(SoDo.ratingListBox)) {
                 ShowCurrentRating();
             }
             
@@ -555,6 +555,7 @@ function SonosPlayer(_uuid, _name,_swgen) {
                     return;
                 }
                 var pl = t.playerProperties.playlist.playListItems;
+                let plvalue =""
                 for (var i = 0; i < pl.length; i++) {
                     var songcover = '';
                     var item = pl[i];
@@ -565,9 +566,10 @@ function SonosPlayer(_uuid, _name,_swgen) {
                                 songcover = 'http://' + t.playerProperties.baseUrl + item.albumArtURI;
                             }
                         }
-                        $('<div id="Currentplaylist_' + (i) + '" class="currentplaylist"><DIV class="currentrackinplaylist" onclick="ShowSongInfos(this)">' + item.title.replace("</","&#x3C;/") + '</div><DIV class="curpopdown"><DIV class="playlistcover" data-url="' + songcover + '" data-uri="' + item.uri + '" data-plid="' + item.itemID + '"></DIV><DIV class="playlistplaysmall" onclick="PlayPressSmall(this)"></DIV><DIV class="mediabuttonsmal" onclick="RemoveFromPlaylist(this);return false;"><img src="Images/erase_red.png"></DIV><div class="bomb" onclick="ShowPlaylistRating(this)"><img src="/images/bombe.png" alt="playlistbomb"/></DIV><DIV onclick="ShowPlaylistRating(this)" class="rating_bar" style="margin-top: 14px;" Style="float:left;"><DIV style="width:0%;"></DIV></DIV><div OnMouseOver="MakeCurrentPlaylistSortable()" OnTouchStart="MakeCurrentPlaylistSortable()" OnTouchEnd="ResortPlaylistDisable()" OnMouseOut="ResortPlaylistDisable()" class="moveCurrentPlaylistTrack"></div><DIV class ="addFavItemPlaylist" onclick="AddFavItem(this,\'playlist\');"></DIV></DIV></div>').appendTo(SoDo.currentplaylistwrapper);
+                        plvalue += '<div id="Currentplaylist_' + (i) + '" class="currentplaylist"><DIV class="currentrackinplaylist" onclick="ShowSongInfos(this)">' + item.title.replace("</", "&#x3C;/") + '</div><DIV class="curpopdown"><DIV class="playlistcover" data-url="' + songcover + '" data-uri="' + item.uri + '" data-plid="' + item.itemID + '"></DIV><DIV class="playlistplaysmall" onclick="PlayPressSmall(this)"></DIV><DIV class="mediabuttonsmal" onclick="RemoveFromPlaylist(this);return false;"><img src="Images/erase_red.png"></DIV><div class="bomb" onclick="ShowPlaylistRating(this)"><img src="/images/bombe.png" alt="playlistbomb"/></DIV><DIV onclick="ShowPlaylistRating(this)" class="rating_bar" style="margin-top: 14px;" Style="float:left;"><DIV style="width:0%;"></DIV></DIV><div OnMouseOver="MakeCurrentPlaylistSortable()" OnTouchStart="MakeCurrentPlaylistSortable()" OnTouchEnd="ResortPlaylistDisable()" OnMouseOut="ResortPlaylistDisable()" class="moveCurrentPlaylistTrack"></div><DIV class ="addFavItemPlaylist" onclick="AddFavItem(this,\'playlist\');"></DIV></DIV></div>';
                     }
                 }
+                SoDo.currentplaylistwrapper.innerHTML = plvalue
                 SetHide(SoDo.playlistLoader);
                 SoVa.currentplaylistScrolled = false;
                 SonosZones.RenderCurrentTrackinPlaylist(SonosZones.ActiveZoneUUID, SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.currentTrackNumber, "RenderPlaylistFromPlayer");

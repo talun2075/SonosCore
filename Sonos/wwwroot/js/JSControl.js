@@ -82,7 +82,7 @@ Dieser Parameter liefert alle Informationen zurück und wird für fast alle Func
 
 //Dokument Ready
 $(document).ready(function () {
-
+    return;
     //Polyfill IpadWand
     if (!String.prototype.startsWith) {
         String.prototype.startsWith = function (searchString, position) {
@@ -108,8 +108,8 @@ $(document).ready(function () {
         ShowPlaylistLyricCurrent();
     });
     //Changes für das Exportieren /Speichern von Playlisten festhalten
-    SoDo.saveExportPlaylistSwitch.on("change", function () {
-        var c = SoDo.saveExportPlaylistSwitch.prop("checked");
+    SoDo.saveExportPlaylistSwitch.addEventListener("change", function () {
+        var c = SoDo.saveExportPlaylistSwitch.checked;
         if (c) {
             SoDo.saveQueue.setAttribute("placeholder", SoVa.exportPlaylistInputText);
             SoVa.exportplaylist = true;
@@ -120,12 +120,12 @@ $(document).ready(function () {
     });
     //ScrollEvents
     //Prüfvariable wird gesetzt, wenn gescrollt wird. Manuelles Scrollen
-    SoDo.currentplaylistwrapper.on("scroll", function () {
+    SoDo.currentplaylistwrapper.addEventListener("scroll", function () {
         SoVa.currentplaylistScrolled = true;
     });
     //Prüfen ob nur noch current Ratings angezeigt werden soll.
-    SoDo.onlyCurrentSwitch.on("change", function () {
-        var c = SoDo.onlyCurrentSwitch.prop("checked");
+    SoDo.onlyCurrentSwitch.addEventListener("change", function () {
+        var c = SoDo.onlyCurrentSwitch.checked;
         if (c) {
             SoVa.ratingonlycurrent = true;
         } else {
@@ -137,8 +137,8 @@ $(document).ready(function () {
         UpdateMusicIndex();
     });
     //Ratingmine änderunbgen abfangen
-    SoDo.ratingMineSelector.on("change", function () {
-        SetRatingMine(SoDo.ratingMineSelector.find("option:selected").val());
+    SoDo.ratingMineSelector.addEventListener("change", function () {
+        SetRatingMine(SoDo.ratingMineSelector.value);
     });
     SoDo.filterListButton.addEventListener("click", function () {
         SonosWindows(SoDo.filterListBox);
@@ -162,7 +162,7 @@ $(document).ready(function () {
         //Curenttrack ändern, danach die Nummer Ändern und somit den Nexttrack rendern.
         if (SonosZones.CheckActiveZone()) {
             doit('Next');
-            if (SoVa.ratingonlycurrent === false && SoDo.ratingListBox.is(":visible")) {
+            if (SoVa.ratingonlycurrent === false && IsVisible(SoDo.ratingListBox)) {
                 SonosWindows(SoDo.ratingListBox, true);
             }
         }
@@ -175,7 +175,7 @@ $(document).ready(function () {
                 return false;
             }
             doit('Previous');
-            if (SoVa.ratingonlycurrent === false && SoDo.ratingListBox.is(":visible")) {
+            if (SoVa.ratingonlycurrent === false && IsVisible(SoDo.ratingListBox)) {
                 SonosWindows(SoDo.ratingListBox, true);
             }
             return true;
@@ -278,14 +278,208 @@ $(document).ready(function () {
     if (wroteDebugInfos === true) {
         SetVisible(SoDo.debug);
     }
-    $(SoDo.currentplaylistwrapper).scroll(function () {
-        //        console.log("St:" + $(SoDo.currentplaylistwrapper).scrollTop());
-        //        console.log("WraperHeight" + $(SoDo.currentplaylistwrapper).height());
-        if ($(SoDo.currentplaylistwrapper).scrollTop() === $(document).height() - $(SoDo.currentplaylistwrapper).height()) {
-            console.log("scrolling");
+    //$(SoDo.currentplaylistwrapper).scroll(function () {
+    //    //        console.log("St:" + $(SoDo.currentplaylistwrapper).scrollTop());
+    //    //        console.log("WraperHeight" + $(SoDo.currentplaylistwrapper).height());
+    //    if ($(SoDo.currentplaylistwrapper).scrollTop() === $(document).height() - $(SoDo.currentplaylistwrapper).height()) {
+    //        console.log("scrolling");
+    //    }
+    //});
+});     //ENDE DOK READY
+
+function InitSystem() {
+
+    //Polyfill IpadWand
+    if (!String.prototype.startsWith) {
+        String.prototype.startsWith = function (searchString, position) {
+            position = position || 0;
+            return this.indexOf(searchString, position) === position;
+        };
+    }
+
+    window.SoVa = new SonosVariablen();
+    window.SoDo = new SonosDOMObjects();
+    window.SonosZones = new SonosZonesObject();
+    window.addEventListener('beforeunload', function () {
+        //Close SSE on site leaving
+        if (typeof SoVa.SSE_Event_Source !== "undefined" && SoVa.SSE_Event_Source.readyState !== SoVa.SSE_Event_Source.CLOSE) {
+            SoVa.SSE_Event_Source.close();
         }
     });
-});     //ENDE DOK READY
+    LoadDevices();
+    SoDo.lyricButton.addEventListener("click", function () {
+        ShowPlaylistLyricCurrent();
+    });
+    //Changes für das Exportieren /Speichern von Playlisten festhalten
+    SoDo.saveExportPlaylistSwitch.addEventListener("change", function () {
+        var c = SoDo.saveExportPlaylistSwitch.checked;
+        if (c) {
+            SoDo.saveQueue.setAttribute("placeholder", SoVa.exportPlaylistInputText);
+            SoVa.exportplaylist = true;
+        } else {
+            SoDo.saveQueue.setAttribute("placeholder", SoVa.savePlaylistInputText);
+            SoVa.exportplaylist = false;
+        }
+    });
+    //ScrollEvents
+    //Prüfvariable wird gesetzt, wenn gescrollt wird. Manuelles Scrollen
+    SoDo.currentplaylistwrapper.addEventListener("scroll", function () {
+        SoVa.currentplaylistScrolled = true;
+    });
+    //Prüfen ob nur noch current Ratings angezeigt werden soll.
+    SoDo.onlyCurrentSwitch.addEventListener("change", function () {
+        var c = SoDo.onlyCurrentSwitch.checked;
+        if (c) {
+            SoVa.ratingonlycurrent = true;
+        } else {
+            SoVa.ratingonlycurrent = false;
+        }
+    });
+    //Initialisierung Musikindexaktualisierung
+    SoDo.musikIndex.addEventListener("click", function () {
+        UpdateMusicIndex();
+    });
+    //Ratingmine änderunbgen abfangen
+    SoDo.ratingMineSelector.addEventListener("change", function () {
+        SetRatingMine(SoDo.ratingMineSelector.value);
+    });
+    SoDo.filterListButton.addEventListener("click", function () {
+        SonosWindows(SoDo.filterListBox);
+    });
+    //Settingswurde gedrückt
+    SoDo.settingsbutton.addEventListener("click", function () {
+        SonosWindows(SoDo.settingsBox);
+        SoDo.settingsbutton.classList.toggle("akt");
+    });
+    //Settingswurde gedrückt
+    SoDo.settingsClosebutton.addEventListener("click", function () {
+        SonosWindows(SoDo.settingsBox, true);
+        SoDo.settingsbutton.classList.toggle("akt");
+    });
+    SoDo.BrowseClosebutton.addEventListener("click", function () {
+        BrowsePress();
+        console.log("ok");
+    });
+    //Events verarbeiten, wenn ein Button geklickt wurde.
+    SoDo.nextButton.addEventListener("click", function () {
+        //Curenttrack ändern, danach die Nummer Ändern und somit den Nexttrack rendern.
+        if (SonosZones.CheckActiveZone()) {
+            doit('Next');
+            if (SoVa.ratingonlycurrent === false && IsVisible(SoDo.ratingListBox)) {
+                SonosWindows(SoDo.ratingListBox, true);
+            }
+        }
+    });
+
+    SoDo.prevButton.addEventListener("click", function (evt) {
+        if (SonosZones.CheckActiveZone()) {
+            SoVa.currentplaylistScrolled = false;
+            if (SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.transportStateString !== "REPEAT_ALL" && SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.transportStateString !== "SHUFFLE" && SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.currentTrackNumber === 1) {
+                return false;
+            }
+            doit('Previous');
+            if (SoVa.ratingonlycurrent === false && IsVisible(SoDo.ratingListBox)) {
+                SonosWindows(SoDo.ratingListBox, true);
+            }
+            return true;
+        }
+        return true;
+    });
+
+    //Abspieldauerslider
+    SoDo.runtimeSlider.slider({
+        orientation: "horizontal",
+        range: "min",
+        min: 0,
+        max: 100,
+        value: 50,
+        stop: function (event, ui) {
+            doitValue("Seek", ui.value);
+
+        }, start: function () {
+        },
+        slide: function (event, ui) {
+            var sec_num = parseInt(ui.value, 10); // don't forget the second param
+            var hours = Math.floor(sec_num / 3600);
+            var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+            var seconds = sec_num - (hours * 3600) - (minutes * 60);
+
+            if (hours < 10) { hours = "0" + hours; }
+            if (minutes < 10) { minutes = "0" + minutes; }
+            if (seconds < 10) { seconds = "0" + seconds; }
+            var convertedstring = hours + ':' + minutes + ':' + seconds;
+            SoDo.runtimeRelTime.textContent = convertedstring;
+        }
+    });
+
+    //Lautstärkeregler initialisieren.
+    SoDo.volumeSlider.slider({
+        orientation: "vertical",
+        range: "min",
+        min: 1,
+        max: 100,
+        value: 1,
+        stop: function (event, ui) {
+            //Prüfen, ob die Läutstärke über 80% verändert wird. 
+            if (ui.value > SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume && ui.value - SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume > SoVa.volumeConfirmCounter) {
+                var answer = confirm("Du willst die Lautstärke um " + SoVa.volumeConfirmCounter + " von 100 Schritten erhöhen. Klicke Ok, wenn das gewollt ist");
+                if (!answer) {
+                    SoDo.labelVolume.textContent = SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume;
+                    SoDo.volumeSlider.slider({ value: SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume });
+                    return false;
+                }
+            }
+            SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume = ui.value;
+            SetGroupVolumeDevice(SonosZones.ActiveZoneUUID, ui.value);
+            return true;
+        },
+        slide: function (event, ui) {
+            SoDo.labelVolume.textContent = ui.value;
+        }
+    });
+    //Autovervollständigung
+    SoDo.saveQueue.addEventListener("keyup", function (e) {
+        try {
+            // 'enter' key was pressed
+            var suggest = SoDo.suggestionInput;
+            var code = e.keyCode ? e.keyCode : e.which;
+            if (code === 13) {
+                SoDo.saveQueue.value = suggest.value;
+                suggest.value = "";
+                return false;
+            }
+
+            // some other key was pressed
+            var needle = SoDo.saveQueue.value;
+
+            // is the field empty?
+            if ((needle.trim()).length < 1) {
+                suggest.value = "";
+                return false;
+            }
+            var foundeplaylist;
+            var foundeplaylist;
+            SonosZones.AllPlaylists.forEach(function (item) {
+                if (item.title.toLowerCase().startsWith(needle.toLowerCase())) {
+                    foundeplaylist = item;
+                    return;
+                }
+            });
+            if (typeof foundeplaylist !== "undefined") {
+                suggest.value = foundeplaylist.title;
+            } else {
+                suggest.value = "";
+            }
+            return true;
+        }
+        catch (Ex) {
+            alert("Es ist ein Fehler beim SoDo.saveQueue.keyup aufgetreten:<br>" + Ex.message);
+        }
+    });
+    if (wroteDebugInfos === true) {
+        SetVisible(SoDo.debug);
+    }
+} //Ende Init
 
 function RepairActiveZone() {
     SonosAjax("FillPlayerPropertiesDefaults", "", SonosZones.ActiveZoneUUID, true);
@@ -445,10 +639,10 @@ function SetDevice(dev) {
     try {
         SonosWindows(SoDo.multiVolume, true);
         SonosWindows(SoDo.ratingListBox, true);
-        SoDo.onlyCurrentSwitch.prop("checked", false);
+        SoDo.onlyCurrentSwitch.checked = false;
         SoVa.ratingonlycurrent = false;
-        SoDo.devicesWrapper.children("DIV").children("DIV").removeClass("akt_device");
-        $("#" + dev).addClass("akt_device");
+        RemoveClass(SoDo.devicesWrapper.querySelector('.akt_device'),"akt_device")
+        AddClass(document.getElementById(dev), "akt_device");
         SonosZones.RenderActiveZone(dev);
     }
     catch (Ex) {
@@ -863,11 +1057,17 @@ function SetHide(DomElement) {
 
 };//done
 function AddClass(DOMElement, cssClass) {
+    if (cssClass === undefined) {
+        alert("Bei AddClass wurde keine Klasse für "+DOMElement.id+" mitgegeben.")
+    }
     if (!DOMElement.classList.contains(cssClass)) {
         DOMElement.classList.add(cssClass);
     }
 }
 function RemoveClass(DOMElement, cssClass) {
+    if (cssClass === undefined) {
+        alert("Bei RemoveClass wurde keine Klasse für " + DOMElement.id + " mitgegeben.")
+    }
     if (DOMElement.classList.contains(cssClass)) {
         DOMElement.classList.remove(cssClass);
     }
@@ -888,20 +1088,20 @@ function MoveAktArtist() {
         RemoveClass(SoDo.cover, "moveright");
         SoDo.playlistCount.classList.remove("movedown");
     }
-    if (SoVa.ratingonlycurrent === true && hivi === false && SoDo.ratingListBox.is(":hidden")) {
+    if (SoVa.ratingonlycurrent === true && hivi === false && !IsVisible(SoDo.ratingListBox)) {
         AddClass(SoDo.aktSongInfo, "moveright")
         AddClass(SoDo.cover, "moveright");
         SoDo.playlistCount.classList.add("movedown");
     }
-    if (SoVa.ratingonlycurrent === true && hivi === true && SoDo.ratingListBox.is(":hidden")) {
+    if (SoVa.ratingonlycurrent === true && hivi === true && !IsVisible(SoDo.ratingListBox)) {
         RemoveClass(SoDo.aktSongInfo, "moveright")
         RemoveClass(SoDo.cover, "moveright");
         SoDo.playlistCount.classList.remove("movedown");
     }
-    if (SoVa.ratingonlycurrent === true && hivi === true && SoDo.ratingListBox.is(":visible")) {
+    if (SoVa.ratingonlycurrent === true && hivi === true && IsVisible(SoDo.ratingListBox)) {
         SoDo.playlistCount.classList.remove("movedown");
     }
-    if (SoVa.ratingonlycurrent === true && hivi === false && SoDo.ratingListBox.is(":visible")) {
+    if (SoVa.ratingonlycurrent === true && hivi === false && IsVisible(SoDo.ratingListBox)) {
         SoDo.playlistCount.classList.add("movedown");
     }
 };//done
@@ -935,7 +1135,8 @@ function GetIDfromCurrentPlaylist(k) {
 
 //Playlist Sortierbar machen
 function MakeCurrentPlaylistSortable() {
-    SoDo.currentplaylistwrapper.sortable({ disabled: false, axis: "y", placeholder: "currentplaylistplaceholder", stop: function (event, ui) { ResortPlaylist(ui); } });
+    //todo: Sortierbar machen
+    //SoDo.currentplaylistwrapper.sortable({ disabled: false, axis: "y", placeholder: "currentplaylistplaceholder", stop: function (event, ui) { ResortPlaylist(ui); } });
 }
 //Playlist wurde umsortiert und nun neu geschrieben.
 function ResortPlaylist(ui) {
@@ -962,7 +1163,8 @@ function ResortPlaylist(ui) {
 };//done
 //Sortierbarkeit deaktivieren.
 function ResortPlaylistDisable() {
-    SoDo.currentplaylistwrapper.sortable({ disabled: true });
+    //todo: Sortierbar machen
+    //SoDo.currentplaylistwrapper.sortable({ disabled: true });
 }
 
 function SetAudioIn() {
@@ -1008,28 +1210,34 @@ function ResetAll() {
 //Bewertung Mine
 function SetRatingMine(rmine) {
     SoVa.ratingMP3.bewertungMine = rmine;
-    SoDo.ratingMineSelector.val(rmine);
+    SoDo.ratingMineSelector.value =rmine;
 };//done
 //Geschwindigkeit
 function SetGeschwindigkeit(tempo) {
     SoVa.ratingMP3.geschwindigkeit = tempo;
-    SoDo.geschwindigkeitChildren.removeClass("selected");
-    $("#geschwindigkeit_" + tempo).addClass("selected");
+    let speedselected = SoDo.geschwindigkeit.querySelector(":scope > .selected");
+    if (speedselected !== null) {
+        RemoveClass(speedselected, SoVa.selected);
+    }
+    AddClass(document.getElementById("geschwindigkeit_" + tempo), SoVa.selected);
+
 };//done
 //Stimmung setzen
 function SetStimmung(stimmung) {
     SoVa.ratingMP3.stimmung = stimmung;
-    SoDo.stimmungenChildren.removeClass("selected");
-    $("#stimmung_" + stimmung).addClass("selected");
+    let stimmungselected = SoDo.stimmungen.querySelector(":scope > .selected");
+    if (stimmungselected !== null) {
+        RemoveClass(stimmungselected, SoVa.selected);
+    }
+    AddClass(document.getElementById("stimmung_" + stimmung), SoVa.selected);
 };//done
 //Aufwecken setzten
 function SetRatingAufwecken(aufwecken) {
-    SoDo.aufweckenSwitch.prop("checked", aufwecken);
+    SoDo.aufweckenSwitch.checked = aufwecken;
 };//done
 //Interpretenplaylist setzten
 function SetRatingArtistpl(arpl) {
-    console.log(arpl);
-    SoDo.artistplSwitch.prop("checked", arpl);
+    SoDo.artistplSwitch.checked = arpl;
 };//done
 //Wird aus der Ratinglistaufgerufen um entsprechend das Layout zu definieren.
 function ChangeRating(v, c) {
@@ -1037,21 +1245,26 @@ function ChangeRating(v, c) {
         SetRatingArtistpl(true);
     }
     SoVa.ratingMP3.bewertung = v;
-    
-    $(SoDo.ratingListRatingBar).removeClass("rating_bar_aktiv");
-    SoDo.ratingBomb.removeClass("rating_bar_aktiv");
+    let currentRating = SoDo.ratingListBox.querySelector(":scope > .rating_bar_aktiv");
+    if (currentRating !== null) {
+        RemoveClass(currentRating, "rating_bar_aktiv");
+    }
+    RemoveClass(SoDo.ratingBomb,"rating_bar_aktiv");
     if (v === -1) {
         //Bombe
-        SoDo.ratingBomb.addClass("rating_bar_aktiv");
+        AddClass(SoDo.ratingBomb, "rating_bar_aktiv");
     } else {
-        $("#rating_id_" + v).addClass("rating_bar_aktiv");
+        AddClass(document.getElementById("rating_id_" + v), "rating_bar_aktiv");
     }
 };//done
 //Gelegenheit in das Data beim Rating schreiben
 function SetSituation(situation) {
     SoVa.ratingMP3.gelegenheit = situation;
-    SoDo.gelegenheitenChildren.removeClass("selected");
-    $("#gelegenheit_" + situation).addClass("selected");
+    let gelselected = SoDo.gelegenheiten.querySelector(":scope > .selected");
+    if (gelselected !== null) {
+        RemoveClass(gelselected, SoVa.selected);
+    }
+    AddClass(document.getElementById("gelegenheit_" + situation), SoVa.selected);
 };//done
 //Ratinglist vorbereiten von Songs aus der Wiedergabeliste
 function ShowPlaylistRating(t) {
@@ -1060,13 +1273,13 @@ function ShowPlaylistRating(t) {
         return;
     }
     SonosWindows(SoDo.ratingListBox, false, { overlay: true, selecteddivs: [SoDo.nextButton, SoDo.playButton, SoDo.muteButton] });
-    if (SoDo.ratingListBox.is(":hidden")) {
+    if (!IsVisible(SoDo.ratingListBox)) {
         return;
     }
     var domob = $(t);
     var plid = GetIDfromCurrentPlaylist(domob.parent().parent().attr("id"));
-    SoDo.ratingListBox.attr("data-type", "playlist");
-    SoDo.ratingListBox.attr("data-playlistid", plid);
+    SoDo.ratingListBox.dataset.type ="playlist";
+    SoDo.ratingListBox.dataset.playlistid = plid;
     SoVa.ratingMP3.FillFromMP3(SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.playlist.playListItems[plid].mP3);
     SetSituation(SoVa.ratingMP3.gelegenheit);
     SetGeschwindigkeit(SoVa.ratingMP3.geschwindigkeit);
@@ -1081,30 +1294,31 @@ function ShowCurrentRating(t) {
     //Bei Streaming immer schließen und Return;
     var player = SonosPlayers[SonosZones.ActiveZoneUUID];
     if (player.playerProperties.currentTrack.stream === true) {
-        if (SoDo.ratingListBox.is(":visible")) {
+        if (IsVisible(SoDo.ratingListBox)) {
             SonosWindows(SoDo.ratingListBox, true);
         }
         return;
     }
+    //todo: bei currentonly wird beim liedwechsel das rating geschlossen.
     //Wenn nur current angezeigt werden soll, dann nicht schließen. 
     if (SoVa.ratingonlycurrent === true && t !== "hide") {
-        if (!SoDo.ratingListBox.is(":visible")) {
+        if (!IsVisible(SoDo.ratingListBox)) {
             SonosWindows(SoDo.ratingListBox);
         }
         //Verschieben des Titels.
-        AddClass(SoDo.aktSongInfo, "moveleft")
-        SoDo.playlistCount.addClass("moveleft");
+        AddClass(SoDo.aktSongInfo, SoVa.moveLeft)
+        AddClass(SoDo.playlistCount,SoVa.moveLeft);
     }
     if (SoVa.ratingonlycurrent === true && t === "hide") {
         SonosWindows(SoDo.ratingListBox);
         MoveAktArtist();
-        RemoveClass(SoDo.aktSongInfo, "moveleft")
-        SoDo.playlistCount.removeClass("moveleft");
+        RemoveClass(SoDo.aktSongInfo, SoVa.moveLeft)
+        SoDo.playlistCount.removeClass(SoVa.moveLeft);
         SoVa.ratingMP3 = new MP3();
         return;
     }
     if (SoVa.ratingonlycurrent === false) {
-        if (!SoDo.ratingListBox.is(":visible")) {
+        if (!IsVisible(SoDo.ratingListBox)) {
             SonosWindows(SoDo.ratingListBox, false, { overlay: true, selecteddivs: [SoDo.nextButton, SoDo.playButton, SoDo.muteButton] });
         } else {
             SonosWindows(SoDo.ratingListBox);
@@ -1115,8 +1329,8 @@ function ShowCurrentRating(t) {
             return;
         }
     }
-    SoDo.ratingListBox.attr("data-type", "current");
-    SoDo.ratingListBox.attr("data-playlistid", player.playerProperties.currentTrackNumber - 1);
+    SoDo.ratingListBox.dataset.type ="current";
+    SoDo.ratingListBox.dataset.playlistid = (player.playerProperties.currentTrackNumber - 1);
     SoVa.ratingMP3.FillFromMP3(player.playerProperties.currentTrack.mP3);
     SetSituation(SoVa.ratingMP3.gelegenheit);
     SetGeschwindigkeit(SoVa.ratingMP3.geschwindigkeit);
@@ -1136,8 +1350,8 @@ function SetRatingFilter(type, v) {
 };//done
 //Das Rating und Gelegenheiten für einen Song setzen
 function SetRatingLyric() {
-    var pid = parseInt(SoDo.ratingListBox.attr("data-playlistid"));
-    var datatype = SoDo.ratingListBox.attr("data-type");
+    var pid = parseInt(SoDo.ratingListBox.dataset.playlistid);
+    var datatype = SoDo.ratingListBox.dataset.type;
     var mp3 = {};
     if (!isNaN(pid) && datatype !== "current") {
         //hier nun den Song aus der Playlist nehmen
@@ -1149,11 +1363,11 @@ function SetRatingLyric() {
         mp3.tracknumber = SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.currentTrackNumber - 1;
     }
     SoVa.ratingMP3.FillServerMP3fromThis(mp3);
-    mp3.aufwecken = SoDo.aufweckenSwitch.prop("checked");
-    mp3.artistPlaylist = SoDo.artistplSwitch.prop("checked");
+    mp3.aufwecken = SoDo.aufweckenSwitch.checked;
+    mp3.artistPlaylist = SoDo.artistplSwitch.checked;
     SonosAjax("SetSongMeta", mp3).done(function () {
         var player = SonosPlayers[SonosZones.ActiveZoneUUID];
-        if (SoDo.ratingListBox.attr("data-type") === "current") {
+        if (SoDo.ratingListBox.dataset.type === "current") {
             player.playerProperties.currentTrack.mP3 = mp3;
             player.RenderCurrentTrack();
         }
@@ -1187,7 +1401,8 @@ function SetRatingLyric() {
         } else {
             ShowCurrentRating("blub");
         }
-        SoDo.ratingCheck.show().hide(2000);
+        SetVisible(SoDo.ratingCheck)
+        setTimeout("SetHide(SoDo.ratingCheck)", 2000);
     })
         .fail(function (jqXHR) {
             if (jqXHR.statusText === "Internal Server Error") {
@@ -1604,8 +1819,12 @@ function SetSleepModeState() {
 }
 function ToggleCurrentPlaylist() {
     //Currentplaylist
-    SoDo.currentplaylist.toggleClass("active");
-    SoDo.currentplaylistclose.toggle();
+    SoDo.currentplaylist.classList.toggle("active");
+    if (IsVisible(SoDo.currentplaylistclose)) {
+        SetHide(SoDo.currentplaylistclose);
+    } else {
+        SetVisible(SoDo.currentplaylistclose);
+    }
 };//done
 
 

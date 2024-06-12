@@ -76,8 +76,8 @@
                 <div id="onoffswitchWrapper">
                     Exportieren:
                     <div class="onoffswitch">
-                        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" />
-                        <label class="onoffswitch-label" for="myonoffswitch">
+                        <input type="checkbox" name="Myonoffswitch" class="onoffswitch-checkbox" id="Myonoffswitch" />
+                        <label class="onoffswitch-label" for="Myonoffswitch">
                             <div class="onoffswitch-inner"></div>
                             <div class="onoffswitch-switch"></div>
                         </label>
@@ -86,8 +86,8 @@
                 <div id="curonoffswitchWrapper">
                     Nur Currentrating:
                     <div class="curonoffswitch">
-                        <input type="checkbox" name="curonoffswitch" class="curonoffswitch-checkbox" id="curmyonoffswitch" />
-                        <label class="curonoffswitch-label" for="curmyonoffswitch">
+                        <input type="checkbox" name="Curmyonoffswitch" class="curonoffswitch-checkbox" id="Curmyonoffswitch" />
+                        <label class="curonoffswitch-label" for="Curmyonoffswitch">
                             <div class="curonoffswitch-inner"></div>
                             <div class="curonoffswitch-switch"></div>
                         </label>
@@ -177,21 +177,21 @@
                 <div id="stimmung_4" onclick="SetStimmung(4);return false;"></div>
                 <div id="stimmung_5" onclick="SetStimmung(5);return false;"></div>
             </div>
-            <div id="aufweckenonoffswitchWrapper">
+            <div id="AufweckenonoffswitchWrapper">
                 Aufwecken:
                 <div class="aufweckenonoffswitch">
-                    <input type="checkbox" name="aufweckenonoffswitch" class="aufweckenonoffswitch-checkbox" id="aufweckenmyonoffswitch" />
-                    <label class="aufweckenonoffswitch-label" for="aufweckenmyonoffswitch">
+                    <input type="checkbox" name="Aufweckenonoffswitch" class="aufweckenonoffswitch-checkbox" id="Aufweckenmyonoffswitch" />
+                    <label class="aufweckenonoffswitch-label" for="Aufweckenmyonoffswitch">
                         <div class="aufweckenonoffswitch-inner"></div>
                         <div class="aufweckenonoffswitch-switch"></div>
                     </label>
                 </div>
             </div><br>
-            <div id="artistplaylistonoffswitchWrapper">
+            <div id="ArtistplaylistonoffswitchWrapper">
                 Artist-Playlist:
                 <div class="artistplaylistonoffswitch">
-                    <input type="checkbox" name="artistplaylistonoffswitch" class="artistplaylistonoffswitch-checkbox" id="artistplaylistmyonoffswitch" />
-                    <label class="artistplaylistonoffswitch-label" for="artistplaylistmyonoffswitch">
+                    <input type="checkbox" name="Artistplaylistmyonoffswitch" class="artistplaylistonoffswitch-checkbox" id="Artistplaylistmyonoffswitch" />
+                    <label class="artistplaylistonoffswitch-label" for="Artistplaylistmyonoffswitch">
                         <div class="artistplaylistonoffswitch-inner"></div>
                         <div class="artistplaylistonoffswitch-switch"></div>
                     </label>
@@ -200,7 +200,7 @@
             <div id="RatingMine">
                 Rating Mine: <select id="RatingMineSelector"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select>
             </div>
-            <div class="rating_bar_bomb" id="rating_id_bomb" onclick="ChangeRating(-1,true)">
+            <div class="rating_bar_bomb" id="Rating_id_bomb" onclick="ChangeRating(-1,true)">
                 <img src="/images/bombe.png" alt="RatingBomb" />
             </div>
 
@@ -330,6 +330,9 @@
     <div id="test" onclick="RepairActiveZone();" style="display: none; background-color: white; top: 220px; position: absolute; left: 70px; z-index: 999;">Repair</div>
     <div id="StatusInformationen" style="display: none; background-color: white; top: 220px; position: absolute; left: 70px; z-index: 999;"></div>
 </body>
+<script type="text/javascript">
+    InitSystem();    
+</script>
 </html>
 
 
