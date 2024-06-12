@@ -124,7 +124,7 @@ function SonosDOMObjects() {
     this.runtimeCurrentSong = document.getElementById("CurrentSongRuntime"); //Box mit der Laufzeit
     this.runtimeRelTime = document.getElementById("CurrentSongRuntimeRelTime"); // Abgelaufene Zeit
     this.runtimeDuration = document.getElementById("CurrentSongRuntimeDuration"); //Gesamtzeit
-    this.runtimeSlider = document.getElementById("PlaylistSlider"); //Slider für die Laufzeit
+    this.runtimeSlider = document.getElementById("PlayRuntimeSlider"); //Slider für die Laufzeit
     this.saveExportPlaylistSwitch = document.getElementById("Myonoffswitch"); //Schalter der definiert ob Playlisten Exportiert oder gespeichert werden sollen.
     this.saveQueue = document.getElementById("SaveQueue"); //Inputfeld mit dem Namen der Wiedergabeliste
     this.saveQueueLoader = document.getElementById("SaveQueueLoader"); //Animation, wenn Playlist gespeichert bzw. exportiert werden soll.
@@ -140,7 +140,7 @@ function SonosDOMObjects() {
     this.sleepModeState = document.getElementById("SleepModeState"); //Text mit dem Status
     this.suggestionInput = document.getElementById("Suggestion"); //Enthält das Inputfeld, welches den Namen der zu speichernden/exportierenden Playlist enthält
     this.stimmungen = document.getElementById("Stimmungendiv"); //Stimmungs DIV Kinder Elemente
-    this.volumeSlider = $("#Volume");//Slider mit der Lautstärke
+    this.volumeSlider = document.getElementById("Volume");//Slider mit der Lautstärke
     this.debug = document.getElementById("Debug");//Debug Button
 }
 //} Variablen Verarbeitung

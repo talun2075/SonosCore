@@ -75,7 +75,7 @@ function SonosZonesObject() {
                             playinternal = "Pause";
                         }
                         var image = '<img class="deviceIcon" src="' + SonosPlayers[p].playerProperties.icon + '">';
-                        SoDo.devicesWrapper.innerHTML += '<div class="groupdevicewrapper"><div id="' + SonosPlayers[p].uuid + '" class="device' + aktdev + '" onclick="SetDevice(\'' + uuid + '\');"><p>' + image + SonosPlayers[uuid].name + '</p>' + SonosZones.GetCordinatedPlayerasStringFormat(zone) + '</div><img id="deviceplayinggif_' + uuid + '" class="deviceplayinggif" ' + playstateimg + ' src="/images/playing.gif"><div id="GroupDevice_' + uuid + '" onclick="SetDeviceGroupFor(\'' + uuid + '\')" class="groupdeviceclass">&nbsp;&nbsp;Gruppe&nbsp;(' + SonosPlayers[uuid].SoftwareGeneration + ')&nbsp;</div><div class="groupdeviceclass groupdeviceclassplay ' + playclass + '" onclick="SonosPlayers[\'' + uuid + '\'].SendTransportState(\'' + playinternal + '\');" id="' + uuid + '_GroupPlayState"></div></div>';
+                        SoDo.devicesWrapper.innerHTML += '<div class="groupdevicewrapper"><div id="' + SonosPlayers[p].uuid + '" class="device' + aktdev + '" onclick="SetDevice(\'' + uuid + '\');"><p>' + image + SonosPlayers[uuid].name + '</p>' + SonosZones.GetCordinatedPlayerasStringFormat(zone) + '</div><img id="deviceplayinggif_' + uuid + '" class="deviceplayinggif" ' + playstateimg + ' src="/images/playing.gif"><div id="GroupDevice_' + uuid + '" onclick="SetDeviceGroupFor(\'' + uuid + '\')" class="groupdeviceclass">&nbsp;&nbsp;Gruppe&nbsp;&nbsp;</div><div class="groupdeviceclass groupdeviceclassplay ' + playclass + '" onclick="SonosPlayers[\'' + uuid + '\'].SendTransportState(\'' + playinternal + '\');" id="' + uuid + '_GroupPlayState"></div></div>';
                         zcounter++;
                     }
                 }
@@ -483,9 +483,9 @@ function SonosZonesObject() {
             });
             return;
         }
-        var val = SoDo.volumeSlider.slider("value");
+        var val = SoDo.volumeSlider.value;
         if (player.playerProperties.groupRenderingControl_GroupVolume !== val) {
-            SoDo.volumeSlider.slider({ value: player.playerProperties.groupRenderingControl_GroupVolume });
+            SoDo.volumeSlider.value =player.playerProperties.groupRenderingControl_GroupVolume;
         }
         var htmlval = parseInt(SoDo.labelVolume.textContent);
         if (isNaN(htmlval) || htmlval !== player.playerProperties.groupRenderingControl_GroupVolume) {

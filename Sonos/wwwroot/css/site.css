@@ -981,15 +981,14 @@ a {
     max-width: 470px;
 }
 
-#PlaylistSliderWrapper {
+#PlayRuntimeSliderWrapper {
     position: absolute;
     left: 25px;
     bottom: 10px;
-    /*width: 960px;*/
     width: calc(100% - 50px);
 }
-#PlaylistSlider{
-    width:100%;
+#PlayRuntimeSlider {
+    width: 100%;
 }
 
 #Volume {
@@ -997,6 +996,7 @@ a {
     left: 85px;
     top: 260px;
     height: 250px;
+    writing-mode: sideways-lr;
 }
 
 #MultiVolume {
@@ -1423,7 +1423,7 @@ a {
     overflow: auto;
     -webkit-overflow-scrolling: touch;
     height: 100%;
-    max-height: calc(100% - 25px);
+    max-height: calc(100% - 35px);
 }
 
 #BrowsePlaylist {

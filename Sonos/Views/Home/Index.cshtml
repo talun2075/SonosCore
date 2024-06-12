@@ -58,10 +58,6 @@
             <div id="Browseboxwrapper"></div>
         </div>
         <div id="Lyric" class="mediabuttonring"></div>
-        @*<div id="Lyricbox" class="arrow_box">
-            <div class="righttopclose" onclick="ShowPlaylistLyricCurrent();">X</div>
-            <div id="Lyricboxwrapper"></div>
-        </div>*@
         <div id="Settings" class="mediabuttonring"></div>
         <div id="Settingsbox" class="box_settings">
             <div id="Settingsclose">X</div>
@@ -108,11 +104,11 @@
             <div id="Aktartist" onClick="ShowCurrentSongMeta()" class="akt"></div>
         </div>
         <div id="AudioIn" class="mediabutton" onclick="SetAudioIn();"></div>
-        <div id="PlaylistSliderWrapper"><input type="range" min="0" max="100" value="50" step="1" class="slider" id="PlaylistSlider" name="PlaylistSlider"></div>
+        <div id="PlayRuntimeSliderWrapper"><input type="range" min="0" max="100" value="50" step="1" class="slider" id="PlayRuntimeSlider" name="PlayRuntimeSlider"></div>
 
         <div id="Volumedown" class="mediabuttonring" onclick="SetVolume(0);"></div>
         <div id="Volumeup" class="mediabuttonring" onclick="SetVolume(1);"></div>
-        <div id="Volume"></div><label for="Volume" id="LabelVolume"></label>
+        <div id="VolumeWrapper"><input type="range" min="0" max="100" value="50" step="1" class="slider" id="Volume" name="Volume"></div><label for="VolumeWrapper" id="LabelVolume"></label>
         <div id="SleepModeButton" class="mediabuttonring" onclick="ShowSleepMode();"></div>
         <div id="SleepMode">
             <div id="SleepModeWrapper">
