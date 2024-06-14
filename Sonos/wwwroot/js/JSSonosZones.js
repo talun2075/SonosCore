@@ -297,22 +297,16 @@ function SonosZonesObject() {
         }
         if (player.uuid !== player.playerProperties.localGroupUUID) return;
         //Playlist
-        if ($(".currentplaylist").length > 0) {
+        if (SoDo.currentplaylistwrapper.hasChildNodes()) {
             var apsnumber = SonosPlayers[uuid].playerProperties.currentTrackNumber - 1;
-            var curr = $("#Currentplaylist_" + apsnumber + " > .curpopdown > .playlistplaysmall");
+            
+            var curr = document.getElementById("Currentplaylist_" + apsnumber).lastChild.querySelector(":scope > .playlistplaysmall");
             if (value === "PLAYING") {
-                if (!curr.hasClass("akt")) {
-                    $("#Currentplaylist_" + apsnumber + " > .curpopdown > .playlistplaysmall").addClass("akt");
-                }
+                AddClass(curr, "akt");
             } else {
-                if (curr.hasClass("akt")) {
-                    $("#Currentplaylist_" + apsnumber + " > .curpopdown > .playlistplaysmall").removeClass("akt");
-                }
+                    RemoveClass(curr, "akt");
             }
         }
-        //if (value === "PLAYING") {
-        //    $("#Currentplaylist_" + (apsnumber - 1) + " > .curpopdown > .playlistplaysmall").addClass("akt");
-        //}
         //Großer Playbuttom
         if (uuid === this.ActiveZoneUUID) {
             if (value === "PLAYING") {
@@ -328,25 +322,20 @@ function SonosZonesObject() {
         if (typeof SonosPlayers[uuid] === "undefined") return;
         var value = SonosPlayers[uuid].playerProperties.transportStateString;
         var op = 0;
-        var button = $("#" + uuid + "_GroupPlayState");
+        var button = document.getElementById(uuid + "_GroupPlayState");
         //var  = "Play";
         var playinternal = "PLAYING";
         if (value === "PLAYING") {
             op = 1; //Playstate anzeigen
             //playtext = "Pause";
             playinternal = "PAUSED_PLAYBACK";
-            if (!button.hasClass("active")) {
-                button.addClass("active");
-            }
+            AddClass(button, "active");
         } else {
-            if (button.hasClass("active")) {
-                button.removeClass("active");
-            }
+            RemoveClass(button, "active");
         }
-
         //Device Play
-        $("#" + uuid).next('img').css("opacity", op);
-        button.attr("onClick", "SonosPlayers['" + uuid + "'].SendTransportState('" + playinternal + "')");
+        document.getElementById(uuid).nextElementSibling.style.opacity = op
+        button.setAttribute("onClick", "SonosPlayers['" + uuid + "'].SendTransportState('" + playinternal + "')");
     }
     this.RenderMute = function (uuid) {
         var player = SonosPlayers[uuid];
@@ -358,14 +347,12 @@ function SonosZonesObject() {
                 RemoveClass(SoDo.muteButton, SoVa.aktiv);
             }
         }
-        var multivolmute = $("#MultiVolumeMute_" + uuid);
-        if (multivolmute.length === 1) {
+        var multivolmute = document.getElementById("MultiVolumeMute_" + uuid);
+        if (multivolmute !== null) {
             if (player.playerProperties.mute === true) {
-                if (!multivolmute.hasClass(SoVa.aktiv))
-                    multivolmute.addClass(SoVa.aktiv);
+                    AddClass(multivolmute, SoVa.aktiv);
             } else {
-                if (multivolmute.hasClass(SoVa.aktiv))
-                    multivolmute.removeClass(SoVa.aktiv);
+                RemoveClass(multivolmute, SoVa.aktiv);
             }
         }
     };//done
@@ -491,20 +478,26 @@ function SonosZonesObject() {
         if (isNaN(htmlval) || htmlval !== player.playerProperties.groupRenderingControl_GroupVolume) {
             SoDo.labelVolume.textContent = player.playerProperties.groupRenderingControl_GroupVolume;
         }
-        var oldValue = $("#MultivolumesliderAll").slider("value");
+        var oldValue = SoDo.sliderall.value;
         var gvol = player.playerProperties.groupRenderingControl_GroupVolume;
         if (!isNaN(oldValue) && oldValue !== gvol) {
-            $("#MultivolumesliderAll").slider({ value: gvol });
-            $("#MultivolumeAllNumber").html(gvol);
+            if (SoDo.sliderall !== "") {
+                SoDo.sliderall.value = gvol;
+            }
+            let man = document.getElementById("MultivolumeAllNumber");
+            if (man !== null) {
+                man.textContent = gvol;
+            }
         }
         //MultiVolume falls schon irgendwie vorhanden war
         player.playerProperties.zoneGroupTopology_ZonePlayerUUIDsInGroup.forEach(function (element) {
-            oldValue = $("#Multivolumeslider_" + element).slider("value");
-            if (typeof SonosPlayers[element] !== "undefined") {
+            let mvs = document.getElementById("Multivolumeslider_" + element);
+            if (typeof SonosPlayers[element] !== "undefined" && mvs !== null) {
+                let noldValue = mvs.value;
                 var vol = SonosPlayers[element].playerProperties.volume;
-                if (!isNaN(oldValue) && oldValue !== vol) {
-                    $("#Multivolumeslider_" + element).slider({ value: vol });
-                    $("#MultivolumesliderVolumeNumber_" + element).html(vol);
+                if (!isNaN(noldValue) && noldValue !== vol) {
+                    mvs.value = vol;
+                    document.getElementById("MultivolumesliderVolumeNumber_" + element).textContent = vol;
                 }
             }
         });
@@ -517,8 +510,8 @@ function SonosZonesObject() {
         if (SonosZones.CheckStreamShowElements(uuid)) {
             SonosPlayers[uuid].playlist.RenderPlaylist(SonosPlayers[uuid], false);
         } else {
-            if ($(".currentplaylist").length > 0) {
-                $(".currentplaylist").remove();
+            if (SoDo.currentplaylistwrapper.hasChildNodes()) {
+                SoDo.currentplaylistwrapper.innerHTML = "";
             }
             if (IsVisible(SoDo.playlistLoader)) {
                 SetHide(SoDo.playlistLoader)
@@ -620,23 +613,30 @@ function SonosZonesObject() {
         if (typeof source === "undefined") {
             source = "Unbekannt";
         }
-        var contactTopPosition = $("#Currentplaylist_" + (apsnumber - 1));
-        if (contactTopPosition.length !== 0) {
+        var contactTopPosition = document.getElementById("Currentplaylist_" + (apsnumber - 1));
+        if (contactTopPosition !== null) {
             //prüfen, ob es sich um den selben Song handelt.
-            var NewEntry = $("#Currentplaylist_" + (apsnumber - 1) + " > .currentrackinplaylist");
-            $(".playlistplaysmall").removeClass("akt");
+            Array.from(document.getElementsByClassName("playlistplaysmall")).forEach(function (item) {
+                RemoveClass(item, "akt");
+            })
+            let NewEntry = contactTopPosition.querySelector(":scope > .currentrackinplaylist");
+            let popo = contactTopPosition.lastChild;
+            
             if (SonosPlayers[uuid].playerProperties.transportStateString === "PLAYING") {
-                $("#Currentplaylist_" + (apsnumber - 1) + " > .curpopdown > .playlistplaysmall").addClass("akt");
+                AddClass(popo.querySelector(".playlistplaysmall"), "akt");
             }
-            if (NewEntry.hasClass("aktsonginplaylist")) {
+            
+            if (NewEntry.classList.contains("aktsonginplaylist")) {
                 return false;
             }
-            $(".currentrackinplaylist").removeClass("aktsonginplaylist");
-            NewEntry.addClass("aktsonginplaylist");
+            Array.from(document.getElementsByClassName("aktsonginplaylist")).forEach(function (item) {
+                RemoveClass(item, "aktsonginplaylist");
+            })
+            AddClass(NewEntry, "aktsonginplaylist");
             //Ermitteln der Position des aktuellen Songs und dahin scrollen, wenn nicht manuell gescrollt wurde
             if (SoVa.currentplaylistScrolled === false) {
                 SoDo.currentplaylistwrapper.scrollTop = 0;
-                var ctop = contactTopPosition.position().top;
+                var ctop = contactTopPosition.offsetTop;
                 SoDo.currentplaylistwrapper.scrollTop = ctop - 30;
                 window.setTimeout("SoVa.currentplaylistScrolled = false;", 100);//Beim Scrollen wird das auf true gesetzt, daher wieder rückgänig machen.
             }
@@ -773,30 +773,18 @@ function SonosZonesObject() {
                     domlelemts += '<div id="Playlist_' + i + '" class="playlist ' + playlisttype + ' ' + acclass + '"><div onclick="SonosZones.ReplacePlaylist(' + i + ');">' + item.title + '</DIV></div>';
                 });
                 SoDo.playlistwrapper.innerHTML = domlelemts;
-                //$.each(this.AllPlaylists, function (i, item) {
-                //    var playlisttype;
-                //    var acclass = "";
-                //    if (item.description === "M3U") {
-                //        playlisttype = "m3u";
-                //    } else {
-                //        playlisttype = "sonos";
-                //    }
-                //    if (item.uri === uri) {
-                //        acclass = SoVa.aktiv;
-                //    }
-                //    //Wiedergabeliste befüllen
-                //    $('<div id="Playlist_' + i + '" class="playlist ' + playlisttype + ' ' + acclass + '"><div onclick="SonosZones.ReplacePlaylist(' + i + ');">' + item.title + '</DIV></div>').appendTo(SoDo.playlistwrapper);
-                //});
                 if (IsVisible(SoDo.globalPlaylistLoader)) {
                     SetHide(SoDo.globalPlaylistLoader)
                 }
             } else {
                 //Es wurde schon gerendert und somit nur noch die angezeigte wechseln.
-                $(".playlist").removeClass(SoVa.aktiv);
+                Array.from(document.getElementsByClassName("playlist")).forEach(function (item) {
+                    RemoveClass(item, SoVa.aktiv);
+                });
                 if (this.AllPlaylists.length === 0 || this.CheckStringIsNullOrEmpty(uri)) return;
                 for (var i = 0; i < this.AllPlaylists.length; i++) {
                     if (this.AllPlaylists[i].uri === uri) {
-                        $("#Playlist_" + i).addClass(SoVa.aktiv);
+                        AddClass(document.getElementById("Playlist_" + i), SoVa.aktiv);
                         break;
                     }
                 }
@@ -812,15 +800,12 @@ function SonosZonesObject() {
         if (!IsVisible(SoDo.browseLoader)) {
             SetVisible(SoDo.browseLoader);
         }
-        $(".currentplaylist").remove();
+        if (SoDo.currentplaylistwrapper.hasChildNodes()) {
+            SoDo.currentplaylistwrapper.innerHTML = "";
+        }
         var uri = SonosZones.AllPlaylists[item].containerID;
         var player = SonosPlayers[this.ActiveZoneUUID];
         if (typeof player === "undefined" || SonosZones.AllPlaylists.length === 0) return;
-        //Damit beim gleichem Lied kein Problem entsteht Artist leeren.
-        //if (player.playerProperties.currentTrack !== null && player.playerProperties.currentTrack.artist !== null) {
-        //    player.playerProperties.currentTrack.artist = "leer";
-        //    player.playerProperties.currentTrack.albumArtURI = "leer";
-        //}
         SonosAjax("ReplacePlaylist", { '': uri }).success(function (data) {
             if (data === false) {
                 console.log("Beim Replace ist ein Fehleraufgetreten.");

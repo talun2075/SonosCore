@@ -509,37 +509,8 @@ function SetVolume(k) {
         SonosWindows(SoDo.multiVolume, false, { overlay: true, selecteddivs: [SoDo.playButton, SoDo.muteButton, SoDo.nextButton] });
         SoDo.multiVolume.innerHTML = '<div id="multivolume_close" OnClick="SonosWindows(SoDo.multiVolume, true);">X</DIV>'
         //Hier nun den Player für alle machen.
-        SoDo.multiVolume.innerHTML += '<div id="MultivolumeAll">Alle<DIV id="MultivolumesliderAll" class="multivolumeslider"></div><div class="multivolumesliderVolumeNumber" id="MultivolumeAllNumber">' + SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume + '</DIV></DIV>';
-        $("#MultivolumesliderAll").slider({
-            orientation: "horizontal",
-            range: "min",
-            min: 1,
-            max: 100,
-            value: SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume,
-            stop: function (event, ui) {
-                //Prüfen, ob die Läutstärke über 80% verändert wird. 
-                if (ui.value > SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume && ui.value - SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume > SoVa.volumeConfirmCounter) {
-                    var answer = confirm("Du willst die Lautstärke um " + SoVa.volumeConfirmCounter + " von 100 Schritten erhöhen. Klicke Ok, wenn das gewollt ist");
-                    if (!answer) {
-                        $("#multivolumesliderAll").slider({ value: SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume });
-                        return false;
-                    }
-                    SetGroupVolumeDevice(SonosZones.ActiveZoneUUID, ui.value);
-                    SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume = ui.value;
-                    return true;
-                }
-                SetGroupVolumeDevice(SonosZones.ActiveZoneUUID, ui.value);
-                return true;
-            },
-            slide: function (event, ui) {
-                $("#MultivolumeAllNumber").html(ui.value);
-                SoDo.volumeSlider.slider({ value: ui.value });
-                SoDo.labelVolume.textContent = ui.value;
-            }
-        });
-
-
-        $.each(cordplayer, function (i, item) {
+        SoDo.multiVolume.innerHTML += '<div id="MultivolumeAll">Alle<DIV id="MultivolumesliderAllWrapper" class="multivolumeslider"><input type="range" min="0" max="100" value=' + SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume +' step="1" ID="MultivolumesliderAll" Name="MultivolumesliderAll"></div><div class="multivolumesliderVolumeNumber" id="MultivolumeAllNumber">' + SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume + '</DIV></DIV>';
+        cordplayer.forEach(function (item) {
             var player = SonosPlayers[item];
             var name = player.name;
             var volume = player.playerProperties.volume;
@@ -547,33 +518,56 @@ function SetVolume(k) {
             if (player.playerProperties.mute === true) {
                 muteactive = SoVa.aktiv;
             }
-            SoDo.multiVolume.innerHTML += '<div id="multivolume_' + item + '"><DIV class="multiVolumeNameMuteWrapper"><DIV class="multiVolumeName">' + name + '</DIV><DIV class="multiVolumeMute ' + muteactive + '" id="MultiVolumeMute_' + item + '" onClick="SetMute(\'' + item + '\')"></DIV></DIV><DIV id="Multivolumeslider_' + item + '" class="multivolumeslider"></div><div class="multivolumesliderVolumeNumber" id="MultivolumesliderVolumeNumber_' + item + '">' + volume + '</div></DIV>';
-            $("#Multivolumeslider_" + item).slider({
-                orientation: "horizontal",
-                range: "min",
-                min: 1,
-                max: 100,
-                value: volume,
-                stop: function (event, ui) {
-                    //Prüfen, ob die Läutstärke über 80% verändert wird. 
-                    if (ui.value > volume && ui.value - volume > SoVa.volumeConfirmCounter) {
-                        var answer = confirm("Du willst die Lautstärke um " + SoVa.volumeConfirmCounter + " von 100 Schritten erhöhen. Klicke Ok, wenn das gewollt ist");
-                        if (!answer) {
-                            $("#Multivolumeslider_" + item).slider({ value: volume });
-                            $("#MultivolumesliderVolumeNumber_" + item.uuid).html(volume);
-                            return false;
-                        }
-                    }
-                    SonosPlayers[item].playerProperties.volume = ui.value;
-                    $("#MultivolumesliderVolumeNumber_" + item).html(ui.value);
-                    SetVolumeDevice(item, ui.value);
-                    return true;
-                },
-                slide: function (event, ui) {
-                    $("#MultivolumesliderVolumeNumber_" + item).html(ui.value);
-                }
-            });
+            SoDo.multiVolume.innerHTML += '<div id="multivolume_' + item + '"><DIV class="multiVolumeNameMuteWrapper"><DIV class="multiVolumeName">' + name + '</DIV><DIV class="multiVolumeMute ' + muteactive + '" id="MultiVolumeMute_' + item + '" onClick="SetMute(\'' + item + '\')"></DIV></DIV><DIV id="Multivolumeslider_' + item + 'Wrapper" class="multivolumeslider"><input type="range" min="0" max="100" value=' + volume + ' step="1" ID="Multivolumeslider_' + item + '" Name="Multivolumeslider_' + item + '"></div><div class="multivolumesliderVolumeNumber" id="MultivolumesliderVolumeNumber_' + item + '">' + volume + '</div></DIV>';
         });
+        cordplayer.forEach(function (item) {
+            var player = SonosPlayers[item];
+            var volume = player.playerProperties.volume;
+            var musli = document.getElementById("Multivolumeslider_" + item);
+            musli.oninput = function () { 
+                document.getElementById("MultivolumesliderVolumeNumber_" + item).textContent = this.value;
+            }
+            musli.onchange = function () {
+                if (this.value > volume && this.value - volume > SoVa.volumeConfirmCounter) {
+                    var answer = confirm("Du willst die Lautstärke um " + SoVa.volumeConfirmCounter + " von 100 Schritten erhöhen. Klicke Ok, wenn das gewollt ist");
+                    if (!answer) {
+                        this.value= volume;
+                        document.getElementById("MultivolumesliderVolumeNumber_" + item).textContent =volume;
+                        return false;
+                    }
+                }
+                SonosPlayers[item].playerProperties.volume = this.value;
+                document.getElementById("MultivolumesliderVolumeNumber_" + item).textContent = this.value;
+                SetVolumeDevice(item, this.value);
+                return true;
+            }
+        });
+        SoDo.sliderall = document.getElementById("MultivolumesliderAll");
+        SoDo.sliderall.oninput = function () {
+            console.log("input");
+            document.getElementById("MultivolumeAllNumber").textContent = this.value;
+            SoDo.volumeSlider.value = this.value;
+            SoDo.labelVolume.textContent = this.value;
+        }
+        SoDo.sliderall.onchange = function () {
+            console.log("change");
+            //Prüfen, ob die Läutstärke über 80% verändert wird. 
+            if (this.value > SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume && this.value - SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume > SoVa.volumeConfirmCounter) {
+                var answer = confirm("Du willst die Lautstärke um " + SoVa.volumeConfirmCounter + " von 100 Schritten erhöhen. Klicke Ok, wenn das gewollt ist");
+                if (!answer) {
+                    this.value = SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume;
+                    return false;
+                }
+                SetGroupVolumeDevice(SonosZones.ActiveZoneUUID, this.value);
+                SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume = this.value;
+                return true;
+            }
+            SetGroupVolumeDevice(SonosZones.ActiveZoneUUID, this.value);
+            return true;
+        }
+
+
+
     } else {
         //Steps von 5 oder 1
         var v = 5;
@@ -956,7 +950,7 @@ function ReloadSite(source) {
 
 //Prüft auf Fehler bei Covern und setzt das NoCoverBild
 function UpdateImageOnErrors() {
-    document.getElementsByTagName('img').forEach(function (item) {
+    Array.from(document.getElementsByTagName('img')).forEach(function (item) {
         item.addEventListener('error', function () {
             this.setAttribute('src', SoVa.nocoverpfad);
         });

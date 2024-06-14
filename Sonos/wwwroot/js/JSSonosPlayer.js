@@ -448,7 +448,7 @@ function SonosPlayer(_uuid, _name,_swgen) {
                 if (_playlist === null || typeof _playlist === "undefined") {
                     _playlist = [];
                 }
-                var c = $(".currentplaylist");
+                var c = document.getElementsByClassName("currentplaylist");
                 var clength = c.length;
                 var internalmax = (clength - 1);
                 if (clength === _playlist.length && clength > 0) {
@@ -539,8 +539,8 @@ function SonosPlayer(_uuid, _name,_swgen) {
                 if (!IsVisible(SoDo.playlistLoader)) {
                    SetVisible(SoDo.playlistLoader);
                 }
-                if ($(".currentplaylist").length > 0) {
-                    $(".currentplaylist").remove();
+                if (SoDo.currentplaylistwrapper.hasChildNodes()) {
+                    SoDo.currentplaylistwrapper.innerHTML = "";
                 }
 
                 var isempty = this.CheckIsEmpty(t);
@@ -590,10 +590,11 @@ function SonosPlayer(_uuid, _name,_swgen) {
                 t.playerProperties.playlist.playListItems.splice(rem, 1);
                 t.playerProperties.numberOfTracks = t.playerProperties.playlist.playListItems.length;
                 //this.RenderPlaylist(t, t.currentTrack.stream);
-                $("#Currentplaylist_" + rem).remove();
-                $(".currentplaylist").each(function (i, item) {
-                    $(item).attr("id", "Currentplaylist_" + i);
-                })
+                document.getElementById("Currentplaylist_" + rem).remove();
+                Array.from(document.getElementsByClassName("currentplaylist")).forEach(function (item,i) {
+                    item.id = "Currentplaylist_" + i;
+                });
+
                 if (t.playerProperties.currentTrackNumber === rem) {
                     SonosZones.RenderNextTrack(t.uuid);
                 }
@@ -609,15 +610,9 @@ function SonosPlayer(_uuid, _name,_swgen) {
         };//done
         this.SetCurrentTrack = function (s) {
             try {
-                if ($(".currentplaylist").length === 0) {
+                if (!SoDo.currentplaylistwrapper.hasChildNodes()) {
                     return;
                 }
-                //var therearechanges = this.currentTrack.SetCurrentTrack(s);
-                //if (SonosZones.ActiveZoneUUID === this.uuid && therearechanges === true) {
-                //    //Wenn anders neu Rendern
-                //    this.currentTrack.RenderCurrentTrack(this.currentTrackNumber);
-                //    SonosZones.RenderTrackTime(this.uuid);
-                //}
             }
             catch (fehlernachricht) {
                 alert(fehlernachricht + " Fehler bei:" + fehlernachricht.fileName + "\n" + "Meldung:" + fehlernachricht.message + "\n" + "Zeile:" + fehlernachricht.lineNumber);

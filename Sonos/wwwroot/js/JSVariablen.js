@@ -142,5 +142,6 @@ function SonosDOMObjects() {
     this.stimmungen = document.getElementById("Stimmungendiv"); //Stimmungs DIV Kinder Elemente
     this.volumeSlider = document.getElementById("Volume");//Slider mit der Lautstärke
     this.debug = document.getElementById("Debug");//Debug Button
+    this.sliderall = ""//Wird initialisiert, beim rendern.
 }
 //} Variablen Verarbeitung
