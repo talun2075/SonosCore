@@ -10,14 +10,13 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
     <link rel="mask-icon" href="/images/dancer-with-music.svg" color="#5bbad5">
-    <link rel="stylesheet" href="/css/jquery-ui.min.css" media="all" />
+    @* <link rel="stylesheet" href="/css/jquery-ui.min.css" media="all" /> *@
     <link rel="stylesheet" href="/css/site.css" media="all" />
     <link rel="stylesheet" href="/css/AlarmClock.css" media="all" />
     <link rel="stylesheet" href="/css/media.css" media="screen" />
-    <script src="/js/jquery-2.1.4.min.js" type="text/javascript"></script>
-    <script src="/js/jquery-ui.min.js" type="text/javascript"></script>
-    <script src="/js/jquery.ui.touch-punch.min.js" type="text/javascript"></script>
-    <script src="/js/jquery.lazyload.min.js" type="text/javascript"></script>
+    @* <script src="/js/jquery-2.1.4.min.js" type="text/javascript"></script> *@
+    @* <script src="/js/jquery-ui.min.js" type="text/javascript"></script> *@
+    @* <script src="/js/jquery.ui.touch-punch.min.js" type="text/javascript"></script> *@
     <script src="/js/JSVariablen.js" type="text/javascript"></script>
     <script src="/js/JSSonosAjax.js" type="text/javascript"></script>
     <script src="/js/MP3.js" type="text/javascript"></script>
@@ -54,8 +53,93 @@
             <div id="BrowsePlaylist" onclick="LoadBrowse('A:PLAYLISTS')">Playlist</div>
             <div id="BrowseArtist" onclick="LoadBrowse('A:ALBUMARTIST')">Interpreten</div>
             <div id="BrowseGenre" onclick="LoadBrowse('A:GENRE')">Genre</div>
-            <div id="BrowseFavorites" onclick="LoadBrowse('FV:2')">Favoriten</div>
             <div id="Browseboxwrapper"></div>
+        </div>
+        <div id="AlarmClockOpen" class="mediabuttonring"></div>
+        <div id="AlarmClock" class="alarmclockarrow"><div id="AlarmClockLoader" style="display: none;"><img alt="Device Loader" id="AlarmClockLoaderIMG" src="/images/ajax-loader.gif"></div><div id="AlarmClockWrapper"></div></div>
+        <DIV id="EditAlarm">
+            <div id="EditAlarmWrapper">
+                <div id="EditAlarmEnabledWrapper" class="displayflex">
+                    <div class="editalarmenabled">
+                        <input type="radio" id="Editalarenabledtrue" name="enabled" value="true">
+                        <span onclick="this.previousElementSibling.checked = !this.previousElementSibling.checked;"> An</span>
+                    </div>
+                    <div class="editalarmenabled">
+                        <input type="radio" id="Editalarenabledfalse" name="enabled" value="false">
+                        <span onclick="this.previousElementSibling.checked = !this.previousElementSibling.checked;"> Aus</span>
+                    </div>
+                </div>
+                <div id="EditAlarmStartTimeWrapper" class="displayflex">Startzeit:<div id="EditAlarmStartTimeDIV"><input type="time" id="EditAlarmStartTimeHour" maxlength="5"></div></div>
+                <div id="EditAlarmRoomSelectionWrapper" class="displayflex">
+                    Raum:<select id="AlarmSonosPlayerSelector" name="AlarmSonosPlayerSelector"></select>
+                </div>
+                <div id="EditAlarmDaysSelectionWrapper">
+                    <div id="EditAlarmDaysSelectionWrapperText">Tage:</div>
+                    <div>
+                        <input type="Checkbox" id="EditAlarmDaysSelectionOnce" class="editAlarmDaysSelection">
+                        <span onclick="this.previousElementSibling.checked = !this.previousElementSibling.checked; this.previousElementSibling.dispatchEvent(new Event('change')); ">Einmalig</span>
+                    </div>
+                    <div>
+                        <input type="Checkbox" id="EditAlarmDaysSelectionDaily" class="editAlarmDaysSelection editAlarmDays">
+                        <span onclick="this.previousElementSibling.checked = !this.previousElementSibling.checked; this.previousElementSibling.dispatchEvent(new Event('change')); ">Täglich</span>
+                    </div><br>
+                    <div>
+                        <input type="Checkbox" id="editAlarmDaysSelection1" class="editAlarmDaysSelection editAlarmDaysSelectionWeek editAlarmDays" name="editAlarmDays">
+                        <span onclick="this.previousElementSibling.checked = !this.previousElementSibling.checked;this.previousElementSibling.dispatchEvent(new Event('change'));">Montag</span>
+                    </div>
+                    <div>
+                        <input type="Checkbox" id="editAlarmDaysSelection2" class="editAlarmDaysSelection editAlarmDaysSelectionWeek editAlarmDays" name="editAlarmDays">
+                        <span onclick="this.previousElementSibling.checked = !this.previousElementSibling.checked;this.previousElementSibling.dispatchEvent(new Event('change'));">Dienstag</span>
+                    </div>
+                    <div>
+                        <input type="Checkbox" id="editAlarmDaysSelection3" class="editAlarmDaysSelection editAlarmDaysSelectionWeek editAlarmDays" name="editAlarmDays">
+                        <span onclick="this.previousElementSibling.checked = !this.previousElementSibling.checked;this.previousElementSibling.dispatchEvent(new Event('change'));">Mittwoch</span>
+                    </div>
+                    <div>
+                        <input type="Checkbox" id="editAlarmDaysSelection4" class="editAlarmDaysSelection editAlarmDaysSelectionWeek editAlarmDays" name="editAlarmDays">
+                        <span onclick="this.previousElementSibling.checked = !this.previousElementSibling.checked;this.previousElementSibling.dispatchEvent(new Event('change'));">Donnerstag</span>
+                    </div>
+                    <div>
+                        <input type="Checkbox" id="editAlarmDaysSelection5" class="editAlarmDaysSelection editAlarmDaysSelectionWeek editAlarmDays" name="editAlarmDays">
+                        <span onclick="this.previousElementSibling.checked = !this.previousElementSibling.checked;this.previousElementSibling.dispatchEvent(new Event('change'));">Freitag</span>
+                    </div>
+                    <div>
+                        <input type="Checkbox" id="editAlarmDaysSelection6" class="editAlarmDaysSelection editAlarmDaysSelectionWeekEnd editAlarmDays" name="editAlarmDays">
+                        <span onclick="this.previousElementSibling.checked = !this.previousElementSibling.checked;this.previousElementSibling.dispatchEvent(new Event('change'));">Samstag</span>
+                    </div>
+                    <div>
+                        <input type="Checkbox" id="editAlarmDaysSelection0" class="editAlarmDaysSelection editAlarmDaysSelectionWeekEnd editAlarmDays" name="editAlarmDays">
+                        <span onclick="this.previousElementSibling.checked = !this.previousElementSibling.checked;this.previousElementSibling.dispatchEvent(new Event('change'));">Sonntag</span>
+                    </div>
+                </div>
+                <div id="EditAlarmVolumeWrapper">
+                    <input type="range" min="1" max="100" step="1" value="1" id="EditAlarmVolumeSlider" name="EditAlarmVolumeSlider" />
+                    <input type="number" maxlength="3" min="1" max="100" step="1" id="EditAlarmVolumeInput">
+                </div>
+                <div id="EditAlarmDurationWrapper">
+                    Dauer:
+                    <select id="EditAlarmDurationSelection"><option value="00:30:00">30 Minuten</option><option value="00:45:00">45 Minuten</option><option value="01:00:00">1 Stunde</option><option value="02:00:00">2 Stunden</option><option value="03:00:00">3 Stunden</option><option value="">Unbegrenzt</option></select>
+                </div>
+                <div id="EditAlarmPlaylistWrapper">
+                    Wiedergabeliste:
+                    <input type="text" id="EditAlarmPlaylist" data-containerid="S://NAS/Musik/Playlists/Aufwecken.m3u" data-uri="x-file-cifs://NAS/Musik/Playlists/Aufwecken.m3u">
+                    <div id="EditAlarmPlaylistSet" onclick="SelectAlarmPlaylist()">Set</div>
+                </div>
+                <div id="EditAlarmIncludeRoomsWrapper">
+                    <input type="Checkbox" id="EditAlarmIncludeRoomsChecker">
+                    <span onclick="this.previousElementSibling.checked = !this.previousElementSibling.checked;">Inkl. gruppierte Räume</span>
+                </div>
+                <div id="EditAlarmRandomWrapper">
+                    <input type="Checkbox" id="EditAlarmRandomChecker">
+                    <span onclick="this.previousElementSibling.checked = !this.previousElementSibling.checked;">Zufällige Wiedergabe</span>
+                </div>
+                <div id="EditAlarmSave" onclick="SaveAlarmChanges()">Save</div>
+                <div id="EditAlarmDestroy" onclick="DestroyAlarm()">Löschen</div>
+            </div>
+
+        </DIV>
+        <div id="SelectAlarmPlaylist">
+            <div id="SelectAlarmPlaylistWrapper"></div>
         </div>
         <div id="Lyric" class="mediabuttonring"></div>
         <div id="Settings" class="mediabuttonring"></div>
@@ -318,9 +402,9 @@
         <div id="Overlay" onclick="SonosWindows('overlay');"></div>
     </div>
     <div id="Lyricbox" class="arrow_box">
-            <div class="righttopclose" onclick="ShowPlaylistLyricCurrent();">X</div>
-            <div id="Lyricboxwrapper"></div>
-        </div>
+        <div class="righttopclose" onclick="ShowPlaylistLyricCurrent();">X</div>
+        <div id="Lyricboxwrapper"></div>
+    </div>
     <div id="EventErrorDiv">
         <div>Der Server ist nicht erreichbar.</div>
     </div>
@@ -328,7 +412,7 @@
     <div id="StatusInformationen" style="display: none; background-color: white; top: 220px; position: absolute; left: 70px; z-index: 999;"></div>
 </body>
 <script type="text/javascript">
-    InitSystem();    
+    InitSystem();
 </script>
 </html>
 

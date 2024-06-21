@@ -72,17 +72,33 @@
 }
 #EditAlarmDaysSelectionWrapperText {
     float: left;
-    height: 70px;
+    height: 90px;
     width: 60px;
 }
 #EditAlarmVolumeWrapper{
 	margin-top:20px;
 }
-#EditAlarmVolumeSlider{
-	width:233px;
+#EditAlarmVolumeSlider {
+	width: 233px;
 	margin-top: 4px;
-	float:left;
+	float: left;
+	appearance: none;
+	background: grey;
+	height:5px;
+	border-radius:25px;
 }
+	#EditAlarmVolumeSlider:hover {
+		background: black;
+	}
+
+	#EditAlarmVolumeSlider::-moz-range-thumb {
+		width: 15px;
+		height: 15px;
+		background: black;
+		cursor: pointer;
+		border-radius: 25px;
+		border: 1px solid white;
+	}
 #EditAlarmVolumeInput{
 	margin-left: 10px;
 	width:40px;

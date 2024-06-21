@@ -62,7 +62,6 @@ function SonosDOMObjects() {
     this.aufweckenSwitch = document.getElementById("Aufweckenmyonoffswitch"); //AufweckenPlaylist Schalter
     this.bewertungWidth = document.getElementById("BewertungL"); // beim Currenttrack am Cover die Bewertungsbreite (goldene Sterne)
     this.bewertungStars = document.getElementById("BewertungN"); // beim Currenttrack am Cover die Bewertung (graue Sterne)
-    this.bodydiv = $("#Bodydiv"); //Primärer Container in dem alles hinterlegt ist. //todo: Alarm
     this.browseBackButton = document.getElementById("Browseback"); //beim Browsing der Back Button
     this.browseButton = document.getElementById("Browse"); //Button um die Browsebox zu öffnen
     this.browse = document.getElementById("Browsebox"); //Browsebox, die alles fürs Browsing hält, wie ankerlist, browseloader, warpper etc.
@@ -143,5 +142,33 @@ function SonosDOMObjects() {
     this.volumeSlider = document.getElementById("Volume");//Slider mit der Lautstärke
     this.debug = document.getElementById("Debug");//Debug Button
     this.sliderall = ""//Wird initialisiert, beim rendern.
+    this.alarmClockDOM = document.getElementById("AlarmClockOpen"); //Button zum Klicken um den Wecker anzuzeigen
+    this.alarmClockDIV = document.getElementById("AlarmClock"); //Wecker DIV in dem alles hinein gerendert wird
+    this.alarmClockWrapper = document.getElementById("AlarmClockWrapper"); //Wrapper, damit die Scrollleiste funktioniert
+    this.alarmClockDIVLoader = document.getElementById("AlarmClockLoader"); //Loader für den Wecker
+    this.editAlarmDIV = document.getElementById("EditAlarm");
+    this.editAlarmDIVWrapper = document.getElementById("EditAlarmWrapper");
+    this.editAlarmEnabledTrue = document.getElementById("Editalarenabledtrue");
+    this.editAlarmEnabledFalse = document.getElementById("Editalarenabledfalse");
+    this.editAlarmStartTimeHour = document.getElementById("EditAlarmStartTimeHour");
+    this.AlarmSonosPlayerSelector = document.getElementById("AlarmSonosPlayerSelector");
+    this.editAlarmDaysSelectionOnce = document.getElementById("EditAlarmDaysSelectionOnce");
+    this.editAlarmDaysSelectionDaily = document.getElementById("EditAlarmDaysSelectionDaily");
+    this.editAlarmVolumeSlider = document.getElementById("EditAlarmVolumeSlider");
+    this.editAlarmVolumeInput = document.getElementById("EditAlarmVolumeInput");
+    this.editAlarmDurationSelection = document.getElementById("EditAlarmDurationSelection");
+    this.editAlarmPlaylist = document.getElementById("EditAlarmPlaylist");
+    this.editAlarmIncludeRoomsChecker = document.getElementById("EditAlarmIncludeRoomsChecker");
+    this.editAlarmRandomChecker = document.getElementById("EditAlarmRandomChecker");
+    this.editAlarmDaysSelectionCLASS = document.getElementsByClassName("editAlarmDaysSelection");
+    this.editAlarmDaysSelectionWeekCLASS = document.getElementsByClassName("editAlarmDaysSelectionWeek");
+    this.editAlarmDaysSelectionWeekEndCLASS = document.getElementsByClassName("editAlarmDaysSelectionWeekEnd");
+    this.editAlarmDaysCLASS = document.getElementsByClassName("editAlarmDays");
+    this.selectAlarmPlaylistWrapper = document.getElementById("SelectAlarmPlaylistWrapper");
+    this.selectAlarmPlaylistDIV = document.getElementById("SelectAlarmPlaylist");
+
+
+
+    
 }
 //} Variablen Verarbeitung

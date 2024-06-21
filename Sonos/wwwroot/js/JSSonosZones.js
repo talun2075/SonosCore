@@ -37,7 +37,7 @@ function SonosZonesObject() {
             this.ZonesList = {};
             this.ZonesListOverGroups = {}
             var request = SonosAjax("GetZones");
-            request.success(function (data) {
+            request.then(function (data) {
                 if (data === null || typeof data === "undefined") {
                     console.log("Fehler bei GetZones, Data null");
                     return;
@@ -84,7 +84,7 @@ function SonosZonesObject() {
                 } else {
                     RemoveClass(SoDo.playButton, SoVa.aktiv);
                 }
-                this.ZonesCount = zcounter;
+                t.ZonesCount = zcounter;
                 if (IsVisible(SoDo.deviceLoader)) {
                     SetHide(SoDo.deviceLoader);
                 }
@@ -323,6 +323,7 @@ function SonosZonesObject() {
         var value = SonosPlayers[uuid].playerProperties.transportStateString;
         var op = 0;
         var button = document.getElementById(uuid + "_GroupPlayState");
+        if (button === null) return;
         //var  = "Play";
         var playinternal = "PLAYING";
         if (value === "PLAYING") {
@@ -464,7 +465,7 @@ function SonosZonesObject() {
             return;
         }
         if (player.playerProperties.groupRenderingControl_GroupVolume === 0) {
-            SonosAjax("GetGroupVolume").success(function (data) {
+            SonosAjax("GetGroupVolume").then(function (data) {
                 player.playerProperties.groupRenderingControl_GroupVolume = data;
                 window.setTimeout("SonosZones.RenderVolume()", 1000);
             });
@@ -735,7 +736,7 @@ function SonosZonesObject() {
             }
             if (typeof this.AllPlaylists === "undefined" || this.AllPlaylists.length === 0) {
                 //hier laden und das rendern neu aufrufen
-                SonosAjax("GetPlaylists").success(function (data) {
+                SonosAjax("GetPlaylists").then(function (data) {
                     if (data === null || typeof data === "undefined" || data.length === 0) {
                         window.setTimeout("SonosZones.RenderAllPlaylist()", 1000);
                         return;
@@ -773,9 +774,6 @@ function SonosZonesObject() {
                     domlelemts += '<div id="Playlist_' + i + '" class="playlist ' + playlisttype + ' ' + acclass + '"><div onclick="SonosZones.ReplacePlaylist(' + i + ');">' + item.title + '</DIV></div>';
                 });
                 SoDo.playlistwrapper.innerHTML = domlelemts;
-                if (IsVisible(SoDo.globalPlaylistLoader)) {
-                    SetHide(SoDo.globalPlaylistLoader)
-                }
             } else {
                 //Es wurde schon gerendert und somit nur noch die angezeigte wechseln.
                 Array.from(document.getElementsByClassName("playlist")).forEach(function (item) {
@@ -788,6 +786,9 @@ function SonosZonesObject() {
                         break;
                     }
                 }
+            }
+            if (IsVisible(SoDo.globalPlaylistLoader)) {
+                SetHide(SoDo.globalPlaylistLoader)
             }
         }
 
@@ -806,7 +807,7 @@ function SonosZonesObject() {
         var uri = SonosZones.AllPlaylists[item].containerID;
         var player = SonosPlayers[this.ActiveZoneUUID];
         if (typeof player === "undefined" || SonosZones.AllPlaylists.length === 0) return;
-        SonosAjax("ReplacePlaylist", { '': uri }).success(function (data) {
+        SonosAjax("ReplacePlaylist", uri).then(function (data) {
             if (data === false) {
                 console.log("Beim Replace ist ein Fehleraufgetreten.");
             }

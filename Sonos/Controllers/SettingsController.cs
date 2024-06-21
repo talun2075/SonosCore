@@ -58,7 +58,7 @@ namespace Sonos.Controllers
         /// <param name="id"></param>
         /// <param name="v"></param>
         [HttpPost("SetAlarm")]
-        public async Task<Boolean> SetAlarm([FromForm] Alarm v)
+        public async Task<Boolean> SetAlarm([FromBody] Alarm v)
         {
             try
             {
@@ -112,13 +112,13 @@ namespace Sonos.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <param name="v"></param>
-        [HttpPost("DestroyAlarm")]
-        public async Task<Boolean> DestroyAlarm([FromForm] string v)
+        [HttpGet("DestroyAlarm/{id}")]
+        public async Task<Boolean> DestroyAlarm(string id)
         {
             try
             {
                 Alarm al;
-                if (!int.TryParse(v, out int alarmid)) return false;
+                if (!int.TryParse(id, out int alarmid)) return false;
                  await _sonos.GetSonosTimeStuff();
 
                 al = _sonos.ZoneProperties.ListOfAlarms.FirstOrDefault(alarm => alarm.ID == alarmid);//Alarm ermitteln und löschen.

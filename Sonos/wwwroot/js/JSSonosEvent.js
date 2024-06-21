@@ -10,8 +10,8 @@ function CheckPlayersPP() {
         //Bei Refreshstop sich selber aufrufen bis das wieder normal ist
         var uuid = SonosZones.ActiveZoneUUID;
         SonosAjax("CheckPlayerPropertiesWithClient", SonosPlayers[uuid].playerProperties, uuid)
-            .success(function () { console.log("CheckPlayersPP gut gelaufen") })
-            .fail(console.log("CheckPlayersPP schlecht gelaufen"));
+            .then(function () { console.log("CheckPlayersPP gut gelaufen") })
+            .catch(console.log("CheckPlayersPP schlecht gelaufen"));
 
 
     } catch (ex) {
@@ -21,7 +21,7 @@ function CheckPlayersPP() {
 } //Ende CurrentState
 function GetPlayerLastChanges() {
     clearTimeout(SoVa.TopologieChangeID);
-    SonosAjax("GetLastChangesDateTimes").success(function (data) {
+    SonosAjax("GetLastChangesDateTimes").then(function (data) {
         try {
             if (typeof data === "undefined" || data === null) {
                 console.log("GetPlayerLastChanges danten null");
@@ -35,7 +35,7 @@ function GetPlayerLastChanges() {
                     //Rincon Property
                     var player = SonosPlayers[uuid];
                     if (typeof player === "undefined") {
-                        SonosAjax("GetPlayer", "", uuid).success(function (datap) {
+                        SonosAjax("GetPlayer", "", uuid).then(function (datap) {
                             //hier nun Player anlegen.
                             var u = datap.uuid;
                             SonosPlayers[u] = new SonosPlayer(u, datap.name);
@@ -43,7 +43,7 @@ function GetPlayerLastChanges() {
                             SonosPlayers[u].ratingFilter = datap.ratingFilter;
                             SonosZones.RenderCurrentTrack();
                             SonosZones.RenderDevices();
-                        }).fail(function (datap) {
+                        }).catch(function (datap) {
                             console.log(datap);
                         });
 
@@ -80,7 +80,7 @@ function GetPlayerLastChanges() {
                     if (timerdelta > 120000 && player.playerProperties.groupCoordinatorIsLocal === true) {
                         player.LastChange = serverdate;
                         //Player zu lange weg, daher nun GetLongPlayer aufrufen, wo auch ein Portscan gemacht wird.
-                        SonosAjax("GetLongPlayer", "", uuid).success(function (data2) {
+                        SonosAjax("GetLongPlayer", "", uuid).then(function (data2) {
                             try {
                                 console.log("playerladen getlast wegen zeit");
                                 console.log(data2.LastChange);
@@ -92,7 +92,7 @@ function GetPlayerLastChanges() {
                                 console.log(ex);
                                 console.log(data2);
                             }
-                        }).fail(function (data2) {
+                        }).catch(function (data2) {
                             console.log("GetPlayerLastChanges:BekannterAktualisierterPlayer:Laden:Fehler")
                             console.log(data2);
                         });
@@ -116,7 +116,7 @@ function GetPlayerLastChanges() {
             console.log(data);
         }
         SoVa.TopologieChangeID = window.setTimeout("GetPlayerLastChanges()", SoVa.TopologieChangeTime);
-    }).fail(function (data) {
+    }).catch(function (data) {
         console.log(data);
     });
 }
@@ -194,8 +194,8 @@ function ChangeGlobalSettings(data) {
             }
             break;
         case "AlarmListVersion":
-            if (alarmClockDIV.is(":visible")) {
-                ACShow("reload");
+            if (IsVisible(SoDo.alarmClockDIV)) {
+                AlarmClockShow("reload");
             }
             break;
         case "ReloadNeeded":
@@ -215,8 +215,8 @@ function ChangePlayerSettings(data) {
     if (typeof player === "undefined") return;
     switch (data.changeType) {
         case "AlarmListVersion":
-            if (alarmClockDIV.is(":visible")) {
-                ACShow("reload");
+            if (IsVisible(SoDo.alarmClockDIV)) {
+                AlarmClockShow("reload");
             }
         case "RatingFilter":
             if (JSON.stringify(player.RatingFilter) !== JSON.stringify(data.changedValues.RatingFilter)) {
@@ -552,13 +552,13 @@ function ChangePlayerSettings(data) {
 function CheckPlayerEventData(event) {
     try {
         var data = JSON.parse(event.data);
-        SoVa.LastEventID = parseInt(data.changedValues.EventID);
         if (data.changeType !== "RelTime") {
             console.log(data);
         }
         if (data.uuid === SoVa.EventSourceDiscovery) {
             ChangeGlobalSettings(data);
         } else {
+            SoVa.LastEventID = parseInt(data.changedValues.EventID);
             ChangePlayerSettings(data);
         }
     }
@@ -569,7 +569,9 @@ function CheckPlayerEventData(event) {
 }
 function GetLatestEvents() {
     //hole die letzten Events ab.
-    SonosAjax("GetListById", SoVa.LastEventID).success(function (eventlist) {
+    if (SoVa.LastEventID == -1)
+        return;
+    SonosAjax("GetListById", SoVa.LastEventID).then(function (eventlist) {
         try {
             let workedtype = [];
             while (eventlist.length > 0) {

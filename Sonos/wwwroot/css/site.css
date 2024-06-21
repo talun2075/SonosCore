@@ -881,6 +881,7 @@ a {
         background-color: grey;
         height: 40px;
         width: 40px;
+        border-radius: 25px;
     }
 
 .multiVolumeName {
@@ -989,15 +990,67 @@ a {
 }
 #PlayRuntimeSlider {
     width: 100%;
+    appearance: none;
+    background: grey;
+    border-radius: 15px;
+    height: 7px;
+    opacity: 1;
+    transition: background .2s
 }
 
+    #PlayRuntimeSlider:hover {
+        background: black;
+    }
+    #PlayRuntimeSlider::-moz-range-thumb {
+        width: 15px;
+        height: 15px;
+        background: black;
+        cursor: pointer;
+        border-radius: 25px;
+        border: 1px solid white;
+    }
+
 #Volume {
+    appearance: none;
+    background: grey;
     position: absolute;
     left: 85px;
     top: 260px;
     height: 250px;
     writing-mode: sideways-lr;
+    width: 5px;
+    border-radius: 25px;
 }
+    #Volume:hover {
+        background: black;
+    }
+    #Volume::-moz-range-thumb {
+        width: 15px;
+        height: 15px;
+        background: black;
+        cursor: pointer;
+        border-radius: 25px;
+        border: 1px solid white;
+    }
+.multivolumeslider {
+    appearance: none;
+    background: grey;
+    border-radius: 25px;
+    height: 5px;
+    width: 90%;
+}
+    .multivolumeslider:hover {
+        background: black;
+    }
+
+    .multivolumeslider::-moz-range-thumb {
+        width: 15px;
+        height: 15px;
+        background: black;
+        cursor: pointer;
+        border-radius: 25px;
+        border: 1px solid white;
+    }
 
 #MultiVolume {
     display: none;
@@ -1008,7 +1061,7 @@ a {
     -webkit-border-radius: 25px;
     -webkit-box-shadow: 5px 5px 7px #888;
     box-shadow: 5px 5px 7px #888;
-    border-radius: 25px 25px 25px 25px;
+    border-radius: 25px;
     background: white;
     padding: 25px 15px 15px;
     top: 240px;
@@ -1164,6 +1217,12 @@ a {
     overflow: hidden;
     min-height: 1.2em;
     cursor: pointer;
+}
+.dragging {
+    background-color: grey;
+    border-radius: 25px;
+    box-shadow: 0px 3px 3px 3px;
+    padding-bottom: 5px;
 }
 
 .currentplaylistcover {
@@ -1740,19 +1799,19 @@ a {
     }
 
 #AlbumArtisttrue {
-    background: #000000 url("/images/check.png") no-repeat scroll 0 0 / 100% 100%;
+    background: grey url("/images/check.png") no-repeat scroll 0 0 / 100% 100%;
 }
 
     #AlbumArtisttrue.selected {
-        background: #000000 url("/images/check_red.png") no-repeat scroll 0 0 / 100% 100%;
+        background: grey url("/images/check_red.png") no-repeat scroll 0 0 / 100% 100%;
     }
 
 #AlbumArtistfalse {
-    background: #000000 url("/images/erase_black.png") no-repeat scroll 0 -5px / 150% 150%;
+    background: grey url("/images/erase_black.png") no-repeat scroll -5px -5px / 150% 150%;
 }
 
     #AlbumArtistfalse.selected {
-        background: #000000 url("/images/erase_red.png") no-repeat scroll 0 -5px / 150% 150%;
+        background: grey url("/images/erase_red.png") no-repeat scroll -5px -5px / 150% 150%;
     }
 /*Export An / Aus Schalter  */
 #onoffswitchWrapper {

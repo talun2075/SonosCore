@@ -243,9 +243,9 @@ function SonosPlayer(_uuid, _name,_swgen) {
                     if (this.GetPlayerChangeEventIsRunning === false) {
                         //Ajax Request
                         var request = SonosAjax("Play", "", this.uuid);
-                        request.fail(function () {
+                        request.catch(function () {
                             ReloadSite("SonosZone:SetPlayState:Play");
-                        }).success(function () {
+                        }).then(function () {
                             SonosPlayers[t.uuid].playerProperties.transportStateString = "PLAYING";
                             SonosZones.RenderTransportState(t.uuid);
                         });
@@ -254,9 +254,9 @@ function SonosPlayer(_uuid, _name,_swgen) {
                     if (this.GetPlayerChangeEventIsRunning === false) {
                         //Ajax Request
                         var request2 = SonosAjax("Pause", "", this.uuid);
-                        request2.fail(function () {
+                        request2.catch(function () {
                             ReloadSite("SonosZone:SetPlayState:Pause");
-                        }).success(function () {
+                        }).then(function () {
                             SonosPlayers[t.uuid].playerProperties.transportStateString = "PAUSED_PLAYBACK";
                             SonosZones.RenderTransportState(t.uuid);
                         });
@@ -274,7 +274,7 @@ function SonosPlayer(_uuid, _name,_swgen) {
             if (curt.isEmpty === true) {
                 this.HideCurrentTrack();
                 if (retry === true) return;
-                SonosAjax("GetAktSongInfo").success(function (data) { SonosPlayers[uuid].playerProperties.currentTrack = data; SonosPlayers[uuid].RenderCurrentTrack(true); });
+                SonosAjax("GetAktSongInfo").then(function (data) { SonosPlayers[uuid].playerProperties.currentTrack = data; SonosPlayers[uuid].RenderCurrentTrack(true); });
                 return;
             }
             //CurrentRatingBox
@@ -508,7 +508,7 @@ function SonosPlayer(_uuid, _name,_swgen) {
                 }
                 console.log(source);
                 var result = SonosAjax("GetPlayerPlaylist", "", t.uuid + "/" + override);
-                result.success(function (data) {
+                result.then(function (data) {
                     if (data.numberReturned != data.totalMatches && data.totalMatches !== -1) {
                         t.playlist.LoadPlaylist(t, true, "LoadPlaylist cuz NumberReturned and TotalMatches not match");
                         return;
@@ -521,7 +521,8 @@ function SonosPlayer(_uuid, _name,_swgen) {
                         SonosZones.RenderNextTrack(t.uuid);
                         SonosZones.RenderPlaylistCounter(t.uuid);
                     }
-                }).fail(function (data) {
+                })
+                result.catch(function (data) {
 
                     console.log("Fehler Laden Playlist");
                     t.playlist.LoadPlaylist(t, false, "LoadPlaylistFail");//Beim Laden ein Fehler daher neu laden.
@@ -675,8 +676,8 @@ function SonosPlayer(_uuid, _name,_swgen) {
                 var oldval = this.playerProperties.currentPlayModeString;
                 this.playerProperties.currentPlayModeString = value;
                 var player = this;
-                SonosAjax("SetPlaymode", "", value).complete(function (data) {
-                    if (data.responseJSON !== true) {
+                SonosAjax("SetPlaymode", "", value).then(function (data) {
+                    if (data !== true) {
                         return;
                     }
                     if (player.uuid === SonosZones.ActiveZoneUUID) {

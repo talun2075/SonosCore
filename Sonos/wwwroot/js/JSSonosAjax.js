@@ -1,4 +1,4 @@
-﻿function SonosAjax(_url, _data, _para1, _para2,_type) {
+﻿function SonosAjax(_url, _data, _para1, _para2) {
     /*
 	_url= URL als interner Interpreter
 	_data= Daten, die an den Server sollen. Meherere als Objekt: {variable1: "value1", variable2:"value2"}
@@ -51,7 +51,6 @@
             }
             url = SoVa.apiPlayerURL + "SetGroupVolume/" + _para1 + "/" + _para2;
             break;
-        case "DestroyAlarm":
         case "SetAlarm":
             url = SoVa.apiSettingURL + _url;
             type = "POST";
@@ -64,7 +63,6 @@
         case "SetSongMeta":
         case "SetSleepTimer":
         case "Seek":
-        case "SetSongInPlaylist":
         case "SetFilterRating":
         case "SetRatingFilter":
             url = SoVa.apiPlayerURL + _url + "/" + SonosZones.ActiveZoneUUID;
@@ -91,7 +89,8 @@
             url = SoVa.apiPlayerURL + _url;
             break;
         case "RemoveSongInPlaylist":
-            url = SoVa.apiPlayerURL + "RemoveSongInPlaylist/" + SonosZones.ActiveZoneUUID + "/" + _para1;
+        case "SetSongInPlaylist":
+            url = SoVa.apiPlayerURL + _url+"/" + SonosZones.ActiveZoneUUID + "/" + _para1;
             break;
         case "ReorderTracksinQueue":
             url = SoVa.apiPlayerURL + "ReorderTracksinQueue/" + SonosZones.ActiveZoneUUID + "/" + _para1 + "/" + _para2;
@@ -108,6 +107,9 @@
             break;
         case "FillPlayerPropertiesDefaults":
             url = SoVa.apiPlayerURL + _url + "/" + _para1 + "/" + _para2;
+            break;
+        case "DestroyAlarm":
+            url = SoVa.apiSettingURL + _url + "/" + _data;
             break;
         case "GetAlarms":
             url = SoVa.apiSettingURL + _url;
@@ -159,13 +161,43 @@
     if (typeof _data === "undefined") {
         _data = "";
     }
-    if (typeof _dataType === "undefined") {
-        _dataType = "json";
+    //if (typeof _dataType === "undefined") {
+    //    _dataType = "json";
+    //}
+    //return $.ajax({
+    //    type: type,
+    //    url: url,
+    //    data: _data,
+    //    dataType: _dataType
+    //});
+    return Send(url, _data, type);
+}
+async function Send(url = '', data = {}, t = 'GET') {
+    // Default options are marked with *
+    if (typeof BasePath !== "undefined" && BasePath !== "" && BasePath !== null) {
+        url = BasePath + url;
     }
-    return $.ajax({
-        type: type,
-        url: url,
-        data: _data,
-        dataType: _dataType
-    });
+    var fetchparams = {
+        method: t, // *GET, POST, PUT, DELETE, etc.
+        mode: 'cors', // no-cors, *cors, same-origin
+        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: 'same-origin', // include, *same-origin, omit
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        redirect: 'follow', // manual, *follow, error
+        referrerPolicy: 'no-referrer' // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+    };
+    if (t === "POST") {
+        fetchparams.body = JSON.stringify(data); // body data type must match "Content-Type" header
+    }
+    const response = await fetch(url, fetchparams);
+
+    var res = await response.text(); //take text
+
+    try {
+        return JSON.parse(res);// parses JSON response into native JavaScript objects
+    } catch (e) {
+        return res;
+    }
 }

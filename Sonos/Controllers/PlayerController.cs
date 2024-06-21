@@ -180,7 +180,7 @@ namespace Sonos.Controllers
 
 
         [HttpGet("CheckPlayerPropertiesWithClient/{id}")]
-        public Boolean CheckPlayerPropertiesWithClient(string id, [FromForm] PlayerProperties v)
+        public Boolean CheckPlayerPropertiesWithClient(string id, [FromBody] PlayerProperties v)
         {
             SonosPlayer sp = _sonos.GetPlayerbyUuid(id);
             if (sp == null) return false;
@@ -686,7 +686,7 @@ namespace Sonos.Controllers
         /// <param name="id">Rincon des Players</param>
         /// <param name="v">Dauer in hh:mm:ss oder "aus"</param>
         [HttpPost("SetSleepTimer/{id}")]
-        public async Task<Boolean> SetSleepTimer(string id, [FromForm] string v)
+        public async Task<Boolean> SetSleepTimer(string id, [FromBody] string v)
         {
             try
             {
@@ -714,7 +714,7 @@ namespace Sonos.Controllers
         /// <param name="id">Player ID</param>
         /// <param name="v">Favorititem Muster: FV:2/XX</param>
         [HttpPost("RemoveFavItem")]
-        public async Task<Boolean> RemoveFavItem([FromForm] string v)
+        public async Task<Boolean> RemoveFavItem([FromBody] string v)
         {
             if (v == null || !v.StartsWith(SonosConstants.FV2)) return false;
             try
@@ -736,7 +736,7 @@ namespace Sonos.Controllers
         /// <param name="id"></param>
         /// <param name="v"></param>
         [HttpPost("AddFavItem/{id}")]
-        public async Task<Boolean> AddFavItem(string id, [FromForm] string v)
+        public async Task<Boolean> AddFavItem(string id, [FromBody] string v)
         {
             try
             {
@@ -756,7 +756,7 @@ namespace Sonos.Controllers
         /// <param name="v">Der Browsingparameter wie z.B. A: / S: / A:Artist</param>
         /// <returns></returns>
         [HttpPost("Browsing/{id}")]
-        public async Task<IList<SonosItem>> Browsing(string id, [FromForm] string v)
+        public async Task<IList<SonosItem>> Browsing(string id, [FromBody] string v)
         {
             var retval = await _sonos.ZoneMethods.Browsing(_sonos.GetPlayerbyUuid(id), v, true);
             if (retval == null) return null;
@@ -912,7 +912,7 @@ namespace Sonos.Controllers
         /// <param name="v">URI zum Track</param>
         /// <returns></returns>
         [HttpPost("GetSongMeta")]
-        public MP3File.MP3File GetSongMeta([FromForm] string v)
+        public MP3File.MP3File GetSongMeta([FromBody] string v)
         {
             //Prüfen, ob schon in RatingFehlerliste enthalten.
             try
@@ -934,7 +934,7 @@ namespace Sonos.Controllers
         }
 
         [HttpPost("SetGroups/{id}")]
-        public async Task<Boolean> SetGroups(string id, [FromForm] string[] v)
+        public async Task<Boolean> SetGroups(string id, [FromBody] string[] v)
         {
             try
             {
@@ -963,7 +963,7 @@ namespace Sonos.Controllers
         /// <param name="id">UUID Des Players</param>
         /// <param name="v">PFAD#Rating'Gelegenheit</param>
         [HttpPost("SetSongMeta/{id}")]
-        public Boolean SetSongMeta(string id, [FromForm] MP3File.MP3File v)
+        public Boolean SetSongMeta(string id, [FromBody] MP3File.MP3File v)
         {
             var pla = _sonos.GetPlayerbyUuid(id);
             MP3File.MP3File lied = v;
@@ -1022,7 +1022,7 @@ namespace Sonos.Controllers
         /// <param name="id"></param>
         /// <param name="v"></param>
         [HttpPost("SetRatingFilter/{id}")]
-        public Boolean SetRatingFilter(string id, [FromForm] SonosRatingFilter v)
+        public Boolean SetRatingFilter(string id, [FromBody] SonosRatingFilter v)
         {
             try
             {
@@ -1046,7 +1046,7 @@ namespace Sonos.Controllers
         /// <param name="id"></param>
         /// <param name="v"></param>
         [HttpPost("Seek/{id}")]
-        public async Task<Boolean> Seek(string id, [FromForm] double v)
+        public async Task<Boolean> Seek(string id, [FromBody] double v)
         {
             if (v < 1) return true;
             var pl = _sonos.GetPlayerbyUuid(id);
@@ -1058,7 +1058,7 @@ namespace Sonos.Controllers
         /// <param name="id"></param>
         /// <param name="v"></param>
         [HttpPost("Enqueue/{id}")]
-        public async Task<Boolean> Enqueue(string id, [FromForm] string v)
+        public async Task<Boolean> Enqueue(string id, [FromBody] string v)
         {
             var pl = _sonos.GetPlayerbyUuid(id);
             return await _sonos.ZoneMethods.AddToQueue(v, pl);
@@ -1069,7 +1069,7 @@ namespace Sonos.Controllers
         /// <param name="id">Rincon</param>
         /// <param name="v">Name der Wiedergabeliste. Falls schon vorhanden wird diese überschrieben</param>
         [HttpPost("SaveQueue/{id}")]
-        public async Task<Boolean> SaveQueue(string id, [FromForm] string v)
+        public async Task<Boolean> SaveQueue(string id, [FromBody] string v)
         {
             try
             {
@@ -1107,7 +1107,7 @@ namespace Sonos.Controllers
         /// <param name="id">Rincon</param>
         /// <param name="v">Titel des exports</param>
         [HttpPost("ExportQueue/{id}")]
-        public async Task<Boolean> ExportQueue(string id, [FromForm] string v)
+        public async Task<Boolean> ExportQueue(string id, [FromBody] string v)
         {
             try
             {
@@ -1139,7 +1139,7 @@ namespace Sonos.Controllers
         /// <param name="id"></param>
         /// <param name="v"></param>
         [HttpPost("ReplacePlaylist/{id}")]
-        public async Task<Boolean> ReplacePlaylist(string id, [FromForm] string v)
+        public async Task<Boolean> ReplacePlaylist(string id, [FromBody] string v)
         {
             try
             {
@@ -1166,8 +1166,8 @@ namespace Sonos.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <param name="v"></param>
-        [HttpPost("SetSongInPlaylist/{id}")]
-        public async Task<Boolean> SetSongInPlaylist(string id, [FromForm] string v)
+        [HttpGet("SetSongInPlaylist/{id}/{v}")]
+        public async Task<Boolean> SetSongInPlaylist(string id, string v)
         {
             try
             {
