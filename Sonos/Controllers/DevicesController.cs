@@ -118,7 +118,7 @@ namespace Sonos.Controllers
         }
 
         [HttpPost("SetPlayerProperties")]
-        public async Task<ActionResult> SetPlayerProperties(PlayerPropertiesRequest playerPropertiesRequest)
+        public async Task<ActionResult> SetPlayerProperties([FromBody]PlayerPropertiesRequest playerPropertiesRequest)
         {
             try
             {

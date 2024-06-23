@@ -509,12 +509,15 @@ function SetVolume(k) {
     //Multivolume
     k = parseInt(k);
     var cordplayer = SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.zoneGroupTopology_ZonePlayerUUIDsInGroup;
+    console.log("SetVolume");
+    console.log(cordplayer);
     if (cordplayer.length > 1) {
         SoDo.multiVolume.innerHTML = "";
         SonosWindows(SoDo.multiVolume, false, { overlay: true, selecteddivs: [SoDo.playButton, SoDo.muteButton, SoDo.nextButton] });
         SoDo.multiVolume.innerHTML = '<div id="multivolume_close" OnClick="SonosWindows(SoDo.multiVolume, true);">X</DIV>'
         //Hier nun den Player für alle machen.
         SoDo.multiVolume.innerHTML += '<div id="MultivolumeAll">Alle<DIV id="MultivolumesliderAllWrapper"><input class="multivolumeslider" type="range" min="0" max="100" value=' + SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume +' step="1" ID="MultivolumesliderAll" Name="MultivolumesliderAll"></div><div class="multivolumesliderVolumeNumber" id="MultivolumeAllNumber">' + SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume + '</DIV></DIV>';
+        let multivol = "";
         cordplayer.forEach(function (item) {
             var player = SonosPlayers[item];
             var name = player.name;
@@ -523,8 +526,9 @@ function SetVolume(k) {
             if (player.playerProperties.mute === true) {
                 muteactive = SoVa.aktiv;
             }
-            SoDo.multiVolume.innerHTML += '<div id="multivolume_' + item + '"><DIV class="multiVolumeNameMuteWrapper"><DIV class="multiVolumeName">' + name + '</DIV><DIV class="multiVolumeMute ' + muteactive + '" id="MultiVolumeMute_' + item + '" onClick="SetMute(\'' + item + '\')"></DIV></DIV><DIV id="Multivolumeslider_' + item + 'Wrapper"><input type="range" class="multivolumeslider" min="0" max="100" value=' + volume + ' step="1" ID="Multivolumeslider_' + item + '" Name="Multivolumeslider_' + item + '"></div><div class="multivolumesliderVolumeNumber" id="MultivolumesliderVolumeNumber_' + item + '">' + volume + '</div></DIV>';
+            multivol += '<div id="multivolume_' + item + '"><DIV class="multiVolumeNameMuteWrapper"><DIV class="multiVolumeName">' + name + '</DIV><DIV class="multiVolumeMute ' + muteactive + '" id="MultiVolumeMute_' + item + '" onClick="SetMute(\'' + item + '\')"></DIV></DIV><DIV id="Multivolumeslider_' + item + 'Wrapper"><input type="range" class="multivolumeslider" min="0" max="100" value=' + volume + ' step="1" ID="Multivolumeslider_' + item + '" Name="Multivolumeslider_' + item + '"></div><div class="multivolumesliderVolumeNumber" id="MultivolumesliderVolumeNumber_' + item + '">' + volume + '</div></DIV>';
         });
+        SoDo.multiVolume.innerHTML += multivol;
         cordplayer.forEach(function (item) {
             var player = SonosPlayers[item];
             var volume = player.playerProperties.volume;
@@ -920,26 +924,22 @@ function MakeCurrentPlaylistSortable() {
 }
 function SortCurrentPlaylist(e) {
     e.preventDefault();
-    console.log("initsort");
     const draggingItem = document.querySelector(".dragging");
     // Getting all items except currently dragging and making an array of them
-    let siblings = [...SoDo.currentplaylistwrapper.querySelectorAll(".currentplaylist:not(.dragging)")];
-
-    // Finding the sibling after which the dragging item should be placed
-    let nextSibling = siblings.find(sibling => {
-        return e.clientY <= sibling.offsetTop + sibling.offsetHeight / 2;
-    });
-
+    let hei = SoDo.currentplaylistwrapper.firstChild.offsetHeight-1;
+    let geteilt = Math.round(e.pageY / hei);
+    let celemt = SoDo.currentplaylistwrapper.childNodes[geteilt];
     // Inserting the dragging item before the found sibling
-    SoDo.currentplaylistwrapper.insertBefore(draggingItem, nextSibling);
+    SoDo.currentplaylistwrapper.insertBefore(draggingItem, celemt);
 }
 //Playlist wurde umsortiert und nun neu geschrieben.
 function ResortPlaylist(evt) {
+    
     var cpl = evt.target.id
     SetHide(evt.target.querySelector(".curpopdown"));
     SoVa.aktcurpopdown = "leer";//Damit das nächste Aufgehen wieder ohne Probleme geht.
     let items = SoDo.currentplaylistwrapper.querySelectorAll(".currentplaylist");
-    items.forEach(function (item,i) {
+    items.forEach(function (item, i) {
         if (item.id === cpl) {
             var old = GetIDfromCurrentPlaylist(cpl);
             SonosPlayers[SonosZones.ActiveZoneUUID].playlist.ReorderPlaylist(SonosPlayers[SonosZones.ActiveZoneUUID], old, i);
@@ -1336,9 +1336,11 @@ function LoadBrowse(v) {
             UpdateImageOnErrors();
             //Anker wurde vorbereitet und kann nun angezeigt werden.
             if (abc.length > 0) {
+                let ank = "";
                 abc.forEach(function (item) {
-                    SoDo.ankerlist.innerHTML += '<div onClick="SetAnker(\'' + item + '\',\'' + v + '\')" id="ankerlist_' + item + '"><a href="#' + item + '">' + item + '</a></DIV>';
+                    ank += '<div onClick="SetAnker(\'' + item + '\',\'' + v + '\')" id="ankerlist_' + item + '"><a href="#' + item + '">' + item + '</a></DIV>';
                 });
+                SoDo.ankerlist.innerHTML = ank;
             }
         } else {
             //ES wurden keine Elemente zurückgeliefert
@@ -1423,30 +1425,34 @@ function ShowCurrentSongMeta() {
         var prop = Object.getOwnPropertyNames(data);
         let wrapper = document.createElement("DIV");
         wrapper.id = "CurrentMetaWrapper";
+        let html =""
         for (var i = 0; i < prop.length; i++) {
             var k = prop[i];
             if (SoVa.metaUse.indexOf(k) !== -1) {
                 if (data[k] !== "" && data[k] !== null && data[k] !== "leer" && data[k] !== 0) {
                     //erstes zeichen groß schreiben
-                    wrapper.innerHTML += "<div><b>" + k.charAt(0).toUpperCase() + k.slice(1) + "</b>: " + data[k] + "</div>";
+                    html += "<div><b>" + k.charAt(0).toUpperCase() + k.slice(1) + "</b>: " + data[k] + "</div>";
                 }
             }
         }
+        wrapper.innerHTML = html;
         SoDo.currentMeta.appendChild(wrapper);
     } else {
         SonosAjax("GetSongMeta", cut.uri).then(function (datanull) {
             var propnull = Object.getOwnPropertyNames(datanull);
             let wrapper = document.createElement("DIV");
             wrapper.id = "CurrentMetaWrapper";
+            let html = "";
             for (var y = 0; y < propnull.length; y++) {
                 var kp = propnull[y];
                 if (SoVa.metaUse.indexOf(kp) !== -1) {
                     if (datanull[kp] !== null && datanull[kp] !== "") {
                         //erstes zeichen groß schreiben
-                        wrapper.innerHTML += "<div><b>" + kp.charAt(0).toUpperCase() + kp.slice(1) + "</b>: " + datanull[kp] + "</div>";
+                        html += "<div><b>" + kp.charAt(0).toUpperCase() + kp.slice(1) + "</b>: " + datanull[kp] + "</div>";
                     }
                 }
             }
+            wrapper.innerHTML = html;
             SoDo.currentMeta.appendChild(wrapper);
         });
     }

@@ -18,13 +18,14 @@ function SettingClass() {
     this.AjaxRender = document.getElementById("Ajaxloader");
     let AjaxRenderSettings = document.getElementById("AjaxloaderSettings");
     this.Init = function () {
-        $.get("/Devices/GetPlayerNamesAndUUID").then(function (data) {
+
+        Send("/Devices/GetPlayerNamesAndUUID").then(function (data) {
             console.log(data);
             t.RenderPlayerList(data);
             document.getElementById("LoadSettings").addEventListener("click", function (s) {
                 t.RenderSettings();
             })
-        }).fail(function (ex) {
+        }).catch(function (ex) {
             console.log(ex);
             alert(ex.statusText + " " + ex.responseText);
         })
@@ -58,9 +59,9 @@ function SettingClass() {
             return;
         }
         //werte holen und an RenderPlayer geben
-        $.get("/Devices/GetPlayerProperties/" + uuid).done(function (data) {
+        Send("/Devices/GetPlayerProperties/" + uuid).then(function (data) {
             t.RenderPlayerDom(data);
-        }).fail(function (ex) {
+        }).catch(function (ex) {
             console.log(ex);
             alert(ex.statusText + " " + ex.responseText);
         });
@@ -204,10 +205,10 @@ function SettingClass() {
     }
     this.LoadSettings = function () {
         AjaxRenderSettings.style.display = "block";
-        $.get("/settings/GetSonosSettings/").done(function (data) {
+        Send("/settings/GetSonosSettings/").then(function (data) {
             t.settings = data;
             t.RenderSettings();
-        }).fail(function (ex) {
+        }).catch(function (ex) {
             console.log(ex);
             alert(ex.statusText + " " + ex.responseText);
         });
@@ -298,10 +299,10 @@ function SettingClass() {
         let selectedplayer = document.getElementById("PlayerSelection").value;
         let ppr = new PlayerDevicePropertiesTypes();
 
-        ppr.value = value;
+        ppr.value = value.toString();
         ppr.uuid = selectedplayer;
         ppr.type = Types[proper];
-        $.post("/devices/SetPlayerProperties", ppr).done(function (data) { console.log("Playerdaten erfolgreich Update"); }).fail(function (ex) {
+        Send("/devices/SetPlayerProperties",ppr,"POST").then(function () { console.log("Playerdaten erfolgreich Update"); }).catch(function (ex) {
             t.SetPlayer(ppr.uuid);
             alert(ex.statusText + " " + ex.responseText);
         });

@@ -9,6 +9,12 @@ namespace Sonos.Controllers
         public TestController()
         {
         }
+
+        public ActionResult Index()
+        {
+            return View();
+        }
+
         [HttpGet("test")]
         public string Test()
         {

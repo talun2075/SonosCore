@@ -53,6 +53,7 @@ function SonosZonesObject() {
                 }
                 var prop = Object.getOwnPropertyNames(SonosZones.ZonesList);
                 var zcounter = 0; //Anzahl der Zonen;
+                let html = "";
                 for (var i = 0; i < prop.length; i++) {
                     if (prop[i].substring(0, Checker.length) === Checker) {
                         //Es handelt sich um einen Sonosplayer
@@ -75,10 +76,11 @@ function SonosZonesObject() {
                             playinternal = "Pause";
                         }
                         var image = '<img class="deviceIcon" src="' + SonosPlayers[p].playerProperties.icon + '">';
-                        SoDo.devicesWrapper.innerHTML += '<div class="groupdevicewrapper"><div id="' + SonosPlayers[p].uuid + '" class="device' + aktdev + '" onclick="SetDevice(\'' + uuid + '\');"><p>' + image + SonosPlayers[uuid].name + '</p>' + SonosZones.GetCordinatedPlayerasStringFormat(zone) + '</div><img id="deviceplayinggif_' + uuid + '" class="deviceplayinggif" ' + playstateimg + ' src="/images/playing.gif"><div id="GroupDevice_' + uuid + '" onclick="SetDeviceGroupFor(\'' + uuid + '\')" class="groupdeviceclass">&nbsp;&nbsp;Gruppe&nbsp;&nbsp;</div><div class="groupdeviceclass groupdeviceclassplay ' + playclass + '" onclick="SonosPlayers[\'' + uuid + '\'].SendTransportState(\'' + playinternal + '\');" id="' + uuid + '_GroupPlayState"></div></div>';
+                        html += '<div class="groupdevicewrapper"><div id="' + SonosPlayers[p].uuid + '" class="device' + aktdev + '" onclick="SetDevice(\'' + uuid + '\');"><p>' + image + SonosPlayers[uuid].name + '</p>' + SonosZones.GetCordinatedPlayerasStringFormat(zone) + '</div><img id="deviceplayinggif_' + uuid + '" class="deviceplayinggif" ' + playstateimg + ' src="/images/playing.gif"><div id="GroupDevice_' + uuid + '" onclick="SetDeviceGroupFor(\'' + uuid + '\')" class="groupdeviceclass">&nbsp;&nbsp;Gruppe&nbsp;&nbsp;</div><div class="groupdeviceclass groupdeviceclassplay ' + playclass + '" onclick="SonosPlayers[\'' + uuid + '\'].SendTransportState(\'' + playinternal + '\');" id="' + uuid + '_GroupPlayState"></div></div>';
                         zcounter++;
                     }
                 }
+                SoDo.devicesWrapper.innerHTML = html;
                 if (typeof SonosPlayers[SonosZones.ActiveZoneUUID] !== "undefined" && typeof SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.transportStateString !== "undefined" && SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.transportStateString === "PLAYING") {
                     AddClass(SoDo.playButton, SoVa.aktiv);
                 } else {
@@ -299,12 +301,14 @@ function SonosZonesObject() {
         //Playlist
         if (SoDo.currentplaylistwrapper.hasChildNodes()) {
             var apsnumber = SonosPlayers[uuid].playerProperties.currentTrackNumber - 1;
-            
-            var curr = document.getElementById("Currentplaylist_" + apsnumber).lastChild.querySelector(":scope > .playlistplaysmall");
-            if (value === "PLAYING") {
-                AddClass(curr, "akt");
-            } else {
+            let cpa = document.getElementById("Currentplaylist_" + apsnumber);
+            if (cpa !== null) {
+                var curr = cpa.lastChild.querySelector(":scope > .playlistplaysmall");
+                if (value === "PLAYING") {
+                    AddClass(curr, "akt");
+                } else {
                     RemoveClass(curr, "akt");
+                }
             }
         }
         //Großer Playbuttom
