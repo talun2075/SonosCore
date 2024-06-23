@@ -28,7 +28,7 @@
         display: none;
     }
 }
-@media screen and (max-width: 1310px) {
+@media screen and (max-width: 1380px) {
     #Lyricbox {
         display: block;
         min-width: 450px;

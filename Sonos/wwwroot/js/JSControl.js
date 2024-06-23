@@ -12,7 +12,7 @@
 //    return hours + ':' + minutes + ':' + seconds;
 //}
 
-
+//todo: find a solution for drag and drop on mobile browsers.
 window.onerror = Fehlerbehandlung;
 var debug = false; //Wenn true wird kein Refesh gemacht		
 var wroteDebugInfos = false;
