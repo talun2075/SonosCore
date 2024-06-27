@@ -337,23 +337,16 @@ function GetZones() {
 function GroupDeviceShow() {
     try {
         if (SoVa.groupDeviceShowBool === false) {
-            var wbydevice = "350px";
-            AddClass(SoDo.devicesWrapper, "groupdevicesshown");
+            AddClass(SoDo.devices, SoVa.aktiv);
             SoDo.devicesWrapper.style.zIndex = SoVa.szindex + 100;
-            SoDo.devicesWrapper.style.maxHeight = "400px";
-            SoDo.devices.style.maxHeight = "400px";
-            SoDo.devices.style.maxWidth = wbydevice;
-            let gdv = SoDo.devicesWrapper.querySelectorAll(".groupdeviceclass");
             SoDo.devicesWrapper.querySelectorAll(".groupdeviceclass").forEach(function (item) { item.style.display = "table" });
-            SoDo.groupDeviceShow.textContent = "<<";
+            //SoDo.groupDeviceShow.textContent = "<<";
+            AddClass(SoDo.groupDeviceShow, SoVa.aktiv);
             SoVa.groupDeviceShowBool = true;
         } else {
-            RemoveClass(SoDo.devicesWrapper, "groupdevicesshown");
-            SoDo.devicesWrapper.style.zIndex = 100;
-            SoDo.devicesWrapper.style.maxHeight = "230px";
-            SoDo.devices.style.maxHeight = "230px";
-            SoDo.devices.style.maxWidth = "180px";
-            SoDo.groupDeviceShow.textContent = ">>";
+            RemoveClass(SoDo.devices, SoVa.aktiv);
+            //SoDo.groupDeviceShow.textContent = ">>";
+            RemoveClass(SoDo.groupDeviceShow, SoVa.aktiv);
             SoVa.groupDeviceShowBool = false;
             SoDo.devicesWrapper.querySelectorAll(".groupdeviceclass").forEach(function (item) { item.style.display = "none" });
         }
@@ -408,7 +401,7 @@ function SetGroup() {
         GroupDeviceShow();
         //Ausgewählte ermitteln
         var g = [];
-        SoDo.setGroupMembers.querySelectorAll(".groupcheckchecker:checked").forEach(function (item) { 
+        SoDo.setGroupMembers.querySelectorAll(".groupcheckchecker:checked").forEach(function (item) {
             g.push(item.value);
         })
         if (g.length === 0) {
@@ -417,7 +410,7 @@ function SetGroup() {
             g = "leer";
         }
         //Daten senden
-        SonosAjax("SetGroups", g).then(function () {});
+        SonosAjax("SetGroups", g).then(function () { });
     }
     catch (Ex) {
         alert("Es ist ein Fehler beim SetGroup aufgetreten:<br>" + Ex.message);
@@ -475,7 +468,7 @@ function PlayPressSmall(k) {
             //Play bei aktuellem Song
             PlayPress();
         } else {
-            SonosAjax("SetSongInPlaylist","", PressKey);
+            SonosAjax("SetSongInPlaylist", "", PressKey);
         }
     }
     catch (Ex) {
@@ -516,7 +509,7 @@ function SetVolume(k) {
         SonosWindows(SoDo.multiVolume, false, { overlay: true, selecteddivs: [SoDo.playButton, SoDo.muteButton, SoDo.nextButton] });
         SoDo.multiVolume.innerHTML = '<div id="multivolume_close" OnClick="SonosWindows(SoDo.multiVolume, true);">X</DIV>'
         //Hier nun den Player für alle machen.
-        SoDo.multiVolume.innerHTML += '<div id="MultivolumeAll">Alle<DIV id="MultivolumesliderAllWrapper"><input class="multivolumeslider" type="range" min="0" max="100" value=' + SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume +' step="1" ID="MultivolumesliderAll" Name="MultivolumesliderAll"></div><div class="multivolumesliderVolumeNumber" id="MultivolumeAllNumber">' + SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume + '</DIV></DIV>';
+        SoDo.multiVolume.innerHTML += '<div id="MultivolumeAll">Alle<DIV id="MultivolumesliderAllWrapper"><input class="multivolumeslider" type="range" min="0" max="100" value=' + SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume + ' step="1" ID="MultivolumesliderAll" Name="MultivolumesliderAll"></div><div class="multivolumesliderVolumeNumber" id="MultivolumeAllNumber">' + SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume + '</DIV></DIV>';
         let multivol = "";
         cordplayer.forEach(function (item) {
             var player = SonosPlayers[item];
@@ -533,15 +526,15 @@ function SetVolume(k) {
             var player = SonosPlayers[item];
             var volume = player.playerProperties.volume;
             var musli = document.getElementById("Multivolumeslider_" + item);
-            musli.oninput = function () { 
+            musli.oninput = function () {
                 document.getElementById("MultivolumesliderVolumeNumber_" + item).textContent = this.value;
             }
             musli.onchange = function () {
                 if (this.value > volume && this.value - volume > SoVa.volumeConfirmCounter) {
                     var answer = confirm("Du willst die Lautstärke um " + SoVa.volumeConfirmCounter + " von 100 Schritten erhöhen. Klicke Ok, wenn das gewollt ist");
                     if (!answer) {
-                        this.value= volume;
-                        document.getElementById("MultivolumesliderVolumeNumber_" + item).textContent =volume;
+                        this.value = volume;
+                        document.getElementById("MultivolumesliderVolumeNumber_" + item).textContent = volume;
                         return false;
                     }
                 }
@@ -738,8 +731,8 @@ function ShowSongInfos(t) {
 
         //Cover Laden aus dem Data Attribut und dieses entsprechend leeren.
         if (plcover.dataset.url !== "geladen") {
-            plcover.innerHTML='<img class="currentplaylistcover" onclick="ShowPlaylistLyric(this)" src="' + plcover.dataset.url + '">';
-            plcover.dataset.url ="geladen";
+            plcover.innerHTML = '<img class="currentplaylistcover" onclick="ShowPlaylistLyric(this)" src="' + plcover.dataset.url + '">';
+            plcover.dataset.url = "geladen";
         }
         //todo: wenn currentrack wechselt, dann müßte das gefüllt sein.
         var plmp3 = SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.playlist.playListItems[plid].mP3;
@@ -912,7 +905,7 @@ function GetIDfromCurrentPlaylist(k) {
 
 //Playlist Sortierbar machen
 function MakeCurrentPlaylistSortable() {
-    SoDo.currentplaylistwrapper.childNodes.forEach(function (item) { 
+    SoDo.currentplaylistwrapper.childNodes.forEach(function (item) {
         item.draggable = true;
         item.addEventListener("dragstart", () => {
             // Adding dragging class to an item after a delay
@@ -926,7 +919,7 @@ function SortCurrentPlaylist(e) {
     e.preventDefault();
     const draggingItem = document.querySelector(".dragging");
     // Getting all items except currently dragging and making an array of them
-    let hei = SoDo.currentplaylistwrapper.firstChild.offsetHeight-1;
+    let hei = SoDo.currentplaylistwrapper.firstChild.offsetHeight - 1;
     let geteilt = Math.round(e.pageY / hei);
     let celemt = SoDo.currentplaylistwrapper.childNodes[geteilt];
     // Inserting the dragging item before the found sibling
@@ -934,7 +927,7 @@ function SortCurrentPlaylist(e) {
 }
 //Playlist wurde umsortiert und nun neu geschrieben.
 function ResortPlaylist(evt) {
-    
+
     var cpl = evt.target.id
     SetHide(evt.target.querySelector(".curpopdown"));
     SoVa.aktcurpopdown = "leer";//Damit das nächste Aufgehen wieder ohne Probleme geht.
@@ -1170,10 +1163,10 @@ function SetRatingLyric() {
             var plcover = playlistsong.querySelector(".playlistcover");
             let bomb = playlistsong.querySelector(":scope > .bomb");
             if (plcover.dataset.url !== "geladen") {
-               plcover.innerHTML = '<img class="currentplaylistcover" onclick="ShowPlaylistLyric(this)" src="' + plcover.dataset.url + '">';
-                plcover.dataset.url ="geladen";
+                plcover.innerHTML = '<img class="currentplaylistcover" onclick="ShowPlaylistLyric(this)" src="' + plcover.dataset.url + '">';
+                plcover.dataset.url = "geladen";
             }
-            
+
             //Setzen einer Bombe
             if (mp3.bewertung !== -1) {
                 if (IsVisible(bomb)) {
@@ -1188,7 +1181,7 @@ function SetRatingLyric() {
                 playlistsong.querySelector(":scope > .moveCurrentPlaylistTrack").style.marginLeft = "0";
                 playlistsong.querySelector(":scope > .rating_bar > DIV").style.width = "0%";
             }
-            
+
         }
         //Prüfen ob verarbeitungsfehler vorhanden sind
         if (SoVa.ratingonlycurrent === false) {
@@ -1213,9 +1206,10 @@ function SetRatingLyric() {
 //Durchsuchen der Bibliothek starten
 function BrowsePress() {
     SonosWindows(SoDo.browse);
-    if (document.body.clientWidth > 420) {
-        MoveAktArtist(250);
-    }
+    //if (document.body.clientWidth > 420) {
+    //    MoveAktArtist(250);
+    //}
+    //todo: prüfen ob move noch notwendig ist.
     SoDo.browseButton.classList.toggle("akt");
     if (SoVa.browsefirst === 0) {
         window.setTimeout("LoadBrowse('A:ALBUMARTIST')", 150);
@@ -1258,7 +1252,7 @@ function LoadBrowse(v) {
         var abc = [];
         if (data.length > 0) {
             var browsecontent = "";
-            data.forEach(function (item, i) { 
+            data.forEach(function (item, i) {
                 //Erster Durchlauf und nicht im Root
                 if (i === 0 && item.parentID !== "A:ALBUMARTIST" && item.parentID !== "A:PLAYLISTS" && item.parentID !== "A:GENRE" && item.parentID !== "FV:2") {
                     //Es gibt auch noch ein Parenteintrag, diesen anpassen und entsprechend darstellen ansonsten den alten nehmen
@@ -1425,7 +1419,7 @@ function ShowCurrentSongMeta() {
         var prop = Object.getOwnPropertyNames(data);
         let wrapper = document.createElement("DIV");
         wrapper.id = "CurrentMetaWrapper";
-        let html =""
+        let html = ""
         for (var i = 0; i < prop.length; i++) {
             var k = prop[i];
             if (SoVa.metaUse.indexOf(k) !== -1) {
@@ -1599,7 +1593,7 @@ function ShowSleepMode() {
 }
 function SetSleepModeState() {
     SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.remainingSleepTimerDuration = SoDo.sleepModeSelection.value;
-    var request = SonosAjax("SetSleepTimer",SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.remainingSleepTimerDuration);
+    var request = SonosAjax("SetSleepTimer", SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.remainingSleepTimerDuration);
     request.then(function () {
         SonosZones.RenderSleepTimer(SonosZones.ActiveZoneUUID);
     }).catch(function (jqXHR) {

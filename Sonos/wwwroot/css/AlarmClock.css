@@ -1,7 +1,7 @@
 ﻿#AlarmClockOpen {
 	position: absolute;
-	left: 125px;
-	top: 250px;
+	right: 0;
+	top: 450px;
 	Background: URL("/images/wecker.png");
 	background-size: 100% 100%;
 	background-repeat: no-repeat;
@@ -11,15 +11,35 @@
 #AlarmClockOpen.aktiv{
 	Background-Color: grey;
 }
-#AlarmClock{
-	display:none;
-	background-color:white;
-	height:500px;
+#AlarmClock {
+	display: none;
+	background-color: white;
+	height: 500px;
+	border: 4px solid #000000;
+	border-radius: 25px 25px 25px 25px;
+	box-shadow: 5px 5px 7px #888888;
+	left: 655px;
+	width: 500px;
+	padding: 20px;
+	position: absolute;
+	top: 5px;
+	z-index: 20;
 }
-#AlarmClockWrapper{
-	overflow:auto;
-	/*height:500px;*/
-}
+	#AlarmClock::after {
+		border-style: solid;
+		border-width: 25px;
+		content: "";
+		height: 0px;
+		position: absolute;
+		top: 85%;
+		width: 0px;
+		border-color: transparent transparent transparent rgb(0, 0, 0);
+		left: 100%;
+	}
+	#AlarmClockWrapper {
+		overflow: auto;
+		/*height:500px;*/
+	}
 
 .alarm:last-child {
     font-style: italic;
@@ -165,12 +185,6 @@
 	margin-left: auto;
 	margin-right: auto;
 }
-/*Favoriten Boxen Pfeil nach rechts*/
-.alarmclockarrow {background-color: white;border: 4px solid #000000;border-radius: 25px 25px 25px 25px;box-shadow: 5px 5px 7px #888888;height: 625px;left: 260px;width: 500px;padding: 20px;position: absolute;top: 5px;z-index: 20;} 
-.alarmclockarrow:after, .alarmclockarrow:before { right: 100%; border: solid transparent; content: " "; height: 0; width: 0; position: absolute; pointer-events: none; } 
-.alarmclockarrow:after { border-width: 75px; top: 50%; margin-top: -75px; } 
-.alarmclockarrow:before {border-color: #000000;border-color: rgba(0, 0, 0, 0); border-right-color: #000000; border-width: 81px; top: 50%; margin-top: -81px;}
-
 
 /*einzelne Arlarme designen*/
 .alarm>DIV{

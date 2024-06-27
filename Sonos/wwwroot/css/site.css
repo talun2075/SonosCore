@@ -11,8 +11,8 @@ a {
 
 #Debug {
     line-height: 4;
-    right: 0;
-    top: 280px;
+    left: 1070px;
+    top: 320px;
     display: none;
 }
 
@@ -39,11 +39,11 @@ a {
     border-radius: 25px;
     display: none;
     height: 250px;
-    left: -100px;
+    left: 6100px;
     padding-left: 10px;
     padding-top: 5px;
     position: relative;
-    top: -20px;
+    bottom: 100px;
     width: 400px;
     box-shadow: 5px 5px 7px #888;
 }
@@ -60,10 +60,12 @@ a {
         right: 60%;
         width: 0;
     }
+
 #CurrentMetaWrapper {
     overflow-x: hidden;
     height: 250px;
 }
+
 #EventErrorDiv {
     display: none;
     background: white none repeat scroll 0 0;
@@ -84,8 +86,8 @@ a {
 #AudioIn {
     display: none;
     position: absolute;
-    right: 0;
-    top: 390px;
+    top: 430px;
+    left: 1070px;
     Background: URL("/images/audioin.png");
     background-size: 100% 100%;
     background-repeat: no-repeat;
@@ -114,8 +116,8 @@ a {
 
 #SleepModeButton {
     position: absolute;
-    right: 15px;
-    bottom: 200px;
+    left: 970px;
+    top: 430px;
     Background: URL("/images/sleepmode.png");
     background-size: 100% 100%;
     background-repeat: no-repeat;
@@ -129,11 +131,11 @@ a {
     box-shadow: 5px 5px 7px #888;
     display: none;
     height: 100px;
-    left: 800px;
+    left: 825px;
     padding-left: 10px;
     padding-top: 10px;
     position: absolute;
-    bottom: 170px;
+    top: 412px;
     width: 110px;
 }
 
@@ -145,12 +147,14 @@ a {
     height: 100px;
     position: relative;
 }
+
 #SleepModeSelection {
     width: 100px;
 }
-    #SleepModeWrapper > div {
-        text-align: center;
-    }
+
+#SleepModeWrapper > div {
+    text-align: center;
+}
 
 #SleepModeWrapper:after {
     border-color: transparent transparent transparent rgb(0, 0, 0);
@@ -180,15 +184,18 @@ a {
     height: 1.4em;
     width: 1em;
 }
+
 #Loader {
     margin-left: auto;
     margin-right: auto;
     display: block;
 }
-.childplayer{
+
+.childplayer {
     font-size: 0.6em;
     padding-left: 20px;
 }
+
 #ShowerrorlogingButton {
     bottom: 50px;
     line-height: 50px;
@@ -226,7 +233,7 @@ a {
     position: absolute;
     top: 0;
     left: 0;
-    width: 1020px;
+    width: 1310px;
     height: 99%;
     min-height: 605px;
     border-radius: 25px 25px 25px 25px;
@@ -240,7 +247,6 @@ a {
     margin-right: 1px;
     width: 100px;
     background: url("/images/grau.png") 0 0 repeat-x;
-    float: left;
 }
 
     .rating_bar div {
@@ -275,9 +281,9 @@ a {
 }
 
 #BewertungN {
-    bottom: 110px;
+    top: 260px;
     position: absolute;
-    right: 170px;
+    left: 940px;
     margin-right: 1px;
     width: 150px;
     height: 30px;
@@ -514,19 +520,25 @@ a {
 
 #Ratinglist, #Filterlist {
     position: absolute;
-    top: 5px;
-    right: 75px;
+    top: 48px;
+    left: 750px;
     display: none;
     background: white;
     padding-bottom: 20px;
-    width: 210px;
+    width: 340px;
     border: solid;
     -webkit-box-shadow: 5px 5px 7px #888;
     box-shadow: 5px 5px 7px #888;
     -webkit-border-radius: 25px;
     border-radius: 25px 25px 25px 25px;
     bottom: 40px;
-    min-height: 600px;
+    min-height: 400px;
+    height: fit-content;
+}
+.filterlistWrapperParent {
+    display: inline-flex;
+    width: 100%;
+    margin: 15px;
 }
 
 #filter_rating_bar_bomb {
@@ -563,7 +575,7 @@ a {
     text-align: center;
     vertical-align: middle;
     position: absolute;
-    right: 30px;
+    left: 30px;
     top: 500px;
     height: 30px;
     width: 30px;
@@ -579,7 +591,7 @@ a {
     text-align: center;
     vertical-align: middle;
     position: absolute;
-    right: 30px;
+    left: 30px;
     top: 280px;
     height: 200px;
     width: 230px;
@@ -652,27 +664,31 @@ a {
     vertical-align: middle;
     background: #e5e5e5;
     -webkit-overflow-scrolling: touch;
-    max-height: 230px;
+    max-height: 270px;
     overflow: hidden;
     z-index: 100;
     max-width: 180px;
     width: 100%;
     transition: 600ms linear;
+    box-shadow: 5px 5px 7px #888;
+}
+#Devices.aktiv{
+    max-width:350px;
+    max-height: 400px;
 }
 
-.deviceWrapper {
-    max-height: 230px;
+#DeviceWrapper {
+    max-height: 270px;
     width: 100%;
     overflow: auto;
     padding-bottom: 5px;
 }
-
-.groupdevicesshown {
-    -webkit-border-radius: 25px;
-    border-radius: 25px;
-    -webkit-box-shadow: 5px 5px 7px #888;
-    box-shadow: 5px 5px 7px #888;
-}
+    #DeviceWrapper.aktiv {
+        -webkit-border-radius: 25px;
+        border-radius: 25px;
+        -webkit-box-shadow: 5px 5px 7px #888;
+        box-shadow: 5px 5px 7px #888;
+    }
 
 .groupdeviceclass {
     display: none;
@@ -693,12 +709,12 @@ a {
     width: 25px;
 }
 
-.groupdeviceclassplay.active {
-    Background: URL("/images/play_red.png");
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
-    background-color: grey;
-}
+    .groupdeviceclassplay.active {
+        Background: URL("/images/play_red.png");
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+        background-color: grey;
+    }
 
 .device {
     width: 140px;
@@ -717,13 +733,28 @@ a {
 
 #GroupDeviceShow {
     display: none;
+    background: none repeat scroll 0 0 grey;
+    border: 2px solid;
+    border-radius: 0 20px;
+    overflow: hidden;
+    position: absolute;
+    right: -2px;
+    text-align: center;
+    top: -2px;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml;utf8, <svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='50px' width='120px'> <text x='5' y='20' fill='black' font-size='20' font-weight='bold'>>></text> </svg>");
 }
+    #GroupDeviceShow.aktiv {
+        background-image: url("data:image/svg+xml;utf8, <svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='50px' width='120px'> <text x='5' y='20' fill='black' font-size='20' font-weight='bold'>&lt;&lt;</text> </svg>");
+    }
 
-.device_groupmember {
-    width: 130px;
-    float: left;
-    font-size: 0.6em;
-}
+    .device_groupmember {
+        width: 130px;
+        float: left;
+        font-size: 0.6em;
+    }
 
 .groupdevicewrapper {
     overflow: hidden;
@@ -793,8 +824,8 @@ a {
     }
 
 #Shuffle {
-    top: 0;
-    right: 90px;
+    top: 320px;
+    left: 870px;
     Background: URL("/images/shuffle_red.png");
     background-size: 100% 100%;
     background-repeat: no-repeat;
@@ -808,8 +839,8 @@ a {
     }
 
 #Repeat {
-    top: 180px;
-    right: 90px;
+    top: 320px;
+    left: 970px;
     Background: URL("/images/repeat_red.png");
     background-size: 100% 100%;
     background-repeat: no-repeat;
@@ -828,8 +859,8 @@ a {
     }
 
 #Fade {
-    top: 180px;
-    right: 0;
+    top: 430px;
+    left: 870px;
     Background: URL("/images/fade_red.png");
     background-size: 100% 100%;
     background-repeat: no-repeat;
@@ -855,8 +886,8 @@ a {
 }
 
 #Pre {
-    top: 90px;
-    right: 90px;
+    top: 180px;
+    right: 0;
     Background: URL("/images/zur_red.png");
     background-size: 100% 100%;
     background-repeat: no-repeat;
@@ -919,14 +950,14 @@ a {
     -webkit-box-shadow: 5px 5px 7px #888;
     box-shadow: 5px 5px 7px #888;
     border-radius: 25px 25px 25px 25px;
-    width: 250px;
-    height: 250px;
-    right: 165px;
-    bottom: 100px;
+    width: 300px;
+    height: 300px;
+    left: 860px;
+    top: 5px;
     -o-transition: all 1s ease-in-out;
     -webkit-transition: all 1s ease-in-out;
     transition: all 1s ease-in-out;
-    z-index:2
+    z-index: 2
 }
 
     #Cover.moveright, #AktSongInfo.moveright {
@@ -943,6 +974,8 @@ a {
     -o-transition: all 1s ease-in-out;
     -webkit-transition: all 1s ease-in-out;
     transition: all 1s ease-in-out;
+    width: 500px;
+    display: inline-flex;
 }
 
     #AktSongInfo.moveleft {
@@ -955,9 +988,15 @@ a {
     height: 23px;
     overflow: hidden;
 }
+#Aktartist::before {
+    content: " - ";
+}
+
+
 #Aktartist {
     height: 23px;
     overflow: hidden;
+    margin-left: 10px;
 }
 
 #Nextcover {
@@ -988,6 +1027,7 @@ a {
     bottom: 10px;
     width: calc(100% - 50px);
 }
+
 #PlayRuntimeSlider {
     width: 100%;
     appearance: none;
@@ -1001,6 +1041,7 @@ a {
     #PlayRuntimeSlider:hover {
         background: black;
     }
+
     #PlayRuntimeSlider::-moz-range-thumb {
         width: 15px;
         height: 15px;
@@ -1015,15 +1056,17 @@ a {
     background: grey;
     position: absolute;
     left: 85px;
-    top: 260px;
-    height: 250px;
+    top: 300px;
+    height: 200px;
     writing-mode: sideways-lr;
     width: 5px;
     border-radius: 25px;
 }
+
     #Volume:hover {
         background: black;
     }
+
     #Volume::-moz-range-thumb {
         width: 15px;
         height: 15px;
@@ -1032,6 +1075,7 @@ a {
         border-radius: 25px;
         border: 1px solid white;
     }
+
 .multivolumeslider {
     appearance: none;
     background: grey;
@@ -1039,6 +1083,7 @@ a {
     height: 5px;
     width: 90%;
 }
+
     .multivolumeslider:hover {
         background: black;
     }
@@ -1064,8 +1109,11 @@ a {
     border-radius: 25px;
     background: white;
     padding: 25px 15px 15px;
-    top: 240px;
+    top: 20px;
     left: 100px;
+    max-height: 500px;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .multivolumesliderVolumeNumber {
@@ -1074,7 +1122,7 @@ a {
     top: -36px;
 }
 
-#multivolume_close, #GroupDeviceShow, #GroupCheckClose, .righttopclose {
+#multivolume_close, #GroupCheckClose, .righttopclose {
     background: none repeat scroll 0 0 grey;
     border: 2px solid;
     border-radius: 0 20px;
@@ -1090,9 +1138,9 @@ a {
 
 #Playlist {
     position: absolute;
-    right: 180px;
+    left: 610px;
     top: 5px;
-    bottom: 390px;
+    bottom: 80px;
     width: 235px;
     border: 2px solid;
     -webkit-border-radius: 25px;
@@ -1163,7 +1211,7 @@ a {
 
 #Currentplaylist {
     position: absolute;
-    left: 190px;
+    left: 200px;
     top: 5px;
     width: 400px;
     bottom: 80px;
@@ -1218,6 +1266,7 @@ a {
     min-height: 1.2em;
     cursor: pointer;
 }
+
 .dragging {
     background-color: grey;
     border-radius: 25px;
@@ -1296,8 +1345,8 @@ a {
 
 #Volumeup {
     position: absolute;
-    top: 250px;
-    left: 5px;
+    top: 410px;
+    left: 125px;
     Background: URL("/images/add_red.png");
     background-size: 100% 100%;
     background-repeat: no-repeat;
@@ -1381,8 +1430,8 @@ a {
 /* Lyric Current*/
 #Lyric {
     position: absolute;
-    left: 125px;
-    top: 410px;
+    right: 0;
+    top: 360px;
     Background: URL("/images/lyric_red.png");
     background-size: 75% 75%;
     Background-Position: 50% center;
@@ -1397,57 +1446,42 @@ a {
 
 #Lyricbox {
     display: none;
-}
-
-#Lyricboxwrapper {
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
-    height: 100%;
-}
-/*Favoriten Boxen Pfeil nach rechts*/
-.arrow_box {
     background-color: white;
     border: 4px solid #000000;
     border-radius: 25px 25px 25px 25px;
     box-shadow: 5px 5px 7px #888888;
     bottom: 55px;
-    left: 185px;
+    left: 416px;
     width: 500px;
     padding: 20px;
     position: absolute;
     top: 5px;
 }
 
-    .arrow_box:after, .arrow_box:before {
-        right: 100%;
-        border: solid transparent;
-        content: " ";
-        height: 0;
-        width: 0;
+    #Lyricbox::after {
+        border-style: solid;
+        border-width: 25px;
+        content: "";
+        height: 0px;
         position: absolute;
-        pointer-events: none;
+        top: 370px;
+        width: 0px;
+        border-color: transparent transparent transparent rgb(0, 0, 0);
+        left: 100%;
     }
 
-    .arrow_box:after {
-        border-width: 75px;
-        top: 50%;
-        margin-top: -75px;
-    }
-
-    .arrow_box:before {
-        border-color: #000000;
-        border-color: rgba(0, 0, 0, 0);
-        border-right-color: #000000;
-        border-width: 10px;
-        top: 420px;
-    }
+#Lyricboxwrapper {
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    height: 100%;
+}
 
 
 /* Browse Boxen*/
 #Browse {
     position: absolute;
-    left: 125px;
-    top: 330px;
+    right: 0;
+    top: 270px;
     Background: URL("/images/browse_red.png");
     background-size: 100% 100%;
     background-repeat: no-repeat;
@@ -1476,14 +1510,34 @@ a {
 
 #Browsebox {
     display: none;
+    background-color: white;
+    border: 4px solid #000000;
+    border-radius: 25px 25px 25px 25px;
+    box-shadow: 5px 5px 7px #888888;
+    bottom: 55px;
+    right: 130px;
+    width: 500px;
+    padding: 35px 20px 20px;
+    position: absolute;
+    top: 5px;
 }
-
-#Browseboxwrapper {
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
-    height: 100%;
-    max-height: calc(100% - 35px);
-}
+    #Browsebox:after {
+        border-style: solid;
+        border-width: 25px;
+        content: "";
+        height: 0px;
+        position: absolute;
+        top: 285px;
+        width: 0px;
+        border-color: transparent transparent transparent rgb(0, 0, 0);
+        left: 100%;
+    }
+    #Browseboxwrapper {
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+        height: 100%;
+        max-height: calc(100% - 35px);
+    }
 
 #BrowsePlaylist {
     position: absolute;
@@ -1548,43 +1602,6 @@ a {
     font-size: 34px;
 }
 
-.box_browse {
-    background-color: white;
-    border: 4px solid #000000;
-    border-radius: 25px 25px 25px 25px;
-    box-shadow: 5px 5px 7px #888888;
-    bottom: 55px;
-    left: 185px;
-    width: 500px;
-    padding: 35px 20px 20px;
-    position: absolute;
-    top: 5px;
-}
-
-    .box_browse:after, .box_browse:before {
-        right: 100%;
-        border: solid transparent;
-        content: " ";
-        height: 0;
-        width: 0;
-        position: absolute;
-        pointer-events: none;
-    }
-
-    .box_browse:after {
-        border-width: 75px;
-        top: 50%;
-        margin-top: -75px;
-    }
-
-    .box_browse:before {
-        border-color: #000000;
-        border-color: rgba(0, 0, 0, 0);
-        border-right-color: #000000;
-        border-width: 10px;
-        top: 340px;
-    }
-
 #Browseback {
     height: 50px;
     /*width: 100%;*/
@@ -1639,6 +1656,7 @@ a {
     border-radius: 0px 0px 20px 20px;
     z-index: 2;
 }
+
     #Ankerlist > DIV {
         width: 15px;
         padding: 5px;
@@ -1651,8 +1669,8 @@ a {
 /* Settings Boxen*/
 #Settings {
     position: absolute;
-    right: 15px;
-    bottom: 100px;
+    top: 330px;
+    left: 125px;
     Background: URL("/images/settings_red.png");
     background-size: 100% 100%;
     background-repeat: no-repeat;
@@ -1666,19 +1684,29 @@ a {
 
 #Settingsbox {
     display: none;
+    background-color: white;
+    border: 4px solid rgb(0, 0, 0);
+    border-radius: 25px;
+    box-shadow: rgb(136, 136, 136) 5px 5px 7px;
+    height: 200px;
+    left: 200px;
+    width: 500px;
+    padding: 20px;
+    position: absolute;
+    top: 230px;
 }
 
-#Settingsbox::after {
-    border-style: solid;
-    border-width: 25px;
-    content: "";
-    height: 0px;
-    position: absolute;
-    top: 50%;
-    width: 0px;
-    border-color: transparent transparent transparent rgb(0, 0, 0);
-    left: 100%;
-}
+    #Settingsbox::before {
+        border-style: solid;
+        border-width: 25px;
+        content: "";
+        height: 0px;
+        position: absolute;
+        top: 40%;
+        width: 0px;
+        border-color: transparent rgb(0, 0, 0) transparent transparent;
+        right: 100%;
+    }
 
 #Settingsclose {
     display: none;
@@ -1689,7 +1717,8 @@ a {
     -webkit-overflow-scrolling: touch;
     height: 160px;
 }
-.box_settings {
+
+/*.box_settings {
     background-color: white;
     border: 4px solid #000000;
     border-radius: 25px 25px 25px 25px;
@@ -1701,7 +1730,7 @@ a {
     position: absolute;
     bottom: 25px;
     z-index: 20;
-}
+}*/
 /*
 
     .box_settings:after, .box_settings:before {
@@ -1779,9 +1808,9 @@ a {
 }
 
 #SaveQueueLoader {
-    top: 67px;
+    top: 86px;
     height: 20px;
-    right: 100px;
+    right: 141px;
     position: absolute;
     display: none;
 }

@@ -29,7 +29,7 @@
             @* <img alt="Device Loader" id="Loader" src="/images/ajax-loader2.gif" /> *@
             <div id="DeviceWrapper" class="deviceWrapper">
             </div>
-            <div onclick="GroupDeviceShow()" id="GroupDeviceShow">>></div>
+            <div onclick="GroupDeviceShow()" id="GroupDeviceShow"></div>
         </div>
         <div id="Ratingerrors" onclick="ShowRatingErrorNames()"></div>
         <div id="RatingerrorsList"></div>
@@ -41,8 +41,8 @@
         <div id="Fade" class="mediabutton" onclick="SetFade();"></div>
         <div id="SetMute" class="mediabuttonring" onclick="SetMute();"></div>
         <div id="Debug" class="mediabutton" onClick="WroteDebugInfos()">Debug</div>
-        <div id="Browse" class="mediabuttonring" onclick="BrowsePress();"></div>
-        <div id="Browsebox" class="box_browse">
+        <div id="Browse" class="mediabutton" onclick="BrowsePress();"></div>
+        <div id="Browsebox">
             <div id="Browseclose">X</div>
             @* <img id="BrowseLoader" src="/images/ajax-loader2.gif" alt="" /> *@
             <div id="Ankerlist"></div>
@@ -52,7 +52,7 @@
             <div id="BrowseGenre" onclick="LoadBrowse('A:GENRE')">Genre</div>
             <div id="Browseboxwrapper"></div>
         </div>
-        <div id="AlarmClockOpen" class="mediabuttonring"></div>
+        <div id="AlarmClockOpen" class="mediabutton"></div>
         <div id="AlarmClock" class="alarmclockarrow"><div id="AlarmClockLoader" style="display: none;"><img alt="Device Loader" id="AlarmClockLoaderIMG" src="/images/ajax-loader.gif"></div><div id="AlarmClockWrapper"></div></div>
         <DIV id="EditAlarm">
             <div id="EditAlarmWrapper">
@@ -138,7 +138,7 @@
         <div id="SelectAlarmPlaylist">
             <div id="SelectAlarmPlaylistWrapper"></div>
         </div>
-        <div id="Lyric" class="mediabuttonring"></div>
+        <div id="Lyric" class="mediabutton"></div>
         <div id="Settings" class="mediabuttonring"></div>
         <div id="Settingsbox" class="box_settings">
             <div id="Settingsclose">X</div>
@@ -179,18 +179,18 @@
             <img id="Nextcover" alt="Next Song Cover" src="/images/no-cover.png" />
             <div id="Nextsong"></div>
         </div>
-        <div id="AktSongInfo">
-            <div id="CurrentMeta"></div>
-            <div id="Akttitle" onClick="ShowCurrentSongMeta()" class="akt"></div>
-            <div id="Aktartist" onClick="ShowCurrentSongMeta()" class="akt"></div>
+        <div id="AktSongInfo" onClick="ShowCurrentSongMeta()">
+            <div id="Akttitle" class="akt"></div>
+            <div id="Aktartist" class="akt"></div>
         </div>
+        <div id="CurrentMeta"></div>
         <div id="AudioIn" class="mediabutton" onclick="SetAudioIn();"></div>
         <div id="PlayRuntimeSliderWrapper"><input type="range" min="0" max="100" value="50" step="1" class="slider" id="PlayRuntimeSlider" name="PlayRuntimeSlider"></div>
 
         <div id="Volumedown" class="mediabuttonring" onclick="SetVolume(0);"></div>
         <div id="Volumeup" class="mediabuttonring" onclick="SetVolume(1);"></div>
         <div id="VolumeWrapper"><input type="range" min="0" max="100" value="50" step="1" class="slider" id="Volume" name="Volume"></div><label for="VolumeWrapper" id="LabelVolume"></label>
-        <div id="SleepModeButton" class="mediabuttonring" onclick="ShowSleepMode();"></div>
+        <div id="SleepModeButton" class="mediabutton" onclick="ShowSleepMode();"></div>
         <div id="SleepMode">
             <div id="SleepModeWrapper">
                 <select id="SleepModeSelection"><option value="aus">Aus</option><option value="00:15:00">15 Minuten</option><option value="00:20:00">20 Minuten</option><option value="00:25:00">25 Minuten</option><option value="00:30:00">30 Minuten</option><option value="00:35:00">35 Minuten</option><option value="00:45:00">45 Minuten</option><option value="01:00:00">1 Stunde</option><option value="01:30:00">1,5 Stunden</option><option value="02:00:00">2 Stunden</option><option value="03:00:00">3 Stunden</option></select><br />
@@ -398,7 +398,7 @@
         <div id="SetGroupMembers"></div>
         <div id="Overlay" onclick="SonosWindows('overlay');"></div>
     </div>
-    <div id="Lyricbox" class="arrow_box">
+    <div id="Lyricbox">
         <div class="righttopclose" onclick="ShowPlaylistLyricCurrent();">X</div>
         <div id="Lyricboxwrapper"></div>
     </div>
