@@ -1,5 +1,5 @@
 ﻿"use strict";
-//Wird benutzt um die Zeit zu rendern. 
+//Wird benutzt um die Zeit zu rendern.
 //String.prototype.toHHMMSS = function () {
 //    var sec_num = parseInt(this, 10); // don't forget the second param
 //    var hours = Math.floor(sec_num / 3600);
@@ -13,6 +13,8 @@
 //}
 
 //todo: find a solution for drag and drop on mobile browsers.
+//todo: css audio in and debug
+//todo: replace akt to aktiv
 window.onerror = Fehlerbehandlung;
 var debug = false; //Wenn true wird kein Refesh gemacht		
 var wroteDebugInfos = false;
@@ -805,14 +807,11 @@ function ShowPlaylistLyric(t) {
         SoDo.lyricsPlaylist.innerHTML += '<DIV class="lyricplaylistclass">' + datalyric + '</DIV>';
         SonosWindows(SoDo.lyricsPlaylist);
     }
-    MoveAktArtist();
 };//done
 function ShowPlaylistLyricCurrent() {
     if (SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.currentTrack.uri !== "leer") {
         SoDo.lyricButton.classList.toggle("akt");
         SoDo.lyric.classList.toggle(SoVa.aktiv);
-        //SonosWindows(SoDo.lyric);
-        //MoveAktArtist();/todo: wieder aktivieren?
     }
 };//done
 //Neue Funktionen für Jquery remove
@@ -844,39 +843,6 @@ function RemoveClass(DOMElement, cssClass) {
         DOMElement.classList.remove(cssClass);
     }
 }
-function MoveAktArtist() {
-
-    if (document.body.clientWidth < 850) {
-        return;
-    }
-    var hivi = (!IsVisible(SoDo.lyric) || document.body.clientWidth > 1200) && !IsVisible(SoDo.browse) && !IsVisible(SoDo.lyricsPlaylist);
-    if (SoVa.ratingonlycurrent === false && hivi === false) {
-        AddClass(SoDo.aktSongInfo, "moveright");
-        AddClass(SoDo.cover, "moveright");
-        SoDo.playlistCount.classList.add("movedown");
-    }
-    if (SoVa.ratingonlycurrent === false && hivi === true) {
-        RemoveClass(SoDo.aktSongInfo, "moveright")
-        RemoveClass(SoDo.cover, "moveright");
-        SoDo.playlistCount.classList.remove("movedown");
-    }
-    if (SoVa.ratingonlycurrent === true && hivi === false && !IsVisible(SoDo.ratingListBox)) {
-        AddClass(SoDo.aktSongInfo, "moveright")
-        AddClass(SoDo.cover, "moveright");
-        SoDo.playlistCount.classList.add("movedown");
-    }
-    if (SoVa.ratingonlycurrent === true && hivi === true && !IsVisible(SoDo.ratingListBox)) {
-        RemoveClass(SoDo.aktSongInfo, "moveright")
-        RemoveClass(SoDo.cover, "moveright");
-        SoDo.playlistCount.classList.remove("movedown");
-    }
-    if (SoVa.ratingonlycurrent === true && hivi === true && IsVisible(SoDo.ratingListBox)) {
-        SoDo.playlistCount.classList.remove("movedown");
-    }
-    if (SoVa.ratingonlycurrent === true && hivi === false && IsVisible(SoDo.ratingListBox)) {
-        SoDo.playlistCount.classList.add("movedown");
-    }
-};//done
 //Entfernt ein Song aus der Playlist
 function RemoveFromPlaylist(k) {
     SoVa.aktcurpopdown = "leer"; //Reset der Playlist Informationen
@@ -895,7 +861,6 @@ function RemoveFromPlaylist(k) {
 //Schließen der Lyric von Songs aus der Wiedergabeliste
 function ClosePlaylistLyric() {
     SonosWindows(SoDo.lyricsPlaylist);
-    MoveAktArtist();
 };//done
 //Helper um die aktuelle ID aus dem übergeben Item der Playlist zu erhalten.
 function GetIDfromCurrentPlaylist(k) {
@@ -1091,15 +1056,9 @@ function ShowCurrentRating(t) {
         if (!IsVisible(SoDo.ratingListBox)) {
             SonosWindows(SoDo.ratingListBox);
         }
-        //Verschieben des Titels.
-        AddClass(SoDo.aktSongInfo, SoVa.moveLeft)
-        AddClass(SoDo.playlistCount, SoVa.moveLeft);
     }
     if (SoVa.ratingonlycurrent === true && t === "hide") {
         SonosWindows(SoDo.ratingListBox);
-        MoveAktArtist();
-        RemoveClass(SoDo.aktSongInfo, SoVa.moveLeft)
-        SoDo.playlistCount.removeClass(SoVa.moveLeft);
         SoVa.ratingMP3 = new MP3();
         return;
     }
@@ -1210,7 +1169,6 @@ function BrowsePress() {
     //if (document.body.clientWidth > 420) {
     //    MoveAktArtist(250);
     //}
-    //todo: prüfen ob move noch notwendig ist.
     SoDo.browseButton.classList.toggle(SoVa.aktiv);
     if (SoVa.browsefirst === 0) {
         window.setTimeout("LoadBrowse('A:ALBUMARTIST')", 150);
@@ -1275,7 +1233,6 @@ function LoadBrowse(v) {
                 }
                 var im = "";
                 //Entweder ein Container oder ein Song
-                var browsetitlewidth;
                 if (!SonosZones.CheckStringIsNullOrEmpty(item.containerID)) {
                     //Prüfen ob schon im Array.
                     var alink = "";
@@ -1286,20 +1243,22 @@ function LoadBrowse(v) {
                             alink = '<a href="#" name="' + buchstabe + '"></a>';
                         }
                     }
-                    browsetitlewidth = 320;
                     if (item.albumArtURI !== null && item.albumArtURI !== "" && item.mP3.hatCover === true) {
                         var img = "http://" + SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.baseUrl + item.albumArtURI;
                         if (!item.albumArtURI.startsWith("/getaa")) {
                             img = item.albumArtURI;
                         }
                         im = '<div class="browsingCover"><img loading="lazy" src="' + img + '" class="lazy"></div>';
-                        browsetitlewidth = 280;
                     }
                     var currentplaying = "";
                     if (SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.enqueuedTransportURI.endsWith(item.containerID)) {
                         currentplaying = "curPlayEnqueuedTransportURI";
                     }
-                    browsecontent += '<div id="Browsing' + (i + 1) + '" data-containerid="' + item.containerID + '" class="currentbrowse ' + currentplaying + '">' + im + '<DIV class="browsetitle" style="width: ' + browsetitlewidth + 'px;" onclick="LoadBrowse(this)">' + item.title + alink + '</div><DIV class="browseaddcontainertoplaylist" onclick="AddToPlaylist(this)"></DIV><DIV class="browsereplacecontainertoplaylist" onclick="ReplacePlaylist(this)"></DIV></DIV>';
+                    let allclass = "";
+                    if (item.title === "All") {
+                        allclass = " allContent";
+                    }
+                    browsecontent += '<div id="Browsing' + (i + 1) + '" data-containerid="' + item.containerID + '" class="currentbrowse ' + currentplaying + '">' + im + '<DIV class="browsetitle' + allclass + '" onclick="LoadBrowse(this)">' + item.title + alink + '</div><DIV class="browseaddcontainertoplaylist" onclick="AddToPlaylist(this)"></DIV><DIV class="browsereplacecontainertoplaylist" onclick="ReplacePlaylist(this)"></DIV></DIV>';
                 } else {
                     //Es handelt sich um einen song
                     //Rating wird mitgeliefert und angezeigt, wenn es . 

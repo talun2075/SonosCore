@@ -929,12 +929,6 @@ a {
     z-index: 2
 }
 
-    /*#Cover.moveright, #AktSongInfo.moveright {
-        -webkit-transform: translate(100px,0);
-        -o-transform: translate(100px,0);
-        transform: translate(100px,0);
-    }*/
-
 #AktSongInfo {
     bottom: 35px;
     left: 630px;
@@ -946,12 +940,6 @@ a {
     width: 500px;
     display: inline-flex;
 }
-
-    /*#AktSongInfo.moveleft {
-        -webkit-transform: translate(-100px,0);
-        -o-transform: translate(-100px,0);
-        transform: translate(-100px,0);
-    }*/
 
 #Akttitle {
     height: 23px;
@@ -1164,19 +1152,11 @@ a {
     -o-transition: all 1s ease-in-out;
     -webkit-transition: all 1s ease-in-out;
     transition: all 1s ease-in-out;
+    display:none;
 }
-
-    /*#PlaylistCount.movedown {
-        -webkit-transform: translate(0,20px);
-        -o-transform: translate(0,20px);
-        transform: translate(0,20px);
+    #PlaylistCount.aktiv {
+        display:block;
     }
-
-    #PlaylistCount.moveleft {
-        -webkit-transform: translate(-100px,20px);
-        -o-transform: translate(-100px,20px);
-        transform: translate(-100px,20px);
-    }*/
 
     #PlaylistCount > DIV {
         float: left;
@@ -1433,8 +1413,11 @@ a {
     animation: fade-out 1s;
     display: none;
 }
-@-webkit-keyframes fadeIn {
-    from { opacity: 0;}
+    #Lyricbox > .righttopclose{
+        display:none;
+    }
+    @-webkit-keyframes fadeIn {
+        from { opacity: 0;}
     to { opacity: 1;}
 }
 
@@ -1480,7 +1463,16 @@ a {
 }
 
 #Browseclose {
-    display: none;
+    position: absolute;
+    top: 0px;
+    right: 0;
+    background-color: gray;
+    width: 30px;
+    height: 30px;
+    align-content: center;
+    text-align: center;
+    border-radius: 0 15px 0 15px;
+    display:none;
 }
 
 .browsingCover {
@@ -1592,6 +1584,7 @@ a {
     height: 39px;
     line-height: 39px;
     border-top: 1px solid;
+    width: 320px
 }
 
 .currentbrowse {
@@ -1957,7 +1950,7 @@ a {
 /*Aufwecken An / Aus Schalter  ENDE*/
 /*Nur CurrentRatingAn / Aus Schalter  */
 #curonoffswitchWrapper {
-    width: 210px;
+    width: 230px;
     position: absolute;
     right: 20px;
     bottom: 50px;

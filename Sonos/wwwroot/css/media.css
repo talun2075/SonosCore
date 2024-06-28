@@ -99,6 +99,9 @@
         left: 541px;
         bottom: 110px;
     }
+    #Filterlist{
+        left:250px;
+    }
 }
 
 @media screen and (max-width: 1025px) {
@@ -163,7 +166,9 @@
 
 @media screen and (max-width: 920px) {
 
-
+    #Lyricbox > .righttopclose {
+        display: block;
+    }
     #PlaylistCount {
         left: 349px;
         bottom: 30px
@@ -239,11 +244,13 @@
         top: unset;
         left: 640px;
     }
+
     #SleepMode {
         top: unset;
         left: 312px;
         bottom: 165px;
     }
+
     #Browse {
         bottom: 255px;
         top: unset;
@@ -258,9 +265,12 @@
         left: 640px;
     }
 
-    #Lyricbox {
-        left: 20px;
-        width: 570px;
+    #Lyricbox, #LyricPlaylist {
+        left: 0;
+        width: auto;
+        right: 0;
+        top: 0;
+        bottom: 0;
     }
 
         #Lyricbox::after {
@@ -290,19 +300,25 @@
 
 @media screen and (max-width: 790px) {
 
-    #NextSongWrapper{
-        max-width:370px;
+    #NextSongWrapper {
+        max-width: 370px;
     }
+
     #Nextsong {
         width: calc(100% - 60px);
     }
+
     #AktSongInfo {
         left: 330px;
     }
 }
+
 @media screen and (max-width: 740px) {
     #Currentplaylist {
         display: none;
+    }
+    #Filterlist {
+        left: 50px;
     }
     #CurrentPlaylistOpen {
         display: block;
@@ -310,6 +326,7 @@
         left: 270px;
         bottom: 190px;
     }
+
     #Cover {
         right: unset;
         top: unset;
@@ -318,16 +335,19 @@
         width: 300px;
         height: 300px;
     }
+
     #CurrentPlaylistOpen {
         display: block;
         position: absolute;
         left: 126px;
         top: 329px;
     }
+
     #Settings {
         top: 370px;
         left: 197px;
     }
+
     #Currentplaylist.aktiv {
         display: block;
         z-index: 100;
@@ -335,6 +355,63 @@
         left: 0;
         width: 100%;
         bottom: 70px;
+    }
+
+    #BewertungN {
+        top: 250px;
+        left: 275px;
+        right: unset;
+        bottom: unset;
+    }
+
+    #Next, #Play, #Pre, #Browse, #Lyric, #AlarmClockOpen {
+        left: unset;
+        right: 5px;
+    }
+
+    #Fade, #Shuffle {
+        left: unset;
+        right: 95px;
+    }
+
+    #SleepModeButton, #Repeat {
+        left: unset;
+        right: 185px;
+    }
+
+    #Ratinglist {
+        left: 250px;
+    }
+
+    #Settingsbox {
+        top: 30px;
+        left: 50px;
+    }
+
+        #Settingsbox:before {
+            border: 0;
+        }
+
+    #Browsebox {
+        left: 10px;
+        right: 100px;
+        width: auto;
+    }
+
+    #SleepMode {
+        left: unset;
+        right: 300px;
+    }
+
+    #AlarmClock {
+        left: 10px;
+        width: auto;
+        right: 100px;
+    }
+
+    #BrowseGenre {
+        right: unset;
+        left: 300px;
     }
     #CurrentPlaylistClose {
         position: fixed;
@@ -348,90 +425,45 @@
         text-align: center;
         line-height: 75px;
     }
-    #BewertungN {
-        top: 250px;
-        left: 275px;
-        right: unset;
-        bottom: unset;
-    }
-    #Next, #Play, #Pre,#Browse,#Lyric,#AlarmClockOpen {
-        left: unset;
-        right: 5px;
-    }
-    #Fade,#Shuffle {
-        left: unset;
-        right: 95px;
-    }
-    #SleepModeButton, #Repeat {
-        left: unset;
-        right: 185px;
-    }
-    #Ratinglist {
-        left: 250px;
-    }
-    #Settingsbox {
-        top: 30px;
-        left: 50px;
-    }
-    #Settingsbox:before {
-        border:0;
-    }
-    #Browsebox {
-        left: 10px;
-        right: 100px;
-        width: auto;
-    }
-    #Lyricbox {
-        left: 10px;
-        width: auto;
-        right: 100px;
-    }
-    #SleepMode {
-        left: unset;
-        right: 300px;
-    }
-    #AlarmClock {
-        left: 10px;
-        width: auto;
-        right: 100px;
-    }
-    #BrowseGenre {
-        right: unset;
-        left: 300px;
-    }
 }
+
 @media screen and (max-width: 620px) {
-    #Bodydiv {
-        background-color: green;
-    }
+
     #Cover {
         width: 150px;
         height: 150px;
     }
-    .mediabutton{
-        width:50px;
-        height:50px;
+
+    .mediabutton {
+        width: 50px;
+        height: 50px;
     }
+
     #BewertungN {
         top: 110px;
         left: 205px;
     }
+
     #SleepModeButton, #Repeat {
         left: 200px;
         right: unset;
         bottom: unset;
     }
-    #SleepModeButton{
-        top:160px;
+
+    #SleepModeButton {
+        top: 160px;
     }
+
     #Repeat {
         top: 230px;
     }
+
     #Fade, #Shuffle {
         left: 270px;
         right: unset;
         bottom: unset;
     }
+
     #Fade {
         top: 160px;
     }
@@ -439,368 +471,140 @@
     #Shuffle {
         top: 230px;
     }
+
     #CurrentPlaylistOpen {
         display: block;
         position: absolute;
         left: 205px;
         top: 300px;
     }
+
     #Settings {
         left: 126px;
         top: 329px;
     }
+
     #PlaylistCount {
-        display:none;
+        display: none;
+    }
+
+    #AktSongInfo {
+        left: 200px;
+        display: block;
+        bottom: unset;
+        top: 400px;
+    }
+
+    #Aktartist {
+        margin-left: 0;
+    }
+
+        #Aktartist::before {
+            content: ""
+        }
+
+    .alarm > DIV > DIV {
+        display: block;
+    }
+
+    .alarmonoffswitch {
+        height: 25px;
+    }
+
+    #EditAlarm {
+        left: 5px;
+    }
+
+    #SelectAlarmPlaylist {
+        left: 5px;
+    }
+
+    #Browsebox {
+        width: 300px;
+    }
+
+    #BrowsePlaylist, #BrowseArtist {
+        position: unset;
+    }
+
+    #BrowseGenre {
+        position: unset;
+        border-bottom: 1px solid;
+    }
+
+    #Browseboxwrapper {
+        max-height: calc(100% - 110px);
     }
 }
 
-    @media screen and (max-width: 374px) {
-
-        #Currentplaylist, #Playlist {
-            display: none;
-        }
-
-            #Currentplaylist.active {
-                display: block;
-            }
-
-        #CurrentPlaylistClose {
-            position: fixed;
-            bottom: 0;
-            z-index: 100;
-            height: 75px;
-            width: 100%;
-            background-color: grey;
-            border: 1px solid black;
-            border-radius: 25px 25px 25px;
-            text-align: center;
-            line-height: 75px;
-        }
-
-        #CurrentPlaylistOpen {
-            display: block;
-            position: absolute;
-            left: 270px;
-            bottom: 190px;
-        }
-
-        #AktSongInfo {
-            top: initial;
-            bottom: 150px;
-            left: 30px;
-            height: 50px;
-        }
-
-        #CurrentMeta {
-            height: 350px;
-            left: -20px;
-            position: absolute;
-            top: -370px;
-            width: 290px;
-        }
-
-            #CurrentMeta:after {
-                bottom: -11%;
-            }
-
-        #CurrentSongRuntime {
-            left: 200px;
-        }
-
-        #Cover {
-            top: 10px;
-            left: 200px;
-            height: 100px;
-            width: 100px;
-        }
-
-        #Nextsong {
-            max-width: 260px;
-        }
-
-        #NextSongWrapper {
-            bottom: 65px;
-        }
-
-        #Volumeup {
-            top: 250px;
-        }
-
-        #SetMute {
-            top: 310px;
-        }
-
-        #Volumedown {
-            top: 370px;
-        }
-
-        #SleepModeButton {
-            left: 270px;
-            bottom: 260px;
-        }
-
-        #Volume {
-            height: 200px;
-            top: 260px;
-        }
-
-        #LabelVolume {
-            top: 440px;
-            left: 20px;
-        }
-
-        #AlarmClockOpen {
-            left: 220px;
-            top: 310px;
-        }
-
-
-        #Browse {
-            top: 310px;
-        }
-
-        #Lyric {
-            top: 370px;
-        }
-
-        #Settings {
-            bottom: 230px;
-            left: 200px;
-        }
-
-        #BewertungN {
-            top: initial;
-            bottom: 125px;
-            left: 20px;
-        }
-
-        #PlaylistCount {
-            left: 75px;
-            bottom: 30px;
-        }
-
-        #Play {
-            top: 120px;
-            left: 220px;
-        }
-
-        .mediabutton {
-            height: 50px;
-            width: 50px;
-        }
-
-        #Next {
-            left: 255px;
-            top: 180px;
-        }
-
-        #Pre {
-            top: 180px;
-            left: 180px;
-        }
-
-        #Shuffle {
-            top: 245px;
-            left: 120px;
-        }
-
-        #Repeat {
-            top: 250px;
-            left: 180px;
-        }
-
-        #Fade {
-            top: 250px;
-            left: 255px;
-        }
-
-        #Lyricbox, #LyricPlaylist {
-            width: calc(100% - 45px);
-            top: 0;
-            left: 0;
-            bottom: 0;
-            height: 410px;
-        }
-
-        .arrow_box::before {
-            display: none;
-        }
-
-        .box_settings::before {
-            border-color: #000000 #000000 #000000 #000000;
-            border-color: rgba(0, 0, 0, 0) #000000 rgba(0, 0, 0, 0) rgba(0, 0, 0, 0);
-            border-width: 0;
-            margin-top: 0;
-            top: 0;
-        }
-
-        .box_settings {
-            left: 5px;
-            bottom: 10px;
-            max-width: 348px;
-            width: calc(100% - 60px);
-            height: 300px;
-        }
-
-        #Settingsboxwrapper {
-            height: 260px;
-        }
-
-        #Settingsclose {
-            display: block;
-            position: absolute;
-            top: -1px;
-            right: -1px;
-            height: 50px;
-            width: 50px;
-            background-color: gray;
-            border-radius: 0 25px 0 25px;
-            text-align: center;
-            line-height: 50px;
-        }
-
-        #SaveQueue {
-            width: 200px;
-        }
-
-        #Suggestion {
-            width: 230px;
-            top: 86px;
-            left: 22px;
-        }
-
-        #SaveQueueImg {
-            left: 5px;
-        }
-
-        #AudioIn {
-            left: 220px;
-            top: 420px;
-        }
-
-        #SleepMode {
-            top: 380px;
-            left: 25%;
-        }
-
-        #SetGroupMembers {
-            left: 5px;
-        }
-
-        #MultiVolume {
-            left: 5px;
-            width: 320px;
-        }
-
-        .devices {
-            left: 0;
-        }
-
-        .deviceWrapper.groupdevicesshown .groupdevicewrapper .deviceplayinggif {
-            display: none;
-        }
-
-        #CurrentBomb {
-            left: 17px;
-            top: initial;
-            bottom: 98px;
-        }
-
-        #Currentplaylist {
-            left: 0;
-            top: 0;
-            width: 100%;
-            position: fixed;
-            background-color: white;
-            z-index: 100;
-            height: calc(100% - 90px);
-        }
-
-        #Lyricbox {
-            position: fixed;
-            z-index: 100;
-            height: calc(100% - 50px);
-            min-width: 250px;
-        }
-
-        .box_browse {
-            left: 0;
-            width: calc(100% - 27px);
-            top: 0;
-            padding: 70px 2px 20px 20px;
-            bottom: 5px;
-        }
-
-        #BrowseGenre {
-            left: 80px;
-            top: 35px;
-            right: 0;
-        }
-
-        #BrowseFavorites {
-            left: 170px;
-            top: 35px;
-        }
-
-        #Browseclose {
-            display: block;
-            position: absolute;
-            top: -1px;
-            right: -1px;
-            height: 50px;
-            width: 50px;
-            background-color: gray;
-            border-radius: 0 25px 0 25px;
-            text-align: center;
-            line-height: 50px;
-        }
-
-        .currentbrowse {
-            height: 100px;
-            display: block;
-        }
-
-        .alarmclockarrow {
-            left: 5px;
-            width: calc(100% - 55px);
-        }
-
-        .roomname {
-            width: 120px;
-        }
-
-        .startdate {
-            width: 80px;
-        }
-
-        #AlarmClock {
-            height: 250px;
-            overflow: auto;
-        }
-
-        .displayflex {
-            display: inline-block;
-        }
-
-        #EditAlarm {
-            left: auto;
-        }
-
-        #SleepModeWrapper:after, #CurrentMeta:after {
-            border-style: none;
-        }
-
-        #Ratinglist, #Filterlist {
-            left: 50px;
-        }
-
-        #Ratingerrors {
-            right: 5px;
-            left: auto;
-            top: 470px;
-        }
-
-        #RatingerrorsList {
-            left: 50px;
-        }
+@media screen and (max-width: 450px) {
+
+ /*   #Bodydiv {
+        background-color: red;
+    }*/
+
+    #AktSongInfo {
+        left: 20px;
+        top: 530px;
     }
+
+    #PlaylistCount.aktiv {
+        display: none;
+    }
+
+    #Next, #Play, #Pre {
+        left: unset;
+        right: 75px;
+        top: unset;
+    }
+
+    #Pre {
+        bottom: 165px;
+    }
+
+    #Next {
+        bottom: 75px;
+    }
+
+    #Play {
+        bottom: 255px;
+    }
+
+    #Browseclose {
+        display: block;
+    }
+    #Browsebox {
+        width: auto;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        right: 0;
+    }
+    .browsetitle {
+        width: 220px;
+    }
+    .allContent {
+        width: 260px;
+    }
+    #Ratinglist {
+        left: 150px;
+    }
+    #SetGroupMembers{
+        left:50px;
+    }
+    #Settingsbox {
+        top: 30px;
+        left: 50px;
+        height: 400px;
+        width: 300px;
+    }
+    #Settingsclose {
+        display:block;
+    }
+    #Settingsboxwrapper {
+        height: 210px;
+    }
+    #SaveQueue {
+        width:150px;
+    }
+}

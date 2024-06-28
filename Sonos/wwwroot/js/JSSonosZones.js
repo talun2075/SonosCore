@@ -529,13 +529,10 @@ function SonosZonesObject() {
         if (typeof SonosPlayers[uuid] === "undefined") return;
         //Neu wegen Stream
         if (!this.CheckStreamShowElements(uuid)) {
-            if (IsVisible(SoDo.playlistCount)) {
-                SetHide(SoDo.playlistCount);
-            }
+            RemoveClass(SoDo.playlistCount, SoVa.aktiv);
+
         } else {
-            if (!IsVisible(SoDo.playlistCount)) {
-                SetVisible(SoDo.playlistCount);
-            }
+            AddClass(SoDo.playlistCount, SoVa.aktiv);
             if (parseInt(SoDo.playlistAkt.textContent) !== SonosPlayers[uuid].playerProperties.currentTrackNumber) {
                 SoDo.playlistAkt.textContent=SonosPlayers[uuid].playerProperties.currentTrackNumber;
             }
