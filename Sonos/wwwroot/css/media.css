@@ -1,95 +1,460 @@
-﻿@media screen and (min-width: 1570px) {
-    #Lyricbox {
-        width: 30vw;
-    }
-}
-@media screen and (min-width: 1450px) {
-    #Lyricbox {
-        width: 25vw;
-    }
-}
-@media screen and (min-width: 1410px) {
-    #Lyricbox {
-        display: block;
-        left: 1025px;
-        min-width: 250px;
-        width: calc(100% - 1090px);
-    }
-
-    .arrow_box::before {
-        border: none;
-    }
-
-    .arrow_box {
-        bottom: 5px;
-    }
-
-    #Lyricbox > .righttopclose, #Lyric {
-        display: none;
-    }
-}
-@media screen and (max-width: 1380px) {
+﻿@media screen and (min-width: 1850px) {
     #Lyricbox {
         display: block;
         min-width: 450px;
-        width: calc(100% - 590px);
-        font-size: x-large;
+        width: calc(100% - 1380px);
+        left: 1316px;
+        min-height: 547px;
+        bottom: 5px;
     }
 
+        #Lyricbox::after {
+            border: none;
+        }
+
+    #Lyric {
+        display: none;
+    }
+
+    #Lyricbox > .righttopclose {
+        display: none;
+    }
 }
-    @media screen and (max-width: 1000px) {
-        #Bodydiv {
-            width: 99%;
-            min-height: 655px;
-        }
 
-        #Playlist {
-            display: none;
-        }
-
-        #Currentplaylist {
-            bottom: 400px;
-        }
-
-        #Cover {
-            left: 250px;
-        }
-
-        #Shuffle {
-            left: 600px;
-        }
-
-        #Play {
-            top: 90px;
-            left: 600px;
-        }
-
-        #Pre {
-            top: 180px;
-            left: 600px;
-        }
-
-        #Next {
-            top: 270px;
-            left: 600px;
-        }
-
-        #Fade {
-            top: 360px;
-            left: 600px;
-        }
-
-        #Repeat {
-            top: 450px;
-            left: 600px;
-        }
+@media screen and (max-width: 1310px) {
+    #Bodydiv {
+        width: 99%
     }
 
-    @media screen and (max-width: 674px) {
-        #Bodydiv {
-            width: 99%;
-            min-height: 655px
+    #Browsebox, #Lyricbox, #AlarmClock {
+        left: unset;
+        right: 120px;
+    }
+
+    #Lyricbox {
+        left: 20px;
+        width: auto;
+    }
+
+
+    #Ratinglist {
+        left: 860px;
+    }
+}
+
+@media screen and (max-width: 1270px) {
+    #Playlist {
+        height: 250px;
+    }
+
+    #Cover {
+        width: 200px;
+        height: 200px;
+        left: 610px;
+        top: 300px;
+    }
+
+    #BewertungN {
+        top: 460px;
+        left: 640px;
+    }
+}
+
+@media screen and (max-width: 1150px) {
+    #Repeat, #Shuffle, #Fade, #SleepModeButton {
+        left: 850px;
+    }
+
+    #Repeat {
+        top: 0;
+    }
+
+    #Shuffle {
+        top: 90px;
+    }
+
+    #Fade {
+        top: 180px;
+    }
+
+    #SleepModeButton {
+        top: 270px;
+    }
+
+    #SleepMode {
+        top: 254px;
+        left: 701px;
+    }
+
+    #Ratinglist {
+        left: 695px;
+    }
+
+    #AktSongInfo {
+        width: 390px;
+        display: block;
+    }
+
+    #CurrentMeta {
+        left: 541px;
+        bottom: 110px;
+    }
+}
+
+@media screen and (max-width: 1025px) {
+
+    #Cover {
+        right: 5px;
+        left: unset;
+        top: 5px;
+    }
+
+    #SleepModeButton {
+        left: unset;
+        right: 90px;
+    }
+
+    #BewertungN {
+        top: 170px;
+        left: unset;
+        right: 40px;
+    }
+
+    #Shuffle {
+        right: 90px;
+        left: unset;
+        top: 360px;
+    }
+
+    #Fade {
+        top: 450px;
+        left: unset;
+        right: 90px;
+    }
+
+    #Playlist {
+        display: none;
+    }
+
+    #Play {
+        top: 0;
+        left: 610px;
+    }
+
+    #Pre {
+        top: 90px;
+        left: 610px;
+    }
+
+    #Next {
+        top: 180px;
+        left: 610px;
+    }
+
+    #Repeat {
+        top: 270px;
+        left: 610px;
+    }
+
+    #AktSongInfo {
+        width: 290px;
+    }
+}
+
+@media screen and (max-width: 920px) {
+
+
+    #PlaylistCount {
+        left: 349px;
+        bottom: 30px
+    }
+
+    #CurrentSongRuntime {
+        left: 62px;
+    }
+
+    #CurrentMeta {
+        left: 350px;
+    }
+
+    #AktSongInfo {
+        width: 290px;
+        display: inline-flex;
+        bottom: 53px;
+        left: 500px;
+    }
+
+    #Currentplaylist {
+        bottom: 300px;
+        width: 430px;
+    }
+
+    #Cover {
+        right: unset;
+        top: unset;
+        left: 250px;
+        bottom: 90px;
+    }
+
+    #BewertungN {
+        top: unset;
+        left: 275px;
+        right: unset;
+        bottom: 95px;
+    }
+
+    #Ratinglist {
+        left: 454px;
+    }
+
+    #SleepModeButton {
+        left: 460px;
+        right: unset;
+        top: unset;
+        bottom: 165px;
+    }
+
+    #Repeat {
+        top: unset;
+        left: 460px;
+        bottom: 75px;
+    }
+
+    #Shuffle {
+        right: unset;
+        left: 550px;
+        top: unset;
+        bottom: 75px;
+    }
+
+    #Fade {
+        top: unset;
+        left: 550px;
+        right: unset;
+        bottom: 165px;
+    }
+
+    #AlarmClockOpen {
+        bottom: 75px;
+        top: unset;
+        left: 640px;
+    }
+    #SleepMode {
+        top: unset;
+        left: 312px;
+        bottom: 165px;
+    }
+    #Browse {
+        bottom: 255px;
+        top: unset;
+        right: unset;
+        left: 640px;
+    }
+
+    #Lyric {
+        bottom: 165px;
+        top: unset;
+        right: unset;
+        left: 640px;
+    }
+
+    #Lyricbox {
+        left: 20px;
+        width: 570px;
+    }
+
+        #Lyricbox::after {
+            border: 0;
         }
+
+    #AlarmClock {
+        left: 85px;
+    }
+
+        #AlarmClock::after {
+            border: 0;
+        }
+
+    #Browsebox {
+        left: 60px;
+    }
+
+        #Browsebox::after {
+            border: 0;
+        }
+
+    #Next, #Play, #Pre {
+        left: 640px;
+    }
+}
+
+@media screen and (max-width: 790px) {
+
+    #NextSongWrapper{
+        max-width:370px;
+    }
+    #Nextsong {
+        width: calc(100% - 60px);
+    }
+    #AktSongInfo {
+        left: 330px;
+    }
+}
+@media screen and (max-width: 740px) {
+    #Currentplaylist {
+        display: none;
+    }
+    #CurrentPlaylistOpen {
+        display: block;
+        position: absolute;
+        left: 270px;
+        bottom: 190px;
+    }
+    #Cover {
+        right: unset;
+        top: unset;
+        left: 200px;
+        bottom: unset;
+        width: 300px;
+        height: 300px;
+    }
+    #CurrentPlaylistOpen {
+        display: block;
+        position: absolute;
+        left: 126px;
+        top: 329px;
+    }
+    #Settings {
+        top: 370px;
+        left: 197px;
+    }
+    #Currentplaylist.aktiv {
+        display: block;
+        z-index: 100;
+        top: 0;
+        left: 0;
+        width: 100%;
+        bottom: 70px;
+    }
+    #CurrentPlaylistClose {
+        position: fixed;
+        bottom: 0px;
+        z-index: 100;
+        height: 75px;
+        width: 100%;
+        background-color: grey;
+        border: 1px solid black;
+        border-radius: 25px;
+        text-align: center;
+        line-height: 75px;
+    }
+    #BewertungN {
+        top: 250px;
+        left: 275px;
+        right: unset;
+        bottom: unset;
+    }
+    #Next, #Play, #Pre,#Browse,#Lyric,#AlarmClockOpen {
+        left: unset;
+        right: 5px;
+    }
+    #Fade,#Shuffle {
+        left: unset;
+        right: 95px;
+    }
+    #SleepModeButton, #Repeat {
+        left: unset;
+        right: 185px;
+    }
+    #Ratinglist {
+        left: 250px;
+    }
+    #Settingsbox {
+        top: 30px;
+        left: 50px;
+    }
+    #Settingsbox:before {
+        border:0;
+    }
+    #Browsebox {
+        left: 10px;
+        right: 100px;
+        width: auto;
+    }
+    #Lyricbox {
+        left: 10px;
+        width: auto;
+        right: 100px;
+    }
+    #SleepMode {
+        left: unset;
+        right: 300px;
+    }
+    #AlarmClock {
+        left: 10px;
+        width: auto;
+        right: 100px;
+    }
+    #BrowseGenre {
+        right: unset;
+        left: 300px;
+    }
+}
+@media screen and (max-width: 620px) {
+    #Bodydiv {
+        background-color: green;
+    }
+    #Cover {
+        width: 150px;
+        height: 150px;
+    }
+    .mediabutton{
+        width:50px;
+        height:50px;
+    }
+    #BewertungN {
+        top: 110px;
+        left: 205px;
+    }
+    #SleepModeButton, #Repeat {
+        left: 200px;
+        right: unset;
+        bottom: unset;
+    }
+    #SleepModeButton{
+        top:160px;
+    }
+    #Repeat {
+        top: 230px;
+    }
+    #Fade, #Shuffle {
+        left: 270px;
+        right: unset;
+        bottom: unset;
+    }
+    #Fade {
+        top: 160px;
+    }
+
+    #Shuffle {
+        top: 230px;
+    }
+    #CurrentPlaylistOpen {
+        display: block;
+        position: absolute;
+        left: 205px;
+        top: 300px;
+    }
+    #Settings {
+        left: 126px;
+        top: 329px;
+    }
+    #PlaylistCount {
+        display:none;
+    }
+}
+
+    @media screen and (max-width: 374px) {
 
         #Currentplaylist, #Playlist {
             display: none;
@@ -110,10 +475,6 @@
             border-radius: 25px 25px 25px;
             text-align: center;
             line-height: 75px;
-        }
-
-        .moveCurrentPlaylistTrack, .addFavItemPlaylist {
-            display: none;
         }
 
         #CurrentPlaylistOpen {
@@ -359,7 +720,7 @@
             position: fixed;
             z-index: 100;
             height: calc(100% - 50px);
-            min-width:250px;
+            min-width: 250px;
         }
 
         .box_browse {

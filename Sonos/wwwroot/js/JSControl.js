@@ -810,8 +810,9 @@ function ShowPlaylistLyric(t) {
 function ShowPlaylistLyricCurrent() {
     if (SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.currentTrack.uri !== "leer") {
         SoDo.lyricButton.classList.toggle("akt");
-        SonosWindows(SoDo.lyric);
-        MoveAktArtist();
+        SoDo.lyric.classList.toggle(SoVa.aktiv);
+        //SonosWindows(SoDo.lyric);
+        //MoveAktArtist();/todo: wieder aktivieren?
     }
 };//done
 //Neue Funktionen für Jquery remove
@@ -1210,7 +1211,7 @@ function BrowsePress() {
     //    MoveAktArtist(250);
     //}
     //todo: prüfen ob move noch notwendig ist.
-    SoDo.browseButton.classList.toggle("akt");
+    SoDo.browseButton.classList.toggle(SoVa.aktiv);
     if (SoVa.browsefirst === 0) {
         window.setTimeout("LoadBrowse('A:ALBUMARTIST')", 150);
         SoVa.browsefirst = 1;
@@ -1605,7 +1606,7 @@ function SetSleepModeState() {
 }
 function ToggleCurrentPlaylist() {
     //Currentplaylist
-    SoDo.currentplaylist.classList.toggle("active");
+    SoDo.currentplaylist.classList.toggle(SoVa.aktiv);
     if (IsVisible(SoDo.currentplaylistclose)) {
         SetHide(SoDo.currentplaylistclose);
     } else {

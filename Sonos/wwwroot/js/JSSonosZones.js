@@ -278,9 +278,9 @@ function SonosZonesObject() {
                 SetVisible(SoDo.audioInButton);
             }
             if (player.playerProperties.currentTrack.stream === true && (player.playerProperties.currentTrack.streamContent === "Audio Eingang" || player.playerProperties.currentTrack.title === "Heimkino")) {
-                AddClass(SoDo.audioInButton)
+                AddClass(SoDo.audioInButton, SoVa.aktiv)
             } else {
-                RemoveClass(SoDo.audioInButton)
+                RemoveClass(SoDo.audioInButton, SoVa.aktiv)
             }
         } else {
 
@@ -622,13 +622,13 @@ function SonosZonesObject() {
         if (contactTopPosition !== null) {
             //prüfen, ob es sich um den selben Song handelt.
             Array.from(document.getElementsByClassName("playlistplaysmall")).forEach(function (item) {
-                RemoveClass(item, "akt");
+                RemoveClass(item, SoVa.aktiv);
             })
             let NewEntry = contactTopPosition.querySelector(":scope > .currentrackinplaylist");
             let popo = contactTopPosition.lastChild;
             
             if (SonosPlayers[uuid].playerProperties.transportStateString === "PLAYING") {
-                AddClass(popo.querySelector(".playlistplaysmall"), "akt");
+                AddClass(popo.querySelector(".playlistplaysmall"), SoVa.aktiv);
             }
             
             if (NewEntry.classList.contains("aktsonginplaylist")) {
