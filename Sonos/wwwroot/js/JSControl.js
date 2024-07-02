@@ -13,7 +13,6 @@
 //}
 
 //todo: find a solution for drag and drop on mobile browsers.
-//todo: css audio in and debug
 //todo: replace akt to aktiv
 window.onerror = Fehlerbehandlung;
 var debug = false; //Wenn true wird kein Refesh gemacht		
@@ -141,12 +140,12 @@ function InitSystem() {
     });
     //Settingswurde gedrückt
     SoDo.settingsbutton.addEventListener("click", function () {
-        SonosWindows(SoDo.settingsBox);
+        SonosWindows(SoDo.settingsBox, undefined, { UseFadeIn: true });
         SoDo.settingsbutton.classList.toggle("akt");
     });
     //Settingswurde gedrückt
     SoDo.settingsClosebutton.addEventListener("click", function () {
-        SonosWindows(SoDo.settingsBox, true);
+        SonosWindows(SoDo.settingsBox, true, { UseFadeIn: true });
         SoDo.settingsbutton.classList.toggle("akt");
     });
     SoDo.BrowseClosebutton.addEventListener("click", function () {
@@ -422,7 +421,7 @@ function SetGroup() {
 function SetDevice(dev) {
     //Volumne Bar reseten.
     try {
-        SonosWindows(SoDo.multiVolume, true);
+        SonosWindows(SoDo.multiVolume, true, { UseFadeIn: true });
         SonosWindows(SoDo.ratingListBox, true);
         SoDo.onlyCurrentSwitch.checked = false;
         SoVa.ratingonlycurrent = false;
@@ -503,46 +502,47 @@ function SetMute(rincon) {
 function SetVolume(k) {
     //Multivolume
     k = parseInt(k);
-    var cordplayer = SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.zoneGroupTopology_ZonePlayerUUIDsInGroup;
+    
+    var cordplayer = SonosZones.ZonesList[SonosZones.ActiveZoneUUID].CoordinatedUUIDS;
     console.log("SetVolume");
     console.log(cordplayer);
     if (cordplayer.length > 1) {
         SoDo.multiVolume.innerHTML = "";
-        SonosWindows(SoDo.multiVolume, false, { overlay: true, selecteddivs: [SoDo.playButton, SoDo.muteButton, SoDo.nextButton] });
-        SoDo.multiVolume.innerHTML = '<div id="multivolume_close" OnClick="SonosWindows(SoDo.multiVolume, true);">X</DIV>'
+        SonosWindows(SoDo.multiVolume, false, { UseFadeIn: false, overlay: true, selecteddivs: [SoDo.playButton, SoDo.muteButton, SoDo.nextButton] });
+        SoDo.multiVolume.innerHTML = '<div id="multivolume_close" OnClick="SonosWindows(SoDo.multiVolume, true,{ UseFadeIn: true });">X</DIV>'
         //Hier nun den Player für alle machen.
         SoDo.multiVolume.innerHTML += '<div id="MultivolumeAll">Alle<DIV id="MultivolumesliderAllWrapper"><input class="multivolumeslider" type="range" min="0" max="100" value=' + SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume + ' step="1" ID="MultivolumesliderAll" Name="MultivolumesliderAll"></div><div class="multivolumesliderVolumeNumber" id="MultivolumeAllNumber">' + SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume + '</DIV></DIV>';
         let multivol = "";
         cordplayer.forEach(function (item) {
-            var player = SonosPlayers[item];
+            var player = SonosPlayers[item.uuid];
             var name = player.name;
             var volume = player.playerProperties.volume;
             var muteactive = "";
             if (player.playerProperties.mute === true) {
                 muteactive = SoVa.aktiv;
             }
-            multivol += '<div id="multivolume_' + item + '"><DIV class="multiVolumeNameMuteWrapper"><DIV class="multiVolumeName">' + name + '</DIV><DIV class="multiVolumeMute ' + muteactive + '" id="MultiVolumeMute_' + item + '" onClick="SetMute(\'' + item + '\')"></DIV></DIV><DIV id="Multivolumeslider_' + item + 'Wrapper"><input type="range" class="multivolumeslider" min="0" max="100" value=' + volume + ' step="1" ID="Multivolumeslider_' + item + '" Name="Multivolumeslider_' + item + '"></div><div class="multivolumesliderVolumeNumber" id="MultivolumesliderVolumeNumber_' + item + '">' + volume + '</div></DIV>';
+            multivol += '<div id="multivolume_' + item.uuid + '"><DIV class="multiVolumeNameMuteWrapper"><DIV class="multiVolumeName">' + name + '</DIV><DIV class="multiVolumeMute ' + muteactive + '" id="MultiVolumeMute_' + item.uuid + '" onClick="SetMute(\'' + item.uuid + '\')"></DIV></DIV><DIV id="Multivolumeslider_' + item.uuid + 'Wrapper"><input type="range" class="multivolumeslider" min="0" max="100" value=' + volume + ' step="1" ID="Multivolumeslider_' + item.uuid + '" Name="Multivolumeslider_' + item.uuid + '"></div><div class="multivolumesliderVolumeNumber" id="MultivolumesliderVolumeNumber_' + item.uuid + '">' + volume + '</div></DIV>';
         });
         SoDo.multiVolume.innerHTML += multivol;
         cordplayer.forEach(function (item) {
-            var player = SonosPlayers[item];
+            var player = SonosPlayers[item.uuid];
             var volume = player.playerProperties.volume;
-            var musli = document.getElementById("Multivolumeslider_" + item);
+            var musli = document.getElementById("Multivolumeslider_" + item.uuid);
             musli.oninput = function () {
-                document.getElementById("MultivolumesliderVolumeNumber_" + item).textContent = this.value;
+                document.getElementById("MultivolumesliderVolumeNumber_" + item.uuid).textContent = this.value;
             }
             musli.onchange = function () {
                 if (this.value > volume && this.value - volume > SoVa.volumeConfirmCounter) {
                     var answer = confirm("Du willst die Lautstärke um " + SoVa.volumeConfirmCounter + " von 100 Schritten erhöhen. Klicke Ok, wenn das gewollt ist");
                     if (!answer) {
                         this.value = volume;
-                        document.getElementById("MultivolumesliderVolumeNumber_" + item).textContent = volume;
+                        document.getElementById("MultivolumesliderVolumeNumber_" + item.uuid).textContent = volume;
                         return false;
                     }
                 }
-                SonosPlayers[item].playerProperties.volume = this.value;
-                document.getElementById("MultivolumesliderVolumeNumber_" + item).textContent = this.value;
-                SetVolumeDevice(item, this.value);
+                SonosPlayers[item.uuid].playerProperties.volume = this.value;
+                document.getElementById("MultivolumesliderVolumeNumber_" + item.uuid).textContent = this.value;
+                SetVolumeDevice(item.uuid, this.value);
                 return true;
             }
         });
@@ -805,13 +805,13 @@ function ShowPlaylistLyric(t) {
         SoDo.lyricsPlaylist.innerHTML = '<DIV class="righttopclose" onclick="ClosePlaylistLyric()">X</DIV>';
         var datalyric = player.playerProperties.playlist.playListItems[curentid].mP3.lyric;
         SoDo.lyricsPlaylist.innerHTML += '<DIV class="lyricplaylistclass">' + datalyric + '</DIV>';
-        SonosWindows(SoDo.lyricsPlaylist);
+        SonosWindows(SoDo.lyricsPlaylist, undefined, { UseFadeIn: true });
     }
 };//done
 function ShowPlaylistLyricCurrent() {
     if (SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.currentTrack.uri !== "leer") {
         SoDo.lyricButton.classList.toggle("akt");
-        SoDo.lyric.classList.toggle(SoVa.aktiv);
+        SonosWindows(SoDo.lyric, undefined, { UseFadeIn: true });
     }
 };//done
 //Neue Funktionen für Jquery remove
@@ -835,7 +835,15 @@ function AddClass(DOMElement, cssClass) {
         DOMElement.classList.add(cssClass);
     }
 }
-function RemoveClass(DOMElement, cssClass) {
+function RemoveClass(DOMElement, cssClass, withOpacity = false) {
+    if (withOpacity) {
+        DOMElement.style.opacity = 0;
+        setTimeout(function () {
+            RemoveClass(DOMElement, cssClass);
+            DOMElement.style.removeProperty("opacity");
+        }, 1000);
+        return;
+    }
     if (cssClass === undefined) {
         alert("Bei RemoveClass wurde keine Klasse für " + DOMElement.id + " mitgegeben.")
     }
@@ -843,6 +851,7 @@ function RemoveClass(DOMElement, cssClass) {
         DOMElement.classList.remove(cssClass);
     }
 }
+
 //Entfernt ein Song aus der Playlist
 function RemoveFromPlaylist(k) {
     SoVa.aktcurpopdown = "leer"; //Reset der Playlist Informationen
@@ -1046,7 +1055,7 @@ function ShowCurrentRating(t) {
     var player = SonosPlayers[SonosZones.ActiveZoneUUID];
     if (player.playerProperties.currentTrack.stream === true) {
         if (IsVisible(SoDo.ratingListBox)) {
-            SonosWindows(SoDo.ratingListBox, true);
+            SonosWindows(SoDo.ratingListBox, true, { UseFadeIn: true });
         }
         return;
     }
@@ -1054,23 +1063,23 @@ function ShowCurrentRating(t) {
     //Wenn nur current angezeigt werden soll, dann nicht schließen. 
     if (SoVa.ratingonlycurrent === true && t !== "hide") {
         if (!IsVisible(SoDo.ratingListBox)) {
-            SonosWindows(SoDo.ratingListBox);
+            SonosWindows(SoDo.ratingListBox, undefined, { UseFadeIn: true });
         }
     }
     if (SoVa.ratingonlycurrent === true && t === "hide") {
-        SonosWindows(SoDo.ratingListBox);
+        SonosWindows(SoDo.ratingListBox, undefined, { UseFadeIn: true });
         SoVa.ratingMP3 = new MP3();
         return;
     }
     if (SoVa.ratingonlycurrent === false) {
         if (!IsVisible(SoDo.ratingListBox)) {
-            SonosWindows(SoDo.ratingListBox, false, { overlay: true, selecteddivs: [SoDo.nextButton, SoDo.playButton, SoDo.muteButton] });
+            SonosWindows(SoDo.ratingListBox, false, { UseFadeIn: true, overlay: true, selecteddivs: [SoDo.nextButton, SoDo.playButton, SoDo.muteButton] });
         } else {
-            SonosWindows(SoDo.ratingListBox);
+            SonosWindows(SoDo.ratingListBox, undefined, { UseFadeIn: true });
         }
         //SonosWindows(ratinglist);
         if (t === "hide") {
-            SonosWindows(SoDo.ratingListBox, true);
+            SonosWindows(SoDo.ratingListBox, true, { UseFadeIn: true });
             return;
         }
     }
@@ -1165,11 +1174,8 @@ function SetRatingLyric() {
 //{ Suchen nach Songs
 //Durchsuchen der Bibliothek starten
 function BrowsePress() {
-    SonosWindows(SoDo.browse);
-    //if (document.body.clientWidth > 420) {
-    //    MoveAktArtist(250);
-    //}
     SoDo.browseButton.classList.toggle(SoVa.aktiv);
+    SonosWindows(SoDo.browse, undefined, { UseFadeIn: true });
     if (SoVa.browsefirst === 0) {
         window.setTimeout("LoadBrowse('A:ALBUMARTIST')", 150);
         SoVa.browsefirst = 1;
@@ -1481,21 +1487,26 @@ param 3 = Object mit Parametern
 Object Param 1 = overlay = Boolean = Zeitg, ob ein Overlay angezeigt werden soll, bei dem das entsprechende Fenster von param 1 drüber liegt.
 Object Param 2 = selecteddivs = Array oder einzel Jquery Object = Objecte, die auch über dem Overlay angezeigt werden sollen. 
 */
+//Parameter for SonosWindow
 function SonosWindows(sobj, remove, setobj) {
     if (sobj === "overlay") {
         sobj = SoVa.overlayDVIObject; //Vorhandene elemente schließen. 
     }
-    var objectindex = SoVa.swindowlist.indexOf(sobj);
-    var rem = "notset";
+    let objectindex = SoVa.swindowlist.indexOf(sobj);
+    let transformtime = 700;
+    let sobjtransition = "opacity " + transformtime + "ms linear";
+    let rem = "notset";
     if (typeof remove !== "undefined") {
         rem = remove;
     }
-    var overlay = false;
-    var settingsobject = setobj || false;
+    let overlay = false;
+    let useFadeIn = false;
+    let settingsobject = setobj || false;
     //Hier dann die settings für das Div hinterlegen. 
     if (settingsobject !== false) {
         overlay = setobj.overlay || false;
-        var tempselecteddivs = setobj.selecteddivs || false;
+        useFadeIn = setobj.UseFadeIn || false;
+        let tempselecteddivs = setobj.selecteddivs || false;
         if (tempselecteddivs !== false) {
             if (Array.isArray(tempselecteddivs)) {
                 SoVa.selectetdivs = tempselecteddivs;
@@ -1504,7 +1515,7 @@ function SonosWindows(sobj, remove, setobj) {
             }
         }
     }
-    var i;
+    let i;
     if (objectindex === -1 && rem !== true) {
         SoVa.swindowlist.push(sobj);
         if (overlay === true) {
@@ -1519,7 +1530,17 @@ function SonosWindows(sobj, remove, setobj) {
                 SoVa.szindex++;
             }
         }
+        if (useFadeIn) {
+            sobj.style.transition = sobjtransition;
+            sobj.style.opacity = 0;
+        }
         SetVisible(sobj);
+        if (useFadeIn) {
+            setTimeout(function () {
+                sobj.style.opacity = 1;
+            }, transformtime);
+            
+        }
         sobj.style.zIndex = SoVa.szindex
         SoVa.szindex++;
     } else {
@@ -1529,17 +1550,27 @@ function SonosWindows(sobj, remove, setobj) {
             }
             if (sobj === SoVa.overlayDVIObject) {
                 if (IsVisible(SoDo.overlay)) {
-                    SetHide(SoDo.overlay);
+                    setTimeout(function () { SetHide(SoDo.overlay); }, transformtime);
                 }
                 SoVa.overlayDVIObject = "";
                 if (SoVa.selectetdivs.length > 0) {
                     for (i = 0; i < SoVa.selectetdivs.length; i++) {
-                        SoVa.selectetdivs[i].style.zIndex = 100;
+                        SoVa.selectetdivs[i].style.removeProperty("z-index") 
                     }
                     SoVa.selectetdivs = [];
                 }
             }
-            SetHide(sobj);
+            if (useFadeIn || sobj.style.transition ===sobjtransition) {
+                sobj.style.opacity = 0;
+                setTimeout(function () {
+                    SetHide(sobj);
+                    sobj.style.removeProperty("opacity");
+                    sobj.style.removeProperty("transition");
+                }, transformtime)
+            } else {
+                SetHide(sobj);
+            }
+            SoDo.ratingListBox.style.removeProperty("z-index") 
         }
     }
     if (SoVa.swindowlist.length === 0) {
@@ -1549,7 +1580,7 @@ function SonosWindows(sobj, remove, setobj) {
 
 }
 function ShowSleepMode() {
-    SonosWindows(SoDo.sleepMode);
+    SonosWindows(SoDo.sleepMode, undefined, { UseFadeIn: false });
 }
 function SetSleepModeState() {
     SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.remainingSleepTimerDuration = SoDo.sleepModeSelection.value;

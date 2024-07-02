@@ -178,9 +178,9 @@
             <img id="Nextcover" alt="Next Song Cover" src="/images/no-cover.png" />
             <div id="Nextsong"></div>
         </div>
-        <div id="AktSongInfo">
-            <div id="Akttitle" onClick="ShowCurrentSongMeta()" class="akt"></div>
-            <div id="Aktartist" onClick="ShowCurrentSongMeta()" class="akt"></div>
+        <div id="AktSongInfo" onClick="ShowCurrentSongMeta()">
+            <div id="Akttitle"></div>
+            <div id="Aktartist"></div>
         </div>
         <div id="CurrentMeta"></div>
         <div id="AudioIn" class="mediabutton" onclick="SetAudioIn();"></div>
@@ -212,7 +212,7 @@
             <div id="Currentplaylistwrapper"></div>
         </div>
         <div id="CurrentPlaylistClose" onclick="ToggleCurrentPlaylist()">Schließen</div>
-        <div id="CurrentPlaylistOpen" onclick="ToggleCurrentPlaylist()" class="mediabuttonring">
+        <div id="CurrentPlaylistOpen" onclick="ToggleCurrentPlaylist()" class="mediabutton">
             <img src="/Images/playlist.png" />
         </div>
         <div id="CurrentBomb" onclick="ShowCurrentRating('show');">

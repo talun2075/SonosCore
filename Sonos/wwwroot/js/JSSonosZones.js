@@ -788,9 +788,7 @@ function SonosZonesObject() {
                     }
                 }
             }
-            if (IsVisible(SoDo.globalPlaylistLoader)) {
-                SetHide(SoDo.globalPlaylistLoader)
-            }
+            SetHide(SoDo.globalPlaylistLoader);
         }
 
         catch (er) {

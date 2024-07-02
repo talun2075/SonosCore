@@ -10,7 +10,7 @@ var editalarmidStartTime; //Hält zur Kontrolle die Starttime beim Beginn des ed
 
 function InitAlarms() {
     SoDo.alarmClockDOM.addEventListener("click", function () {
-        AlarmLoadPlayers();
+        AlarmLoadPlayers("click");
         SoDo.alarmClockDOM.classList.toggle(SoVa.aktiv);
     });
     SoDo.editAlarmStartTimeHour.addEventListener("change", function () {
@@ -353,7 +353,13 @@ function SetAlarmPlaylist(item) {
     SoDo.editAlarmPlaylist.dataset.containerid = item.dataset.containerid;
     SonosWindows(SoDo.selectAlarmPlaylistDIV, true);
 }
-function AlarmLoadPlayers() {
+function AlarmLoadPlayers(c) {
+    if (c === "click") {
+        if (IsVisible(SoDo.alarmClockDIV)) {
+            SonosWindows(SoDo.alarmClockDIV, undefined, { UseFadeIn: true });
+            return;
+        }
+    }
     var players = Object.getOwnPropertyNames(SonosPlayers);
     var counter = 0;
     for (var i = 0; i < players.length; i++) {
@@ -374,7 +380,7 @@ function AlarmLoadPlayers() {
 function AlarmClockShow(rel) {
     SonosLog("AlarmClock Show");
     if (rel !== "reload") {
-        SonosWindows(SoDo.alarmClockDIV);
+        SonosWindows(SoDo.alarmClockDIV, undefined, { UseFadeIn: true });
     }
 
     if (!IsVisible(SoDo.alarmClockDIV)) {

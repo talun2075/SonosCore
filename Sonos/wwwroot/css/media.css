@@ -58,6 +58,10 @@
         top: 460px;
         left: 640px;
     }
+    #AudioIn {
+        top: 5px;
+        left: 850px;
+    }
 }
 
 @media screen and (max-width: 1150px) {
@@ -101,6 +105,10 @@
     }
     #Filterlist{
         left:250px;
+    }
+    #AudioIn {
+        top: 360px;
+        left: 850px;
     }
 }
 
@@ -161,6 +169,9 @@
 
     #AktSongInfo {
         width: 290px;
+    }
+    #AudioIn {
+        left: 610px;
     }
 }
 
@@ -296,6 +307,10 @@
     #Next, #Play, #Pre {
         left: 640px;
     }
+    #AudioIn {
+        top: 270px;
+        left: 640px;
+    }
 }
 
 @media screen and (max-width: 790px) {
@@ -320,13 +335,7 @@
     #Filterlist {
         left: 50px;
     }
-    #CurrentPlaylistOpen {
-        display: block;
-        position: absolute;
-        left: 270px;
-        bottom: 190px;
-    }
-
+    
     #Cover {
         right: unset;
         top: unset;
@@ -338,9 +347,9 @@
 
     #CurrentPlaylistOpen {
         display: block;
-        position: absolute;
-        left: 126px;
-        top: 329px;
+        right: 5px;
+        top: 270px;
+        align-content: center;
     }
 
     #Settings {
@@ -425,6 +434,12 @@
         text-align: center;
         line-height: 75px;
     }
+    #AudioIn {
+        top: 330px;
+        width: 50px;
+        height: 50px;
+        left: 120px;
+    }
 }
 
 @media screen and (max-width: 620px) {
@@ -453,11 +468,22 @@
     #SleepModeButton {
         top: 160px;
     }
-
+    #SleepMode {
+        left: 50px;
+        right: unset;
+        top: 125px;
+    }
     #Repeat {
         top: 230px;
     }
-
+    #CurrentMeta {
+        left: 50px;
+        bottom: unset;
+        top: 100px;
+    }
+        #CurrentMeta::after {
+            right: 46%;
+        }
     #Fade, #Shuffle {
         left: 270px;
         right: unset;
@@ -473,10 +499,9 @@
     }
 
     #CurrentPlaylistOpen {
-        display: block;
-        position: absolute;
         left: 205px;
         top: 300px;
+        bottom: unset;
     }
 
     #Settings {
@@ -492,7 +517,7 @@
         left: 200px;
         display: block;
         bottom: unset;
-        top: 400px;
+        top: 390px;
     }
 
     #Aktartist {
@@ -519,10 +544,6 @@
         left: 5px;
     }
 
-    #Browsebox {
-        width: 300px;
-    }
-
     #BrowsePlaylist, #BrowseArtist {
         position: unset;
     }
@@ -535,13 +556,32 @@
     #Browseboxwrapper {
         max-height: calc(100% - 110px);
     }
+    #MultiVolume{
+        left: 10px;
+    }
+    #AudioIn {
+        top: 300px;
+        width: 50px;
+        height: 50px;
+        left: 270px;
+    }
 }
 
 @media screen and (max-width: 450px) {
-
- /*   #Bodydiv {
-        background-color: red;
-    }*/
+    #AudioIn {
+        top: 300px;
+        left: unset;
+        right: 75px;
+    }
+    
+    #MultiVolume {
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        max-height:unset;
+        width:auto;
+    }
 
     #AktSongInfo {
         left: 20px;
@@ -587,14 +627,19 @@
         width: 260px;
     }
     #Ratinglist {
-        left: 150px;
+        left: 60px;
     }
     #SetGroupMembers{
         left:50px;
     }
+    #Filterlist {
+        top: 5px;
+        left: 5px;
+    }
+
     #Settingsbox {
-        top: 30px;
-        left: 50px;
+        top: 5px;
+        left: 5px;
         height: 400px;
         width: 300px;
     }
@@ -607,4 +652,24 @@
     #SaveQueue {
         width:150px;
     }
+    #CurrentMeta {
+        left: 5px;
+        top: 166px;
+        width: auto;
+    }
+    #CurrentMeta::after{
+        border:0;
+    }
+        #CurrentMeta::after {
+            right: 46%;
+        }
+    #Fade, #Shuffle, #CurrentPlaylistOpen {
+        right: 5px;
+        left: unset;
+    }
+    #Repeat, #SleepModeButton{
+        right:75px;
+        left: unset;
+    }
+
 }

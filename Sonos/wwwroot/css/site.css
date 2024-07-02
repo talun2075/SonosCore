@@ -127,6 +127,7 @@ a {
     position: absolute;
     top: 412px;
     width: 110px;
+    transition: opacity 1s ease-in-out;
 }
 
 #SleepModeButton.aktiv {
@@ -487,6 +488,7 @@ a {
     min-height: 400px;
     height: fit-content;
 }
+
 #Ratinglist {
     position: absolute;
     top: 31px;
@@ -503,6 +505,7 @@ a {
     margin: auto;
     padding-left: 15px;
 }
+
 .filterlistWrapperParent {
     display: inline-flex;
     width: 100%;
@@ -639,10 +642,11 @@ a {
     transition: 600ms linear;
     box-shadow: 5px 5px 7px #888;
 }
-#Devices.aktiv{
-    max-width:350px;
-    max-height: 400px;
-}
+
+    #Devices.aktiv {
+        max-width: 350px;
+        max-height: 400px;
+    }
 
 #DeviceWrapper {
     max-height: 270px;
@@ -650,6 +654,7 @@ a {
     overflow: auto;
     padding-bottom: 5px;
 }
+
     #DeviceWrapper.aktiv {
         -webkit-border-radius: 25px;
         border-radius: 25px;
@@ -714,15 +719,16 @@ a {
     opacity: 0.5;
     background-image: url("data:image/svg+xml;utf8, <svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='50px' width='120px'> <text x='5' y='20' fill='black' font-size='20' font-weight='bold'>>></text> </svg>");
 }
+
     #GroupDeviceShow.aktiv {
         background-image: url("data:image/svg+xml;utf8, <svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='50px' width='120px'> <text x='5' y='20' fill='black' font-size='20' font-weight='bold'>&lt;&lt;</text> </svg>");
     }
 
-    .device_groupmember {
-        width: 130px;
-        float: left;
-        font-size: 0.6em;
-    }
+.device_groupmember {
+    width: 130px;
+    float: left;
+    font-size: 0.6em;
+}
 
 .groupdevicewrapper {
     overflow: hidden;
@@ -946,6 +952,7 @@ a {
     overflow: hidden;
     max-width: 50%;
 }
+
 #Aktartist::before {
     content: " - ";
 }
@@ -1004,8 +1011,8 @@ a {
     }
 
     #PlayRuntimeSlider::-moz-range-thumb {
-        width: 15px;
-        height: 15px;
+        width: 25px;
+        height: 25px;
         background: black;
         cursor: pointer;
         border-radius: 25px;
@@ -1029,8 +1036,8 @@ a {
     }
 
     #Volume::-moz-range-thumb {
-        width: 15px;
-        height: 15px;
+        width: 25px;
+        height: 25px;
         background: black;
         cursor: pointer;
         border-radius: 25px;
@@ -1050,8 +1057,8 @@ a {
     }
 
     .multivolumeslider::-moz-range-thumb {
-        width: 15px;
-        height: 15px;
+        width: 25px;
+        height: 25px;
         background: black;
         cursor: pointer;
         border-radius: 25px;
@@ -1075,6 +1082,7 @@ a {
     max-height: 500px;
     overflow-x: hidden;
     overflow-y: auto;
+    transition: opacity 1s ease-in-out;
 }
 
 .multivolumesliderVolumeNumber {
@@ -1152,10 +1160,11 @@ a {
     -o-transition: all 1s ease-in-out;
     -webkit-transition: all 1s ease-in-out;
     transition: all 1s ease-in-out;
-    display:none;
+    display: none;
 }
+
     #PlaylistCount.aktiv {
-        display:block;
+        display: block;
     }
 
     #PlaylistCount > DIV {
@@ -1410,38 +1419,24 @@ a {
     top: 5px;
     font-size: x-large;
     z-index: 1;
-    animation: fade-out 1s;
     display: none;
 }
-    #Lyricbox > .righttopclose{
-        display:none;
-    }
-    @-webkit-keyframes fadeIn {
-        from { opacity: 0;}
-    to { opacity: 1;}
-}
 
-@keyframes fadeIn {
-    from {opacity: 0;}
-    to {opacity: 1;}
-}
 
-#Lyricbox.aktiv {
-    display: block;
-    -webkit-animation: fadeIn 1s;
-    animation: fadeIn 1s;
+#Lyricbox > .righttopclose {
+    display: none;
 }
-    #Lyricbox::after {
-        border-style: solid;
-        border-width: 25px;
-        content: "";
-        height: 0px;
-        position: absolute;
-        top: 370px;
-        width: 0px;
-        border-color: transparent transparent transparent rgb(0, 0, 0);
-        left: 100%;
-    }
+#Lyricbox::after {
+    border-style: solid;
+    border-width: 25px;
+    content: "";
+    height: 0px;
+    position: absolute;
+    top: 370px;
+    width: 0px;
+    border-color: transparent transparent transparent rgb(0, 0, 0);
+    left: 100%;
+}
 
 #Lyricboxwrapper {
     overflow: auto;
@@ -1459,7 +1454,7 @@ a {
     background-size: 100% 100%;
     background-repeat: no-repeat;
     background-color: white;
-    transition: 1s ease-in-out;
+    
 }
 
 #Browseclose {
@@ -1472,7 +1467,7 @@ a {
     align-content: center;
     text-align: center;
     border-radius: 0 15px 0 15px;
-    display:none;
+    display: none;
 }
 
 .browsingCover {
@@ -1515,12 +1510,13 @@ a {
         border-color: transparent transparent transparent rgb(0, 0, 0);
         left: 100%;
     }
-    #Browseboxwrapper {
-        overflow: auto;
-        -webkit-overflow-scrolling: touch;
-        height: 100%;
-        max-height: calc(100% - 35px);
-    }
+
+#Browseboxwrapper {
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    height: 100%;
+    max-height: calc(100% - 35px);
+}
 
 #BrowsePlaylist {
     position: absolute;
@@ -1586,7 +1582,9 @@ a {
     border-top: 1px solid;
     width: 320px
 }
-
+.allContent {
+    width: 360px;
+}
 .currentbrowse {
     height: 40px;
     display: inline-flex;
@@ -1623,7 +1621,7 @@ a {
     Background: URL("/images/settings_red.png");
     background-size: 100% 100%;
     background-repeat: no-repeat;
-    transition: all 1s ease-in-out 0s;
+    transition: all 300ms ease-in-out;
 }
 
     #Settings.akt {

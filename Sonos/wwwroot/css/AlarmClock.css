@@ -8,9 +8,10 @@
 	Background-Color: white;
 	transition: all 1s ease-in-out 0s;
 }
-#AlarmClockOpen.aktiv{
-	Background-Color: grey;
-}
+	#AlarmClockOpen.aktiv {
+		Background-Color: grey;
+		box-shadow: rgb(136, 136, 136) 0px 0px 0px;
+	}
 #AlarmClock {
 	display: none;
 	background-color: white;
