@@ -58,7 +58,7 @@ namespace Sonos.Classes
                 }
             }
             if (usetimer) //Timer um sich selber aufzurfuen alle 30 Minuten, wenn das einmal passiert ist.
-                _ = new Timer(state => CheckAllPlayerReachable(true), null, TimeSpan.FromMinutes(30), TimeSpan.FromMilliseconds(-1));
+                _ = new Timer(state => CheckAllPlayerReachable(true), null, TimeSpan.FromMinutes(5), TimeSpan.FromMilliseconds(-1));
             return retval;
         }
 

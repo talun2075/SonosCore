@@ -2419,37 +2419,9 @@ namespace OSTL.UPnP
                                 //loadSchema = true;
                                 schemaUrn = XMLDoc.Value;
                             }
-                            // 2ToDo: Try to load the schema from the network first
-                            //						if (XMLDoc.LocalName=="schemaLocation")
-                            //						{
-                            //							if (XMLDoc.Value=="http://www.vendor.org/Schemas/Sample.xsd")
-                            //							{
-                            //								schemaUrn = XMLDoc.LookupNamespace(XMLDoc.Prefix);
-                            //							}
-                            //						}
                         }
                         XMLDoc.MoveToElement();
 
-                        //if (loadSchema)
-                        //{
-                        //    // Prompt Application for local Schema Location
-                        //    OpenFileDialog fd = new OpenFileDialog();
-                        //    fd.Multiselect = false;
-                        //    fd.Title = schemaUrn;
-                        //    if (fd.ShowDialog() == DialogResult.OK)
-                        //    {
-                        //        FileStream fs = (FileStream)fd.OpenFile();
-                        //        UTF8Encoding U = new UTF8Encoding();
-                        //        byte[] buffer = new byte[(int)fs.Length];
-                        //        fs.Read(buffer, 0, buffer.Length);
-                        //        UPnPComplexType[] complexTypes = UPnPComplexType.Parse(U.GetString(buffer));
-                        //        fs.Close();
-                        //        foreach (UPnPComplexType complexType in complexTypes)
-                        //        {
-                        //            AddComplexType(complexType);
-                        //        }
-                        //    }
-                        //}
                     }
 
 
@@ -2466,7 +2438,6 @@ namespace OSTL.UPnP
                                 if (XMLDoc.LocalName == "action")
                                 {
                                     int embeddedLine = XMLDoc.LineNumber;
-                                    //ParseActionXml("<action>\r\n" + XMLDoc.ReadInnerXml() + "</action>", embeddedLine);
                                     ParseActionXml(XMLDoc.ReadOuterXml(), embeddedLine-1);
                                 }
                                 if (!XMLDoc.IsStartElement())

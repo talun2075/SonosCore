@@ -59,13 +59,6 @@ function InitAlarms() {
 
 function EditAlarm(t) {
     SonosLog("EditAlarm");
-        //todo: Volume SLider Event
-        
-
-        
-        //editAlarmVolumeInput.addEventListener("click", function () {
-        //    editAlarmVolumeInput.select();
-        //});
 
     if (IsVisible(SoDo.editAlarmDIV)) {
         SonosWindows(SoDo.editAlarmDIV);
@@ -114,7 +107,6 @@ function EditAlarm(t) {
         //Tage
         var days = dataitem.recurrence;
         console.log("Switch EDit Days:" + days);
-        //todo: ON_5 etc einbauen, dann zieht evtl der default nicht mehr.
         switch (days) {
             case 'ONCE':
                 SoDo.editAlarmDaysSelectionOnce.checked= true;

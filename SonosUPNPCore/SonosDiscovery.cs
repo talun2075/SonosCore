@@ -153,25 +153,8 @@ namespace SonosUPnP
         /// <param name="playerToRemove"></param>
         public void RemoveDevice(SonosPlayer playerToRemove)
         {
-            //foreach (SonosPlayer item in Players)
-            //{
-            //    item.Player_Changed -= Player_Changed;
-            //}
             var dev = playerDevices[playerToRemove.UUID];
             ControlPoint.ForceDisposeDevice(dev);
-            //Players.Remove(playerToRemove);
-            //Players.Clear();
-            //playerDevices.Clear();
-            //ControlPoint = null;
-            //ZoneSwGen1.GlobalSonosChange -= ZoneSwGen_GlobalSonosChange;
-            //ZoneSwGen2.GlobalSonosChange -= ZoneSwGen_GlobalSonosChange;
-            //ZoneMethods = new ZoneMethods();
-            //ZoneSwGen1 = new ZonePerSoftwareGeneration(Logger);
-            //ZoneSwGen2 = new ZonePerSoftwareGeneration(Logger);
-            //ZoneSwGen1.GlobalSonosChange += ZoneSwGen_GlobalSonosChange;
-            //ZoneSwGen2.GlobalSonosChange += ZoneSwGen_GlobalSonosChange;
-            //ZoneProperties = new DiscoveryZoneProperties(ZoneSwGen1, ZoneSwGen2);
-            //StartScan();
 
         }
         /// <summary>
@@ -732,7 +715,6 @@ namespace SonosUPnP
         }
         private void OnRemovedDevice(UPnPSmartControlPoint sender, UPnPDevice device)
         {
-            //throw new NotImplementedException("Gerät ist weg");//todo: implementieren. Evtl. das was ich brauche, wenn ein Gerät weg ist.
             var dev = device as UPnPDevice;
             var pl = GetPlayerbyUuid(dev.UniqueDeviceName);
             pl.Player_Changed -= Player_Changed;

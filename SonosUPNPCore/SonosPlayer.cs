@@ -682,8 +682,8 @@ namespace SonosUPnP
             if (ev == SonosEnums.EventingEnums.CurrentTrack)
             {
                 PlayerProperties.CurrentTrack = await CheckItemForStreaming(PlayerProperties.CurrentTrack);
-                //if (!PlayerProperties.CurrentTrack.Stream)
-                //    PlayerProperties.CurrentTrack.FillMP3AndItemFromHDD();//todo: MP§ um ein Empty erweitern und dann hier prüfen. Fill wird schon beim AVTransport aufgemacht.
+                if (!PlayerProperties.CurrentTrack.Stream && PlayerProperties.CurrentTrack.MP3.IsEmpty())
+                                PlayerProperties.CurrentTrack.FillMP3AndItemFromHDD();
             }
             if (ev == SonosEnums.EventingEnums.QueueChanged)
             {
@@ -895,7 +895,6 @@ namespace SonosUPnP
         /// </summary>
         private async void RelTimeTimer()
         {
-            //Todo: so umbauen, dass die Oberfläche genau das macht. Die bekommt den Playing status und wir brauchen das nur für den player der angezeigt wird. 
             if (PlayerProperties.TransportState == SonosEnums.TransportState.PLAYING && PlayerProperties.LocalGroupUUID == UUID)
             {
                 RelTimer.Change(3000, 3000);
@@ -940,7 +939,6 @@ namespace SonosUPnP
         /// </summary>
         private async void RemainingSleepTimer()
         {
-            //todo: so umstellen, dass die Oberfläche das macht. Wird nicht im Backend benötigt, wenn die Ui das nicht anzeigt. 
             if (PlayerProperties.SleepTimerRunning)
             {
                 RemSleeTimer.Change(2000, 2000);

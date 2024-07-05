@@ -594,20 +594,22 @@
 
     #Next, #Play, #Pre {
         left: unset;
-        right: 75px;
-        top: unset;
+        right: 75px;rk
+        bottom:unset
+    }
+    #Browse, #Lyric, #AlarmClockOpen {
+        bottom: unset;
+    }
+    #Pre,#AlarmClockOpen {
+        top: 510px;
     }
 
-    #Pre {
-        bottom: 165px;
+    #Next,#Lyric {
+        top: 440px;
     }
 
-    #Next {
-        bottom: 75px;
-    }
-
-    #Play {
-        bottom: 255px;
+    #Play,#Browse {
+        top: 370px;
     }
 
     #Browseclose {

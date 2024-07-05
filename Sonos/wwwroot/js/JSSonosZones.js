@@ -305,9 +305,9 @@ function SonosZonesObject() {
             if (cpa !== null) {
                 var curr = cpa.lastChild.querySelector(":scope > .playlistplaysmall");
                 if (value === "PLAYING") {
-                    AddClass(curr, "akt");
+                    AddClass(curr, SoVa.aktiv);
                 } else {
-                    RemoveClass(curr, "akt");
+                    RemoveClass(curr, SoVa.aktiv);
                 }
             }
         }
@@ -589,7 +589,6 @@ function SonosZonesObject() {
             }
 
         } else {
-            //todo: prüfen auf is empty und ob die playlist geladen ist, dann kann man ein nächten track anzeigen? Stream?
             if (IsVisible(SoDo.nextSongWrapper)) {
                SetHide(SoDo.nextSongWrapper);
             }
@@ -725,9 +724,9 @@ function SonosZonesObject() {
             def = false;
         }
         if (def === false) {
-            AddClass(SoDo.filterListButton, "akt");
+            AddClass(SoDo.filterListButton, SoVa.aktiv);
         } else {
-            RemoveClass(SoDo.filterListButton, "akt");
+            RemoveClass(SoDo.filterListButton, SoVa.aktiv);
         }
     };//done
     this.RenderAllPlaylist = function (override) {

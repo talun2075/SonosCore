@@ -13,7 +13,6 @@
 //}
 
 //todo: find a solution for drag and drop on mobile browsers.
-//todo: replace akt to aktiv
 window.onerror = Fehlerbehandlung;
 var debug = false; //Wenn true wird kein Refesh gemacht		
 var wroteDebugInfos = false;
@@ -141,12 +140,12 @@ function InitSystem() {
     //Settingswurde gedrückt
     SoDo.settingsbutton.addEventListener("click", function () {
         SonosWindows(SoDo.settingsBox, undefined, { UseFadeIn: true });
-        SoDo.settingsbutton.classList.toggle("akt");
+        SoDo.settingsbutton.classList.toggle(SoVa.aktiv);
     });
     //Settingswurde gedrückt
     SoDo.settingsClosebutton.addEventListener("click", function () {
         SonosWindows(SoDo.settingsBox, true, { UseFadeIn: true });
-        SoDo.settingsbutton.classList.toggle("akt");
+        SoDo.settingsbutton.classList.toggle(SoVa.aktiv);
     });
     SoDo.BrowseClosebutton.addEventListener("click", function () {
         BrowsePress();
@@ -736,7 +735,6 @@ function ShowSongInfos(t) {
             plcover.innerHTML = '<img class="currentplaylistcover" onclick="ShowPlaylistLyric(this)" src="' + plcover.dataset.url + '">';
             plcover.dataset.url = "geladen";
         }
-        //todo: wenn currentrack wechselt, dann müßte das gefüllt sein.
         var plmp3 = SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.playlist.playListItems[plid].mP3;
         if (!SonosZones.CheckMP3IsEmpty(plmp3)) {
             //MP3 vorhanden und somit rendern.
@@ -810,7 +808,7 @@ function ShowPlaylistLyric(t) {
 };//done
 function ShowPlaylistLyricCurrent() {
     if (SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.currentTrack.uri !== "leer") {
-        SoDo.lyricButton.classList.toggle("akt");
+        SoDo.lyricButton.classList.toggle(SoVa.aktiv);
         SonosWindows(SoDo.lyric, undefined, { UseFadeIn: true });
     }
 };//done
@@ -1059,7 +1057,6 @@ function ShowCurrentRating(t) {
         }
         return;
     }
-    //todo: bei currentonly wird beim liedwechsel das rating geschlossen.
     //Wenn nur current angezeigt werden soll, dann nicht schließen. 
     if (SoVa.ratingonlycurrent === true && t !== "hide") {
         if (!IsVisible(SoDo.ratingListBox)) {

@@ -268,7 +268,7 @@ a {
     margin-top: 10px;
 }
 
-    #Bewertungsfilter.akt {
+    #Bewertungsfilter.aktiv {
         box-shadow: 0 0 0 #888;
         Background-Color: grey;
     }
@@ -1203,7 +1203,7 @@ a {
     left: 50%;
 }
 
-#Currentplaylistwrapper > .akt {
+#Currentplaylistwrapper > .aktiv {
     Background-color: grey;
 }
 
@@ -1401,7 +1401,7 @@ a {
     Background-Color: white;
 }
 
-    #Lyric.akt {
+    #Lyric.aktiv {
         box-shadow: 0 0 0 #888;
         Background-Color: grey;
     }
@@ -1624,7 +1624,7 @@ a {
     transition: all 300ms ease-in-out;
 }
 
-    #Settings.akt {
+    #Settings.aktiv {
         box-shadow: 0 0 0 #888;
         Background-Color: grey;
     }

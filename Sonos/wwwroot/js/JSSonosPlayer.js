@@ -175,9 +175,6 @@ function SonosPlayer(_uuid, _name,_swgen) {
                 alert(fehlernachricht + " Fehler bei:" + fehlernachricht.fileName + "\n" + "Meldung:" + fehlernachricht.message + "\n" + "Zeile:" + fehlernachricht.lineNumber);
             }
         };
-        this.CheckRatingFilter = function (s) {
-            //todo. wird irgendwo benutzt?
-        };
         this.ChangeRatingFilter = function (typ, wert) {
             try {
                 //nimmt den übergeben Wert und setzt diesen an den Server sowie im Objekt hier.
@@ -292,7 +289,6 @@ function SonosPlayer(_uuid, _name,_swgen) {
             if (curt.stream === false || (curt.stream === true && (etu.classType !== "object.item.audioItem.audioBroadcast") && !etu.protocolInfo.startsWith("http-get"))) {
                 this.ShowCurrentTrack();
                 //AlbumCover
-                //todo: Prüfen für Eingang
                 if (!SonosZones.CheckStringIsNullOrEmpty(curt.albumArtURI)) {
                     var jack = "/images/35klinke.png";
                     var albumart = 'http://' + this.playerProperties.baseUrl + curt.albumArtURI;
