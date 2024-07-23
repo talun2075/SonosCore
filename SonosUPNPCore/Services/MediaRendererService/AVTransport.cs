@@ -213,8 +213,10 @@ namespace SonosUPnP.Services.MediaRendererService
                             //Transportstate konnte korrekt gepraste werden
                             if (pl.PlayerProperties.TransportState != tsenum)
                             {
-                                Debug.WriteLine(pl.Name + " Transportstate wechsel:" + tsenum);
+                                //todo: warum ist das beim Start so extrem viel hier. 
+                                Debug.WriteLine(pl.Name + " Transportstate wechsel:" + tsenum+ " alt war:"+ pl.PlayerProperties.TransportState);
                                pl.PlayerProperties.TransportState = tsenum;
+                                Debug.WriteLine(pl.Name + " Transportstate übergeben:" + tsenum + " neu:" + pl.PlayerProperties.TransportState);
                                 if (LastChangeDates[SonosEnums.EventingEnums.TransportState].Ticks == 0)
                                 {
                                     LastChangeDates[SonosEnums.EventingEnums.TransportState] = DateTime.Now;

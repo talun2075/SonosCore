@@ -510,7 +510,7 @@ function SetVolume(k) {
         SonosWindows(SoDo.multiVolume, false, { UseFadeIn: false, overlay: true, selecteddivs: [SoDo.playButton, SoDo.muteButton, SoDo.nextButton] });
         SoDo.multiVolume.innerHTML = '<div id="multivolume_close" OnClick="SonosWindows(SoDo.multiVolume, true,{ UseFadeIn: true });">X</DIV>'
         //Hier nun den Player für alle machen.
-        SoDo.multiVolume.innerHTML += '<div id="MultivolumeAll">Alle<DIV id="MultivolumesliderAllWrapper"><input class="multivolumeslider" type="range" min="0" max="100" value=' + SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume + ' step="1" ID="MultivolumesliderAll" Name="MultivolumesliderAll"></div><div class="multivolumesliderVolumeNumber" id="MultivolumeAllNumber">' + SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume + '</DIV></DIV>';
+        SoDo.multiVolume.innerHTML += '<div id="MultivolumeAll">Alle<DIV id="MultivolumesliderAllWrapper"><input class="multivolumeslider" type="range" min="1" max="100" value=' + SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume + ' step="1" ID="MultivolumesliderAll" Name="MultivolumesliderAll"></div><div class="multivolumesliderVolumeNumber" id="MultivolumeAllNumber">' + SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.groupRenderingControl_GroupVolume + '</DIV></DIV>';
         let multivol = "";
         cordplayer.forEach(function (item) {
             var player = SonosPlayers[item.uuid];

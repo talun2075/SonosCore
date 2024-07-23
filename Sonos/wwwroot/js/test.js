@@ -1,5 +1,5 @@
 ﻿function InitTest() {
-    let wrapper = document.getElementById("Currentplaylist");
+    let wrapper = document.getElementById("TestData");
     wrapper.innerHTML = "";
     wrapper.innerHTML += "clientwidth"+ document.body.clientWidth;
     wrapper.innerHTML += "<br>Offset width: " + document.body.offsetWidth;

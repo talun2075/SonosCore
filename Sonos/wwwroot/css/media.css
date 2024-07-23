@@ -573,21 +573,39 @@
         left: unset;
         right: 75px;
     }
-    
+    #Devices, #DeviceWrapper{
+        max-height: 200px;
+    }
+    #Settings, #SetMute {
+        top: 240px;
+    }
+    #Volumedown, #Volumeup {
+        top: 310px;
+    }
+    #Volume {
+        top: 240px;
+    }
+    #LabelVolume {
+        left: 75px;
+        top: 220px;
+    }
     #MultiVolume {
         left: 0;
         right: 0;
         top: 0;
         bottom: 0;
-        max-height:unset;
-        width:auto;
+        max-height: unset;
+        width: auto;
     }
 
     #AktSongInfo {
         left: 20px;
-        top: 530px;
+        top: 450px;
+        width:200px;
     }
-
+    #Akttitle, #Aktartist{
+        max-width:unset;
+    }
     #PlaylistCount.aktiv {
         display: none;
     }
