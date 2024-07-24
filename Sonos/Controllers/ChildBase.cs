@@ -15,58 +15,47 @@ using SonosUPNPCore.Interfaces;
 
 namespace Sonos.Controllers
 {
-    public class ChildBase : Controller
+    public class ChildBase(ILogging logger, ISonosHelper sonosHelper, ISonosDiscovery sonosDiscovery, IMusicPictures musicPictures) : Controller
     {
 
         #region Props
         public static String ChildName { get; set; }
-        public static List<SonosItem> ChildPlaylistButtonsIDs { get; set; } = new();
+        public static List<SonosItem> ChildPlaylistButtonsIDs { get; set; } = [];
         public static Boolean IsRunning { get; set; } = false;
-        public static Dictionary<String, Dictionary<String, List<String>>> RandomPlaylistItems { get; set; } = new();
-        private readonly ILogging _logger;
-        private readonly ISonosHelper _sonosHelper;
-        private readonly ISonosDiscovery _sonos;
-        private readonly IMusicPictures _musicPictures;
-        #endregion Props
+        public static Dictionary<String, Dictionary<String, List<String>>> RandomPlaylistItems { get; set; } = [];
 
-        public ChildBase(ILogging log, ISonosHelper sonosHelper, ISonosDiscovery sonos, IMusicPictures imu)
-        {
-            _logger = log;
-            _sonosHelper = sonosHelper;
-            _sonos = sonos;
-            _musicPictures = imu;
-        }
+        #endregion Props
 
         #region Methods
         public async Task<IList<ISonosBrowseList>> Start()
         {
-            if (_sonosHelper.ChildGenrelist.Any()) return _sonosHelper.ChildGenrelist;
-            List<SonosItem> genre = await _sonos.ZoneMethods.Browsing(GetChild(), SonosConstants.aGenre + "/Hörspiel", false);
+            if (sonosHelper.ChildGenrelist.Count != 0) return sonosHelper.ChildGenrelist;
+            List<SonosItem> genre = await sonosDiscovery.ZoneMethods.Browsing(GetChild(), SonosConstants.aGenre + "/Hörspiel", false);
             int ge = genre.Count - 1;
-            if (ge == _sonosHelper.ChildGenrelist.Count)
+            if (ge == sonosHelper.ChildGenrelist.Count)
             {
-                return _sonosHelper.ChildGenrelist;//wenn ich hier hin komme, return weil fertig
+                return sonosHelper.ChildGenrelist;//wenn ich hier hin komme, return weil fertig
             }
-            if (_sonosHelper.ChildGenrelist.Count > ge)
+            if (sonosHelper.ChildGenrelist.Count > ge)
             {
                 ResetList(); //hier ist ein fehler passiert daher neu.
             }
             foreach (SonosItem item in genre)
             {
                 var title = item.Title;
-                var exist = _sonosHelper.ChildGenrelist.FirstOrDefault(x => x.Artist == title);
+                var exist = sonosHelper.ChildGenrelist.FirstOrDefault(x => x.Artist == title);
                 if (exist != null) continue;//wenn schon vorhanden einfach weiter gehen. 
 
                 if (!string.IsNullOrEmpty(item.AlbumArtURI))
                 {
-                    var titem = _musicPictures.UpdateItemToHashPath(item);
+                    var titem = musicPictures.UpdateItemToHashPath(item);
                     item.AlbumArtURI = titem.AlbumArtURI;
                 }
                 if (title == SonosConstants.aALL) continue;
                 var sbl = new SonosBrowseList
                 {
                     Artist = title,
-                    Childs = await _sonos.ZoneMethods.Browsing(GetChild(), SonosConstants.aAlbumArtist + "/" + title, false)
+                    Childs = await sonosDiscovery.ZoneMethods.Browsing(GetChild(), SonosConstants.aAlbumArtist + "/" + title, false)
                 };
                 if (sbl.Childs.Count > 0)
                 {
@@ -76,13 +65,13 @@ namespace Sonos.Controllers
                 {
                     if (!string.IsNullOrEmpty(citem.AlbumArtURI))
                     {
-                        var titem = _musicPictures.UpdateItemToHashPath(citem);
+                        var titem = musicPictures.UpdateItemToHashPath(citem);
                         citem.AlbumArtURI = titem.AlbumArtURI;
                     }
                 }
-                _sonosHelper.ChildGenrelist.Add(sbl);
+                sonosHelper.ChildGenrelist.Add(sbl);
             }
-            return _sonosHelper.ChildGenrelist;
+            return sonosHelper.ChildGenrelist;
         }
         public async void ReadConfiguration()
         {
@@ -96,7 +85,7 @@ namespace Sonos.Controllers
                     var temptitle = sonosItem.Title.ToLower();
                     if (temptitle.StartsWith("zzz" + ChildName.ToLower()))
                     {
-                        var sonosfromlist = ChildPlaylistButtonsIDs.FirstOrDefault(x => x.Title.ToLower() == temptitle);
+                        var sonosfromlist = ChildPlaylistButtonsIDs.FirstOrDefault(x => x.Title.Equals(temptitle, StringComparison.CurrentCultureIgnoreCase));
                         if (sonosfromlist == null)
                         {
                             ChildPlaylistButtonsIDs.Add(sonosItem);
@@ -107,11 +96,11 @@ namespace Sonos.Controllers
         }
         public SonosPlayer GetChild()
         {
-            return _sonos.GetPlayerbyName(ChildName);
+            return sonosDiscovery.GetPlayerbyName(ChildName);
         }
         public void ResetList()
         {
-            _sonosHelper.ChildGenrelist.Clear();
+            sonosHelper.ChildGenrelist.Clear();
         }
         public string BaseURL()
         {
@@ -131,7 +120,7 @@ namespace Sonos.Controllers
         public async Task<QueueData> DefineButton(string id, Boolean RemoveOld, [FromBody] string containerid)
         {
             var player = GetChild();
-            SonosItem playlist = ChildPlaylistButtonsIDs.FirstOrDefault(x => x.Title.ToLower() == id.ToLower());
+            SonosItem playlist = ChildPlaylistButtonsIDs.FirstOrDefault(x => x.Title.Equals(id, StringComparison.CurrentCultureIgnoreCase));
 
             if (playlist == null) return null;
                 
@@ -182,7 +171,7 @@ namespace Sonos.Controllers
             }
             catch (Exception ex)
             {
-                _logger.ServerErrorsAdd("SetVolume", ex, ChildName+"Controller");
+                logger.ServerErrorsAdd("SetVolume", ex, ChildName+"Controller");
                 throw;
             }
 
@@ -195,14 +184,14 @@ namespace Sonos.Controllers
                 if (pp == null) return false;
                 if (!string.IsNullOrEmpty(pl))
                 {
-                    if (_sonos.ZoneProperties.ListOfAllPlaylist.Count == 0)
-                        await _sonosHelper.GetAllPlaylist();
-                    var playlist = _sonos.ZoneProperties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.ToLower() == pl.ToLower());
+                    if (sonosDiscovery.ZoneProperties.ListOfAllPlaylist.Count == 0)
+                        await sonosHelper.GetAllPlaylist();
+                    var playlist = sonosDiscovery.ZoneProperties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.Equals(pl, StringComparison.CurrentCultureIgnoreCase));
                     if (playlist == null)
                     {
-                        await _sonosHelper.GetAllPlaylist();
+                        await sonosHelper.GetAllPlaylist();
                     }
-                    playlist = _sonos.ZoneProperties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.ToLower() == pl.ToLower());
+                    playlist = sonosDiscovery.ZoneProperties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.Equals(pl, StringComparison.CurrentCultureIgnoreCase));
                     Boolean loadPlaylist = false;
                     if (playlist == null)
                     {
@@ -210,11 +199,11 @@ namespace Sonos.Controllers
                     }
                     if (playlist != null)
                     {
-                        loadPlaylist = _sonosHelper.CheckPlaylist(playlist, pp);
+                        loadPlaylist = sonosHelper.CheckPlaylist(playlist, pp);
                     }
                     if (loadPlaylist)
                     {
-                        if (!await _sonosHelper.LoadPlaylist(playlist, pp))
+                        if (!await sonosHelper.LoadPlaylist(playlist, pp))
                             return false;
                     }
                 }
@@ -235,7 +224,7 @@ namespace Sonos.Controllers
             }
             catch (Exception ex)
             {
-                _logger.ServerErrorsAdd("ReplacePlaylistGet", ex, "Childbase");
+                logger.ServerErrorsAdd("ReplacePlaylistGet", ex, "Childbase");
                 throw;
             }
         }
@@ -248,7 +237,7 @@ namespace Sonos.Controllers
                 await pl.AVTransport.RemoveAllTracksFromQueue();
                 await Task.Delay(300);
                 await pl.GroupRenderingControl.SetGroupVolume(volume);
-                await _sonos.ZoneMethods.AddToQueue(v, pl);
+                await sonosDiscovery.ZoneMethods.AddToQueue(v, pl);
                 if (pl.PlayerProperties.AVTransportURI != SonosConstants.xrinconqueue + pl.UUID + "#0")
                 {
                     await pl.AVTransport.SetAVTransportURI(SonosConstants.xrinconqueue + pl.UUID + "#0");
@@ -259,7 +248,7 @@ namespace Sonos.Controllers
             }
             catch (Exception ex)
             {
-                _logger.ServerErrorsAdd("ReplacePlaylist:" + v, ex, ChildName+"Controller");
+                logger.ServerErrorsAdd("ReplacePlaylist:" + v, ex, ChildName+"Controller");
                 throw;
             }
         }
@@ -271,22 +260,22 @@ namespace Sonos.Controllers
                 var player = GetChild();
                 if(player == null) return false;
                 var randomitems = new Dictionary<String, List<String>>();
-                if(RandomPlaylistItems.ContainsKey(_playlist))
-                    randomitems = RandomPlaylistItems[_playlist];
-                if (!_sonosHelper.ChildGenrelist.Any())
+                if(RandomPlaylistItems.TryGetValue(_playlist, out Dictionary<string, List<string>> value))
+                    randomitems = value;
+                if (sonosHelper.ChildGenrelist.Count == 0)
                 {
                     await Start();
                 }
 
                 if (randomitems.Count == 0)
                 {
-                    if (!ChildPlaylistButtonsIDs.Any())
+                    if (ChildPlaylistButtonsIDs.Count == 0)
                     {
                         ReadConfiguration();
                     }
 
 
-                    SonosItem playlist = ChildPlaylistButtonsIDs.FirstOrDefault(x => x.Title.ToLower() == _playlist.ToLower());
+                    SonosItem playlist = ChildPlaylistButtonsIDs.FirstOrDefault(x => x.Title.Equals(_playlist, StringComparison.CurrentCultureIgnoreCase));
                     if (playlist == null) return false;
                     //Browse
                     var browsedplaylist = await player.ContentDirectory.Browse(playlist.ContainerID);
@@ -310,10 +299,10 @@ namespace Sonos.Controllers
                 }
                 RandomPlaylistItems[_playlist] = randomitems;
                 Random rand = new();
-                List<SonosItem> ItemstoPlay = new();
+                List<SonosItem> ItemstoPlay = [];
                 foreach (var artist in randomitems.Keys)
                 {
-                    var selectedartist = _sonosHelper.ChildGenrelist.FirstOrDefault(x => x.Artist == artist);
+                    var selectedartist = sonosHelper.ChildGenrelist.FirstOrDefault(x => x.Artist == artist);
                     var countartist = randomitems[artist].Count;
                     for (int i = 0; i < countartist; i++)
                     {
@@ -325,27 +314,35 @@ namespace Sonos.Controllers
                 try
                 {
                     await player.AVTransport.RemoveAllTracksFromQueue();
-                    await Task.Delay(300);//todo: untersuchen warum nach Strom aus, hier die Buttons nicht funktionieren.
+                    await Task.Delay(300);
                     foreach (var item in ItemstoPlay)
                     {
-                        await player.AVTransport.AddURIToQueue(item);
+                        await sonosDiscovery.ZoneMethods.AddToQueue(item.ContainerID, player);
                     }
+
+                    
+                    if (player.PlayerProperties.AVTransportURI != SonosConstants.xrinconqueue + player.UUID + "#0")
+                    {
+                        await player.AVTransport.SetAVTransportURI(SonosConstants.xrinconqueue + player.UUID + "#0");
+                    }
+
+
                     await player.RenderingControl.GetVolume();
                     if (player.PlayerProperties.Volume != volume)
                         await player.RenderingControl.SetVolume(volume);
-
+                    await Task.Delay(300);
                     await player.AVTransport.Play();
                 }
                 catch (Exception ex)
                 {
-                     _logger.ServerErrorsAdd("Random:AVTransport", ex, "Childbase");
+                     logger.ServerErrorsAdd("Random:AVTransport", ex, "Childbase");
                     return false;
                 }
                 return true;
             }
             catch(Exception ex)
             {
-                 _logger.ServerErrorsAdd("Random", ex, "Childbase");
+                 logger.ServerErrorsAdd("Random", ex, "Childbase");
                 return false;
             }
 

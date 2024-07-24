@@ -22,7 +22,7 @@ namespace SonosUPnP.Services.MediaRendererService
         private UPnPDevice mediaRendererService;
         public event EventHandler<SonosPlayer> AVTransport_Changed = delegate { };
         public UPnPStateVariable LastChange { get; private set; }
-        private readonly Dictionary<SonosEnums.EventingEnums, DateTime> LastChangeDates = new();
+        private readonly Dictionary<SonosEnums.EventingEnums, DateTime> LastChangeDates = [];
         public DateTime LastChangeByEvent { get; private set; }
         #endregion Klassenvariablen
         #region ctor und Service

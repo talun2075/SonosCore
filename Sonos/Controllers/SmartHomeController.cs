@@ -14,45 +14,35 @@ using SonosData.Enums;
 using SonosData.Props;
 using SonosSQLiteWrapper.Interfaces;
 using SonosUPNPCore.Interfaces;
+using SonosSQLiteWrapper;
 
 namespace Sonos.Controllers
 {
     [Route("/[controller]")]
-    public class SmartHomeController : Controller
+    public class SmartHomeController(ISonosHelper sonosHelper, ILogging logger, ISonosDiscovery sonosDiscovery, IMusicPictures musicPictures) : Controller
     {
-        private readonly ILogging _logger;
-        private readonly ISonosHelper _sonosHelper;
-        private readonly ISonosDiscovery _sonos;
-        private readonly IMusicPictures _musicPictures;
-        public SmartHomeController(ISonosHelper sonosHelper, ILogging log, ISonosDiscovery sonos,IMusicPictures imu)
-        {
-            _logger = log;
-            _sonosHelper = sonosHelper;
-            _sonos = sonos;
-            _musicPictures = imu;
-        }
         #region Global
         [HttpGet("StoppAllPlayers")]
         public async Task<Boolean> StoppAllPlayers()
         {
-            if (!_sonos.Players.Any())
+            if (!sonosDiscovery.Players.Any())
             {
-                _logger.ServerErrorsAdd("StoppAllPlayers", new Exception("es gibt keinen Player"));
+                logger.ServerErrorsAdd("StoppAllPlayers", new Exception("es gibt keinen Player"));
                 throw new Exception("StoppAllPlayers No Player");
             }
 
-            foreach (SonosPlayer sp in _sonos.Players)
+            foreach (SonosPlayer sp in sonosDiscovery.Players)
             {
                 try
                 {
                     if (sp == null)
                     {
-                        _logger.ServerErrorsAdd("StoppAllPlayers", new Exception("Player ist null"));
+                        logger.ServerErrorsAdd("StoppAllPlayers", new Exception("Player ist null"));
                         continue;
                     }
                     if (sp.AVTransport == null)
                     {
-                        _logger.ServerErrorsAdd("StoppAllPlayers", new Exception("Avtransport ist null bei Player:" + sp.Name));
+                        logger.ServerErrorsAdd("StoppAllPlayers", new Exception("Avtransport ist null bei Player:" + sp.Name));
                         continue;
                     }
                     if (sp.PlayerProperties.GroupCoordinatorIsLocal)
@@ -66,7 +56,7 @@ namespace Sonos.Controllers
                 }
                 catch (Exception ex)
                 {
-                    _logger.ServerErrorsAdd("StoppAllPlayers", ex);
+                    logger.ServerErrorsAdd("StoppAllPlayers", ex);
                     continue;
                 }
             }
@@ -82,7 +72,7 @@ namespace Sonos.Controllers
         public async Task<String> RoomVolumeRelativ(string id, Boolean v)
         {
             if (string.IsNullOrEmpty(id)) return "Volume leer";
-            SonosPlayer pp = _sonos.GetPlayerbyUuid(id);
+            SonosPlayer pp = sonosDiscovery.GetPlayerbyUuid(id);
             int vol = await pp.GroupRenderingControl?.GetGroupVolume();
             if (v)
             {
@@ -113,46 +103,46 @@ namespace Sonos.Controllers
             try
             {
                 //Alles ins Wohnzimmer legen.
-                SonosPlayer primaryplayer = _sonos.GetPlayerbyName(SonosConstants.WohnzimmerName);
+                SonosPlayer primaryplayer = sonosDiscovery.GetPlayerbyName(SonosConstants.WohnzimmerName);
                 if (primaryplayer == null)
                 {
-                    _logger.ServerErrorsAdd("GroundFloorOn:Primary", new Exception("primaryplayer konnten nicht ermittelt werden"), "SmartHomeWrapper");
+                    logger.ServerErrorsAdd("GroundFloorOn:Primary", new Exception("primaryplayer konnten nicht ermittelt werden"), "SmartHomeWrapper");
                     return false;
                 }
-                SonosPlayer secondaryplayer = _sonos.GetPlayerbyName(SonosConstants.EsszimmerName);
+                SonosPlayer secondaryplayer = sonosDiscovery.GetPlayerbyName(SonosConstants.EsszimmerName);
                 if (secondaryplayer == null)
                 {
-                    _logger.ServerErrorsAdd("GroundFloorOn:secondaryplayer", new Exception("secondaryplayer konnte nicht ermittelt werden"), "SmartHomeWrapper");
+                    logger.ServerErrorsAdd("GroundFloorOn:secondaryplayer", new Exception("secondaryplayer konnte nicht ermittelt werden"), "SmartHomeWrapper");
                     return false;
                 }
-                SonosPlayer thirdplayer = _sonos.GetPlayerbyName(SonosConstants.KücheName);
+                SonosPlayer thirdplayer = sonosDiscovery.GetPlayerbyName(SonosConstants.KücheName);
                 if (thirdplayer == null)
                 {
-                    _logger.ServerErrorsAdd("GroundFloorOn:thirdplayer", new Exception("thirdplayer konnte nicht ermittelt werden."), "SmartHomeWrapper");
+                    logger.ServerErrorsAdd("GroundFloorOn:thirdplayer", new Exception("thirdplayer konnte nicht ermittelt werden."), "SmartHomeWrapper");
                     return false;
                 }
-                if (_sonosHelper.IsSonosTargetGroupExist(primaryplayer, new List<string> { secondaryplayer.UUID, thirdplayer.UUID }))
+                if (sonosHelper.IsSonosTargetGroupExist(primaryplayer, [secondaryplayer.UUID, thirdplayer.UUID]))
                 {
                     try
                     {
                         //Die Zielarchitektur existiert, daher nur Playlist
                         int oldcurrenttrack = primaryplayer.PlayerProperties.CurrentTrackNumber;
-                        if (_sonos.ZoneProperties.ListOfAllPlaylist.Count == 0)
-                            await _sonosHelper.GetAllPlaylist();
-                        var playlist = _sonos.ZoneProperties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.ToLower() == playlistToPlay.ToLower());
+                        if (sonosDiscovery.ZoneProperties.ListOfAllPlaylist.Count == 0)
+                            await sonosHelper.GetAllPlaylist();
+                        var playlist = sonosDiscovery.ZoneProperties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.Equals(playlistToPlay, StringComparison.CurrentCultureIgnoreCase));
                         //if (playlist == null)
                         //{
                         //    await _sonosHelper.GetAllPlaylist();//todo: prüfen ob das aukommentiert bleiben kann.
                         //}
-                        playlist = _sonos.ZoneProperties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.ToLower() == playlistToPlay.ToLower());
+                        playlist = sonosDiscovery.ZoneProperties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.Equals(playlistToPlay, StringComparison.CurrentCultureIgnoreCase));
                         Boolean loadPlaylist = false;
                         if (playlist != null)
                         {
-                            loadPlaylist = _sonosHelper.CheckPlaylist(playlist, primaryplayer);
+                            loadPlaylist = sonosHelper.CheckPlaylist(playlist, primaryplayer);
                         }
                         if (loadPlaylist)
                         {
-                            if (!await _sonosHelper.LoadPlaylist(playlist, primaryplayer))
+                            if (!await sonosHelper.LoadPlaylist(playlist, primaryplayer))
                                 return false;
                         }
                         else
@@ -167,7 +157,7 @@ namespace Sonos.Controllers
                     }
                     catch (Exception ex)
                     {
-                        _logger.ServerErrorsAdd("GroundFloorOn:Block2", ex, "SmartHomeWrapper");
+                        logger.ServerErrorsAdd("GroundFloorOn:Block2", ex, "SmartHomeWrapper");
                         throw;
                     }
                 }
@@ -177,17 +167,17 @@ namespace Sonos.Controllers
                     try
                     {
                         //alles neu
-                        await _sonosHelper.GenerateZoneConstruct(primaryplayer, new List<string>() { secondaryplayer.UUID, thirdplayer.UUID });
+                        await sonosHelper.GenerateZoneConstruct(primaryplayer, [secondaryplayer.UUID, thirdplayer.UUID]);
                         //Playlist verarbeiten
-                        if (_sonos.ZoneProperties.ListOfAllPlaylist.Count == 0)
-                            await _sonosHelper.GetAllPlaylist();
-                        var playlist = _sonos.ZoneProperties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.ToLower() == playlistToPlay.ToLower());
-                        if (!await _sonosHelper.LoadPlaylist(playlist, primaryplayer))
+                        if (sonosDiscovery.ZoneProperties.ListOfAllPlaylist.Count == 0)
+                            await sonosHelper.GetAllPlaylist();
+                        var playlist = sonosDiscovery.ZoneProperties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.Equals(playlistToPlay, StringComparison.CurrentCultureIgnoreCase));
+                        if (!await sonosHelper.LoadPlaylist(playlist, primaryplayer))
                             return false;
                     }
                     catch (Exception ex)
                     {
-                        _logger.ServerErrorsAdd("GroundFloorOn:Block3", ex, "SmartHomeWrapper");
+                        logger.ServerErrorsAdd("GroundFloorOn:Block3", ex, "SmartHomeWrapper");
                         throw;
                     }
                 }
@@ -210,7 +200,7 @@ namespace Sonos.Controllers
                 }
                 catch (Exception ex)
                 {
-                    _logger.ServerErrorsAdd("GroundFloorOn:Block4", ex, "SmartHomeWrapper");
+                    logger.ServerErrorsAdd("GroundFloorOn:Block4", ex, "SmartHomeWrapper");
                     throw;
                 }
 
@@ -223,13 +213,13 @@ namespace Sonos.Controllers
                 catch (Exception ex)
                 {
                     string mess = primaryplayer.Name + " AVTransport:" + (primaryplayer.AVTransport != null).ToString();
-                    _logger.ServerErrorsAdd("GroundFloorOn:Block5:" + mess, ex, "SmartHomeWrapper");
+                    logger.ServerErrorsAdd("GroundFloorOn:Block5:" + mess, ex, "SmartHomeWrapper");
                     throw;
                 }
             }
             catch (Exception ex)
             {
-                _logger.ServerErrorsAdd("GroundFloorOn", ex, "SmartHomeWrapper");
+                logger.ServerErrorsAdd("GroundFloorOn", ex, "SmartHomeWrapper");
                 throw;
             }
         }
@@ -245,28 +235,28 @@ namespace Sonos.Controllers
             try
             {
                 //Alles ins Wohnzimmer legen.
-                SonosPlayer primaryplayer = _sonos.GetPlayerbyName(SonosConstants.WohnzimmerName);
+                SonosPlayer primaryplayer = sonosDiscovery.GetPlayerbyName(SonosConstants.WohnzimmerName);
                 if (primaryplayer == null)
                 {
-                    _logger.ServerErrorsAdd("GroundFloorOn:Primary", new Exception("primaryplayer konnten nicht ermittelt werden"), "SmartHomeWrapper");
+                    logger.ServerErrorsAdd("GroundFloorOn:Primary", new Exception("primaryplayer konnten nicht ermittelt werden"), "SmartHomeWrapper");
                 }
                 else
                 {
                     await GenericStopOrMakeCoordinatorbySelf(primaryplayer);
                 }
-                SonosPlayer secondaryplayer = _sonos.GetPlayerbyName(SonosConstants.EsszimmerName);
+                SonosPlayer secondaryplayer = sonosDiscovery.GetPlayerbyName(SonosConstants.EsszimmerName);
                 if (secondaryplayer == null)
                 {
-                    _logger.ServerErrorsAdd("GroundFloorOn:secondaryplayer", new Exception("secondaryplayer konnte nicht ermittelt werden"), "SmartHomeWrapper");
+                    logger.ServerErrorsAdd("GroundFloorOn:secondaryplayer", new Exception("secondaryplayer konnte nicht ermittelt werden"), "SmartHomeWrapper");
                 }
                 else
                 {
                     await GenericStopOrMakeCoordinatorbySelf(secondaryplayer);
                 }
-                SonosPlayer thirdplayer = _sonos.GetPlayerbyName(SonosConstants.KücheName);
+                SonosPlayer thirdplayer = sonosDiscovery.GetPlayerbyName(SonosConstants.KücheName);
                 if (thirdplayer == null)
                 {
-                    _logger.ServerErrorsAdd("GroundFloorOn:thirdplayer", new Exception("secondaryplayer konnte nicht ermittelt werden"), "SmartHomeWrapper");
+                    logger.ServerErrorsAdd("GroundFloorOn:thirdplayer", new Exception("secondaryplayer konnte nicht ermittelt werden"), "SmartHomeWrapper");
                 }
                 else
                 {
@@ -276,7 +266,7 @@ namespace Sonos.Controllers
             }
             catch (Exception ex)
             {
-                _logger.ServerErrorsAdd("GroundFloorOff:Block2", ex, "SmartHomeWrapper");
+                logger.ServerErrorsAdd("GroundFloorOff:Block2", ex, "SmartHomeWrapper");
                 return false;
             }
         }
@@ -286,30 +276,30 @@ namespace Sonos.Controllers
         {
             try
             {
-                var player = _sonos.GetPlayerbySoftWareGeneration(SoftwareGeneration.ZG1);
-                List<SonosItem> genre = await _sonos.ZoneMethods.Browsing(player, SonosConstants.aGenre + "/Hörspiel", false);
-                if (_sonosHelper.ChildGenrelist.Count != genre.Count - 1)
+                var player = sonosDiscovery.GetPlayerbySoftWareGeneration(SoftwareGeneration.ZG1);
+                List<SonosItem> genre = await sonosDiscovery.ZoneMethods.Browsing(player, SonosConstants.aGenre + "/Hörspiel", false);
+                if (sonosHelper.ChildGenrelist.Count != genre.Count - 1)
                 {
-                    if (_sonosHelper.ChildGenrelist.Count > genre.Count - 1)
+                    if (sonosHelper.ChildGenrelist.Count > genre.Count - 1)
                     {
-                        _sonosHelper.ChildGenrelist.Clear(); //hier ist ein fehler passiert daher neu.
+                        sonosHelper.ChildGenrelist.Clear(); //hier ist ein fehler passiert daher neu.
                     }
                     foreach (SonosItem item in genre)
                     {
                         var title = item.Title;
-                        var exist = _sonosHelper.ChildGenrelist.FirstOrDefault(x => x.Artist == title);
+                        var exist = sonosHelper.ChildGenrelist.FirstOrDefault(x => x.Artist == title);
                         if (exist != null) continue;//wenn schon vorhanden einfach weiter gehen. 
 
                         if (!string.IsNullOrEmpty(item.AlbumArtURI))
                         {
-                            var titem = _musicPictures.UpdateItemToHashPath(item);
+                            var titem = musicPictures.UpdateItemToHashPath(item);
                             item.AlbumArtURI = titem.AlbumArtURI;
                         }
                         if (title == SonosConstants.aALL) continue;
                         SonosBrowseList sbl = new()
                         {
                             Artist = title,
-                            Childs = await _sonos.ZoneMethods.Browsing(player, SonosConstants.aAlbumArtist + "/" + title, false)
+                            Childs = await sonosDiscovery.ZoneMethods.Browsing(player, SonosConstants.aAlbumArtist + "/" + title, false)
                         };
                         if (sbl.Childs.Count > 0)
                         {
@@ -320,16 +310,16 @@ namespace Sonos.Controllers
                             //hier die metadaten holen um die zeit zu bekommen? 
                             if (!string.IsNullOrEmpty(citem.AlbumArtURI))
                             {
-                                var titem = _musicPictures.UpdateItemToHashPath(citem);
+                                var titem = musicPictures.UpdateItemToHashPath(citem);
                                 citem.AlbumArtURI = titem.AlbumArtURI;
                             }
                         }
-                        _sonosHelper.ChildGenrelist.Add(sbl);
+                        sonosHelper.ChildGenrelist.Add(sbl);
                     }
                 }
 
                 //Zeiten füllen, wenn nicht gefüllt
-                foreach (var artistlist in _sonosHelper.ChildGenrelist)
+                foreach (var artistlist in sonosHelper.ChildGenrelist)
                 {
 
 
@@ -340,20 +330,20 @@ namespace Sonos.Controllers
                         {
                             continue;
                         }
-                        _musicPictures.UpdateItemToHashPath(artistchildlist);
-                        var childvalues = await _sonos.ZoneMethods.Browsing(_sonos.GetPlayerbySoftWareGeneration(SoftwareGeneration.ZG1), artistchildlist.ContainerID);
+                        musicPictures.UpdateItemToHashPath(artistchildlist);
+                        var childvalues = await sonosDiscovery.ZoneMethods.Browsing(sonosDiscovery.GetPlayerbySoftWareGeneration(SoftwareGeneration.ZG1), artistchildlist.ContainerID);
                         foreach (var item in childvalues)
                         {
                             try
                             {
-                                var meta = await _sonos.ZoneMethods.Browsing(_sonos.GetPlayerbySoftWareGeneration(SoftwareGeneration.ZG1), item.ItemID, false, SonosEnums.BrowseFlagData.BrowseMetadata);
+                                var meta = await sonosDiscovery.ZoneMethods.Browsing(sonosDiscovery.GetPlayerbySoftWareGeneration(SoftwareGeneration.ZG1), item.ItemID, false, SonosEnums.BrowseFlagData.BrowseMetadata);
                                 SonosItem metaitem = meta.FirstOrDefault();
                                 if (metaitem != null)
                                     tspan += metaitem.Duration.TimeSpan;
                             }
                             catch (Exception ex)
                             {
-                                _logger.ServerErrorsAdd("FillTimeToChildGenreList:348:" + item.ItemID, ex, "SmartHomeController");
+                                logger.ServerErrorsAdd("FillTimeToChildGenreList:348:" + item.ItemID, ex, "SmartHomeController");
                                 continue;
                             }
                         }
@@ -368,7 +358,7 @@ namespace Sonos.Controllers
             }
             catch (Exception ex)
             {
-                _logger.ServerErrorsAdd("FillTimeToChildGenreList", ex, "SmartHomeController");
+                logger.ServerErrorsAdd("FillTimeToChildGenreList", ex, "SmartHomeController");
                 return false;
             }
 
@@ -387,7 +377,7 @@ namespace Sonos.Controllers
             {
                 String selectedplaylistname = String.Empty;
                 int ix = -999;
-                List<String> RandomPlaylistList = new() { "4 Sterne", "4.5 Sterne", "5 Sterne", "Amon Armath", "Five Finger Death Punch", "Disturbed", "Foo Fighters", "Harte Gruppen", "Harte Gruppen Genre", "Herbert Grönemeyer", "I Prevail" };
+                List<String> RandomPlaylistList = ["4 Sterne", "4.5 Sterne", "5 Sterne", "Amon Armath", "Five Finger Death Punch", "Disturbed", "Foo Fighters", "Harte Gruppen", "Harte Gruppen Genre", "Herbert Grönemeyer", "I Prevail"];
                 try
                 {
                     //Playlist Ermitteln
@@ -397,13 +387,13 @@ namespace Sonos.Controllers
                 }
                 catch (Exception ex)
                 {
-                    _logger.ServerErrorsAdd("WohnzimmerSpezial:Random", ex, "SmartHomeWrapper");
+                    logger.ServerErrorsAdd("WohnzimmerSpezial:Random", ex, "SmartHomeWrapper");
                 }
                 //Player vorbereiten.            
-                SonosPlayer primaryplayer = _sonos.GetPlayerbyName(SonosConstants.WohnzimmerName);
+                SonosPlayer primaryplayer = sonosDiscovery.GetPlayerbyName(SonosConstants.WohnzimmerName);
                 if (primaryplayer == null)
                 {
-                    _logger.ServerErrorsAdd("WohnzimmerSpezial:Primary", new Exception(), "SmartHomeWrapper");
+                    logger.ServerErrorsAdd("WohnzimmerSpezial:Primary", new Exception(), "SmartHomeWrapper");
                     return false;
                 }
                 if (primaryplayer.PlayerProperties.TransportState == SonosEnums.TransportState.PLAYING)
@@ -420,7 +410,7 @@ namespace Sonos.Controllers
                 }
                 catch (Exception ex)
                 {
-                    _logger.ServerErrorsAdd("WohnzimmerSpezial:ZoneGroupTopology_ZonePlayerUUIDsInGroup", ex, "SmartHomeWrapper");
+                    logger.ServerErrorsAdd("WohnzimmerSpezial:ZoneGroupTopology_ZonePlayerUUIDsInGroup", ex, "SmartHomeWrapper");
                 }
                 if (primaryplayer.PlayerProperties.Volume != SonosConstants.WohnzimmerVolume && primaryplayer.RenderingControl != null)
                 {
@@ -429,23 +419,23 @@ namespace Sonos.Controllers
                 //Playlist befüllen
                 try
                 {
-                    if (_sonos.ZoneProperties.ListOfAllPlaylist.Count == 0)
-                        await _sonosHelper.GetAllPlaylist();
+                    if (sonosDiscovery.ZoneProperties.ListOfAllPlaylist.Count == 0)
+                        await sonosHelper.GetAllPlaylist();
                 }
                 catch (Exception ex)
                 {
-                    _logger.ServerErrorsAdd("WohnzimmerSpezial:AllPlaylist", ex, "SmartHomeWrapper");
+                    logger.ServerErrorsAdd("WohnzimmerSpezial:AllPlaylist", ex, "SmartHomeWrapper");
                 }
-                var playlist = _sonos.ZoneProperties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.ToLower() == selectedplaylistname.ToLower());
+                var playlist = sonosDiscovery.ZoneProperties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.Equals(selectedplaylistname, StringComparison.CurrentCultureIgnoreCase));
                 if (playlist == null)
                 {
-                    _logger.ServerErrorsAdd("WohnzimmerSpezial:Playlist", new Exception("Playlist konnte nicht ermittelt werden.Ermittelter Name:" + selectedplaylistname + " Ermittelter Index:" + ix ?? "Null"), "SmartHomeWrapper");
+                    logger.ServerErrorsAdd("WohnzimmerSpezial:Playlist", new Exception("Playlist konnte nicht ermittelt werden.Ermittelter Name:" + selectedplaylistname + " Ermittelter Index:" + ix ?? "Null"), "SmartHomeWrapper");
                     throw new Exception("Playlist konnte nicht ermittelt werden.Ermittelter Name:" + selectedplaylistname + " Ermittelter Index:" + ix ?? "Null");
                 }
-                Boolean loadPlaylist = _sonosHelper.CheckPlaylist(playlist, primaryplayer);
+                Boolean loadPlaylist = sonosHelper.CheckPlaylist(playlist, primaryplayer);
                 if (loadPlaylist)
                 {
-                    if (!await _sonosHelper.LoadPlaylist(playlist, primaryplayer))
+                    if (!await sonosHelper.LoadPlaylist(playlist, primaryplayer))
                         throw new Exception("Playlist konnte nicht geladen werden.");
                 }
                 await Task.Delay(300);
@@ -455,14 +445,14 @@ namespace Sonos.Controllers
                 }
                 catch (Exception ex)
                 {
-                    _logger.ServerErrorsAdd("WohnzimmerSpezial:Play", ex, "SmartHomeWrapper");
+                    logger.ServerErrorsAdd("WohnzimmerSpezial:Play", ex, "SmartHomeWrapper");
                     throw new Exception("Play konnte nicht geladen werden.");
                 }
 
             }
             catch (Exception ex)
             {
-                _logger.ServerErrorsAdd("WohnzimmerSpezial:Global", ex, "SmartHomeWrapper");
+                logger.ServerErrorsAdd("WohnzimmerSpezial:Global", ex, "SmartHomeWrapper");
                 throw;
             }
             return retval;
@@ -541,7 +531,7 @@ namespace Sonos.Controllers
         public async Task<Boolean> WorkRoomSongManage(int id)
         {
             
-            SonosPlayer pl = _sonos.GetPlayerbyName(SonosConstants.ArbeitszimmerName);
+            SonosPlayer pl = sonosDiscovery.GetPlayerbyName(SonosConstants.ArbeitszimmerName);
             Boolean retval = true;
             switch (id)
             {
@@ -558,7 +548,7 @@ namespace Sonos.Controllers
         public async Task<Boolean> WorkRoomPlaylistManage(string id)
         {
             
-            SonosPlayer pl = _sonos.GetPlayerbyName(SonosConstants.ArbeitszimmerName);
+            SonosPlayer pl = sonosDiscovery.GetPlayerbyName(SonosConstants.ArbeitszimmerName);
             Boolean retval = true;
             String selectedplaylistname = id;
             switch (id)
@@ -566,7 +556,7 @@ namespace Sonos.Controllers
                 case "Random": //Next
 
                     int ix;
-                    List<String> RandomPlaylistList = new() { "Mine", "4.5 Sterne", "5 Sterne", "Amon Armath", "Five Finger Death Punch", "Disturbed", "Foo Fighters", "Harte Gruppen", "Harte Gruppen Genre", "Herbert Grönemeyer", "I Prevail" };
+                    List<String> RandomPlaylistList = ["Mine", "4.5 Sterne", "5 Sterne", "Amon Armath", "Five Finger Death Punch", "Disturbed", "Foo Fighters", "Harte Gruppen", "Harte Gruppen Genre", "Herbert Grönemeyer", "I Prevail"];
                     try
                     {
                         //Playlist Ermitteln
@@ -576,7 +566,7 @@ namespace Sonos.Controllers
                     }
                     catch (Exception ex)
                     {
-                        _logger.ServerErrorsAdd("WorkRoomPlaylistManage:Random", ex, "SmartHomeWrapper");
+                        logger.ServerErrorsAdd("WorkRoomPlaylistManage:Random", ex, "SmartHomeWrapper");
                         retval = false;
                     }
                     break;
@@ -588,7 +578,7 @@ namespace Sonos.Controllers
             }
             catch (Exception ex)
             {
-                _logger.ServerErrorsAdd("WorkRoomPlaylistManage:GenericRoomOn", ex, "SmartHomeWrapper");
+                logger.ServerErrorsAdd("WorkRoomPlaylistManage:GenericRoomOn", ex, "SmartHomeWrapper");
                 retval = false;
             }
             return retval;
@@ -603,27 +593,27 @@ namespace Sonos.Controllers
             try
             {
                 string playlistToPlay = id;
-                SonosPlayer pp = _sonos.GetPlayerbyName(SonosConstants.GästezimmerName);
+                SonosPlayer pp = sonosDiscovery.GetPlayerbyName(SonosConstants.GästezimmerName);
                 if (pp == null) return false;
                 if ((string.IsNullOrEmpty(pp.PlayerProperties.AVTransportURI) || pp.PlayerProperties.AVTransportURI.StartsWith(SonosConstants.xrinconstream)) && pp.AVTransport != null)
                 {
                     await pp.AVTransport?.SetAVTransportURI(SonosConstants.xrinconqueue + pp.UUID + "#0");
                 }
-                if (_sonos.ZoneProperties.ListOfAllPlaylist.Count == 0)
+                if (sonosDiscovery.ZoneProperties.ListOfAllPlaylist.Count == 0)
                 {
                     //_logger.TraceLog("GuestRoom", "get allplaylist");
-                    await _sonosHelper.GetAllPlaylist();
+                    await sonosHelper.GetAllPlaylist();
                 }
-                var playlist = _sonos.ZoneProperties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.ToLower() == playlistToPlay.ToLower());
+                var playlist = sonosDiscovery.ZoneProperties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.Equals(playlistToPlay, StringComparison.CurrentCultureIgnoreCase));
                 if (playlist == null)
                 {
-                    await _sonosHelper.GetAllPlaylist();
+                    await sonosHelper.GetAllPlaylist();
                 }
-                playlist = _sonos.ZoneProperties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.ToLower() == playlistToPlay.ToLower());
+                playlist = sonosDiscovery.ZoneProperties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.Equals(playlistToPlay, StringComparison.CurrentCultureIgnoreCase));
                 Boolean loadPlaylist = false;
                 if (playlist != null)
                 {
-                    loadPlaylist = _sonosHelper.CheckPlaylist(playlist, pp);
+                    loadPlaylist = sonosHelper.CheckPlaylist(playlist, pp);
                 }
                 else
                 {
@@ -631,7 +621,7 @@ namespace Sonos.Controllers
                 }
                 if (loadPlaylist)
                 {
-                    if (!await _sonosHelper.LoadPlaylist(playlist, pp))
+                    if (!await sonosHelper.LoadPlaylist(playlist, pp))
                         return false;
                 }
                 else
@@ -666,7 +656,7 @@ namespace Sonos.Controllers
             }
             catch (Exception ex)
             {
-                _logger.ServerErrorsAdd("GuestRoom:" + id, ex, "SmarthomeController");
+                logger.ServerErrorsAdd("GuestRoom:" + id, ex, "SmarthomeController");
                 throw;
             }
         }
@@ -690,7 +680,7 @@ namespace Sonos.Controllers
             
             try
             {
-                var pl = _sonos.GetPlayerbyName(SonosConstants.GästezimmerName);
+                var pl = sonosDiscovery.GetPlayerbyName(SonosConstants.GästezimmerName);
                 var retval = await pl.AVTransport.SetAVTransportURI(SonosConstants.xrinconstream + pl.UUID);
                 if (retval)
                 {
@@ -702,7 +692,7 @@ namespace Sonos.Controllers
             }
             catch (Exception ex)
             {
-                _logger.ServerErrorsAdd("GuestRoomAudioInOn", ex, "SmarthomeController");
+                logger.ServerErrorsAdd("GuestRoomAudioInOn", ex, "SmarthomeController");
                 throw;
             }
         }
@@ -712,7 +702,7 @@ namespace Sonos.Controllers
             
             try
             {
-                var pl = _sonos.GetPlayerbyName(SonosConstants.GästezimmerName);
+                var pl = sonosDiscovery.GetPlayerbyName(SonosConstants.GästezimmerName);
                 await pl.AVTransport.Stop();
                 var retval = await pl.AVTransport.SetAVTransportURI(SonosConstants.xrinconqueue + pl.UUID + "#0");
                 if (retval)
@@ -725,7 +715,7 @@ namespace Sonos.Controllers
             }
             catch (Exception ex)
             {
-                _logger.ServerErrorsAdd("GuestRoomAudioInOff", ex, "SmarthomeController");
+                logger.ServerErrorsAdd("GuestRoomAudioInOff", ex, "SmarthomeController");
                 throw;
             }
         }
@@ -737,18 +727,18 @@ namespace Sonos.Controllers
             {
                 if (string.IsNullOrEmpty(Playername)) return false;
                 
-                SonosPlayer pp = _sonos.GetPlayerbyName(Playername);
+                SonosPlayer pp = sonosDiscovery.GetPlayerbyName(Playername);
                 if (pp == null) return false;
                 if (!string.IsNullOrEmpty(Playlist))
                 {
-                    if (_sonos.ZoneProperties.ListOfAllPlaylist.Count == 0)
-                        await _sonosHelper.GetAllPlaylist();
-                    var playlist = _sonos.ZoneProperties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.ToLower() == Playlist.ToLower());
+                    if (sonosDiscovery.ZoneProperties.ListOfAllPlaylist.Count == 0)
+                        await sonosHelper.GetAllPlaylist();
+                    var playlist = sonosDiscovery.ZoneProperties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.Equals(Playlist, StringComparison.CurrentCultureIgnoreCase));
                     if (playlist == null)
                     {
-                        await _sonosHelper.GetAllPlaylist();
+                        await sonosHelper.GetAllPlaylist();
                     }
-                    playlist = _sonos.ZoneProperties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.ToLower() == Playlist.ToLower());
+                    playlist = sonosDiscovery.ZoneProperties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.Equals(Playlist, StringComparison.CurrentCultureIgnoreCase));
                     Boolean loadPlaylist = false;
                     if(playlist == null)
                     {
@@ -756,11 +746,11 @@ namespace Sonos.Controllers
                     }
                     if (playlist != null)
                     {
-                        loadPlaylist = _sonosHelper.CheckPlaylist(playlist, pp);
+                        loadPlaylist = sonosHelper.CheckPlaylist(playlist, pp);
                     }
                     if (loadPlaylist)
                     {
-                        if (!await _sonosHelper.LoadPlaylist(playlist, pp))
+                        if (!await sonosHelper.LoadPlaylist(playlist, pp))
                             return false;
                     }
                 }
@@ -783,7 +773,7 @@ namespace Sonos.Controllers
             }
             catch (Exception ex)
             {
-                _logger.ServerErrorsAdd("GenericRoomOn", ex, "SmarthomeController");
+                logger.ServerErrorsAdd("GenericRoomOn", ex, "SmarthomeController");
                 throw;
             }
         }
@@ -794,12 +784,12 @@ namespace Sonos.Controllers
             
             try
             {
-                var pl = _sonos.GetPlayerbyName(playername);
+                var pl = sonosDiscovery.GetPlayerbyName(playername);
                 if (pl == null) return false;
                 if(pl.AVTransport == null)
                 {
                     //pl.ServiceCheck();
-                    _logger.ServerErrorsAdd("GenericRoomOff", new Exception("AvTransport is Null. ServiceInit is:"+pl.ServiceInit), "SmarthomeController");
+                    logger.ServerErrorsAdd("GenericRoomOff", new Exception("AvTransport is Null. ServiceInit is:"+pl.ServiceInit), "SmarthomeController");
                     return false;
                 }
 
@@ -807,7 +797,7 @@ namespace Sonos.Controllers
             }
             catch (Exception ex)
             {
-                _logger.ServerErrorsAdd("GenericRoomOff", ex, "SmarthomeController");
+                logger.ServerErrorsAdd("GenericRoomOff", ex, "SmarthomeController");
                 throw;
             }
         }
@@ -827,7 +817,7 @@ namespace Sonos.Controllers
             }
             catch (Exception ex)
             {
-                _logger.ServerErrorsAdd("GenericStopOrMakeCoordinatorbySelf", ex, "SmarthomeController");
+                logger.ServerErrorsAdd("GenericStopOrMakeCoordinatorbySelf", ex, "SmarthomeController");
                 throw;
             }
 
@@ -845,14 +835,14 @@ namespace Sonos.Controllers
                 SonosPlayer pp = null;
                 try
                 {
-                    pp = _sonos.GetPlayerbyName(playername);
+                    pp = sonosDiscovery.GetPlayerbyName(playername);
                     if (pp == null || pp.AVTransport == null) return "Player null.";
                     await pp.AVTransport.GetTransportInfo();
-                    await _sonosHelper.WaitForTransitioning(pp);
+                    await sonosHelper.WaitForTransitioning(pp);
                 }
                 catch (Exception ex)
                 {
-                    _logger.ServerErrorsAdd("GenericToggleRoom1", ex, "SmarthomeController");
+                    logger.ServerErrorsAdd("GenericToggleRoom1", ex, "SmarthomeController");
                     return ex.Message;
                 }
                 if (pp.PlayerProperties.TransportState == SonosEnums.TransportState.PLAYING)
@@ -866,7 +856,7 @@ namespace Sonos.Controllers
             }
             catch (Exception ex)
             {
-                _logger.ServerErrorsAdd("GenericToggleRoomLast", ex, "SmarthomeController");
+                logger.ServerErrorsAdd("GenericToggleRoomLast", ex, "SmarthomeController");
                 return ex.Message;
             }
         }
@@ -876,7 +866,7 @@ namespace Sonos.Controllers
             try
             {
                 
-                SonosPlayer pl = _sonos.GetPlayerbyName(playername);
+                SonosPlayer pl = sonosDiscovery.GetPlayerbyName(playername);
                 await pl.GroupRenderingControl?.GetGroupVolume();
 
                 int vol = pl.PlayerProperties.GroupRenderingControl_GroupVolume;
@@ -889,7 +879,7 @@ namespace Sonos.Controllers
             }
             catch (Exception ex)
             {
-                _logger.ServerErrorsAdd("GenericRoomVolume:Volume:" + volume, ex, "SmarthomeController");
+                logger.ServerErrorsAdd("GenericRoomVolume:Volume:" + volume, ex, "SmarthomeController");
                 return false;
             }
         }
