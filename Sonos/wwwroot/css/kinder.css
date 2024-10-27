@@ -66,14 +66,45 @@
     display: block;
 }
 
-#Parents, #Childwrapper {
-    display: inline-flex;
-    flex-wrap: wrap;
-    border-bottom: 5px double black;
+#Parents {
+    border-bottom: 5px dotted black;
     width: 100%;
     justify-content: center;
 }
-
+#Childwrapper {
+    display: inline-flex;
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: center;
+}
+.parentContainer {
+    display: inline-flex;
+    width: 100%;
+    flex-wrap: wrap;
+    border-top: 5px double gray;
+}
+    .parentContainer:nth-of-type(1)::after {
+        content: "Hörspiel";
+        position: absolute;
+        top: auto;
+        right: 10px;
+        background-color: black;
+        margin: 2px;
+        padding: 7px;
+        border-radius: 15px;
+        color: white;
+    }
+    .parentContainer:nth-of-type(2)::after {
+        content: "Musik";
+        position: absolute;
+        top: auto;
+        right: 10px;
+        background-color: black;
+        margin: 2px;
+        padding: 7px;
+        border-radius: 15px;
+        color: white;
+    }
 .parentItem {
     height: 8em;
     width: 8em;
@@ -138,12 +169,9 @@
     background-color: white;
 }
 
-#Childwrapper {
-}
 
 #Volume {
     width: 100%;
-    border-bottom: 1px solid black;
 }
 
 .volumeWrapper {

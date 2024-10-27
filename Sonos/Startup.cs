@@ -27,7 +27,7 @@ namespace Sonos
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllersWithViews().AddJsonOptions(options => options.JsonSerializerOptions.IncludeFields = true);
+            services.AddControllersWithViews().AddJsonOptions(options => options.JsonSerializerOptions.IncludeFields = true); 
             services
                 .AddTransient<ISonosPlayer, SonosPlayer>()
                 .AddSingleton<ILogging, Logging>()

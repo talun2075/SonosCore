@@ -15,6 +15,8 @@ using SonosData;
 using SonosSQLiteWrapper.Interfaces;
 using SonosUPNPCore.Interfaces;
 using Microsoft.Extensions.Logging;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace Sonos.Controllers
 {
@@ -953,10 +955,28 @@ namespace Sonos.Controllers
         /// <param name="id">UUID Des Players</param>
         /// <param name="v">PFAD#Rating'Gelegenheit</param>
         [HttpPost("SetSongMeta/{id}")]
-        public Boolean SetSongMeta(string id, [FromBody] MP3File.MP3File v)
+        public async Task<Boolean> SetSongMeta(string id)
         {
+            var requestReader = new StreamReader(HttpContext.Request.Body);
+            var content = await requestReader.ReadToEndAsync();
+            if (string.IsNullOrEmpty(content))
+            {
+                return false;
+            }
+
+            MP3File.MP3File lied = new MP3File.MP3File();
             var pla = sonosDiscovery.GetPlayerbyUuid(id);
-            MP3File.MP3File lied = v;
+            try
+            {
+                lied = JsonConvert.DeserializeObject<MP3File.MP3File>(content);
+            }
+            catch (Exception ex) {
+                logger.ServerErrorsAdd("SetSongMeta:" + id+ "Content:"+content, ex, "PlayerController");
+            }
+            if (string.IsNullOrEmpty(lied.Pfad))
+            {
+                return false;
+            }
             try
             {
                 //Stream Rating
@@ -987,6 +1007,7 @@ namespace Sonos.Controllers
                 {
                     if (!MP3ReadWrite.WriteMetaData(lied))
                     {
+                        logger.ServerErrorsAdd("MP3 Schreiben SetSongMeta:" + id + "Content:" + content, MP3ReadWrite.LetzerFehler, "PlayerController");
                         MP3ReadWrite.Add(lied);
                     }
                 }

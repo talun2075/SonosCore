@@ -89,30 +89,50 @@
         //only js
         clearInterval(inLoadinInterval);
         let parentsroot = document.getElementById("Parents");
+        let container1 = document.createElement("div");
+        container1.classList.add("parentContainer");
+        let container2 = document.createElement("div");
+        container2.classList.add("parentContainer");
+        let firstcontainer = this.SonosItemList[0].source;
         for (var i = 0; i < this.SonosItemList.length; i++) {
             if (this.SonosItemList[i].artist === "inLoading") {
                 //Neu Laden in x Sekunden
                 inLoadinInterval = window.setInterval(Child.GetStart, 10000);
                 return;
             }
-
-            var image = this.SonosItemList[i].childs[0].albumArtURI;
-            if (!image.startsWith(this.hashPic)) {
-                var image = "http://" + this.baseUrl + this.SonosItemList[i].childs[0].albumArtURI;
+            if (this.SonosItemList[i].childs.length == 0) {
+                continue;
             }
-            let imagedom = document.createElement("img");
-            imagedom.setAttribute("src", image);
-            imagedom.dataset.url = image;
-            imagedom.classList.add("parentImage");
-
-            let parentdom = document.createElement("div");
-            parentdom.setAttribute("id", "Parent_" + i);
-            parentdom.classList.add("parentItem");
-            parentdom.setAttribute("onClick", "Child.RenderClickParent(" + i + ",1)");
-            parentdom.append(imagedom);
-            parentsroot.append(parentdom);
+            var image = this.SonosItemList[i].childs[0].albumArtURI;
+            var parentelement = this.CreateParentElement(image, i);
+            if (this.SonosItemList[i].source === firstcontainer) {
+                container1.append(parentelement);
+            } else {
+                container2.append(parentelement);
+            }
+            //parentsroot.append(parentelement);
         }
+        parentsroot.append(container1);
+        parentsroot.append(container2);
         this.RenderClickParent(0,0);
+    }
+    this.CreateParentElement = function (image, counter) {
+        if (!image.startsWith(this.hashPic)) {
+            var image = "http://" + this.baseUrl + this.SonosItemList[counter].childs[0].albumArtURI;
+        }
+        let imagedom = document.createElement("img");
+        imagedom.setAttribute("src", image);
+        imagedom.dataset.url = image;
+        imagedom.classList.add("parentImage");
+
+        let parentdom = document.createElement("div");
+        parentdom.setAttribute("id", "Parent_" + counter);
+        parentdom.classList.add("parentItem");
+        parentdom.setAttribute("onClick", "Child.RenderClickParent(" + counter + ",1)");
+        parentdom.append(imagedom);
+
+        return parentdom;
+
     }
     this.SendClickChild = function (parent, child) {
         var uri = this.SonosItemList[parent].childs[child].containerID;

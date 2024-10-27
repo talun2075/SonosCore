@@ -14,7 +14,6 @@ using SonosData.Enums;
 using SonosData.Props;
 using SonosSQLiteWrapper.Interfaces;
 using SonosUPNPCore.Interfaces;
-using SonosSQLiteWrapper;
 
 namespace Sonos.Controllers
 {
@@ -72,15 +71,16 @@ namespace Sonos.Controllers
         public async Task<String> RoomVolumeRelativ(string id, Boolean v)
         {
             if (string.IsNullOrEmpty(id)) return "Volume leer";
-            SonosPlayer pp = sonosDiscovery.GetPlayerbyUuid(id);
+            SonosPlayer pp = sonosDiscovery.GetPlayerbyName(id);
+            if (!pp.PlayerProperties.GroupCoordinatorIsLocal) return "NotLeader";
             int vol = await pp.GroupRenderingControl?.GetGroupVolume();
             if (v)
             {
-                vol += 5;
+                vol += 3;
             }
             else
             {
-                vol -= 5;
+                vol -= 3;
             }
             if (vol > 0 && vol < 101)
                 try
@@ -278,9 +278,12 @@ namespace Sonos.Controllers
             {
                 var player = sonosDiscovery.GetPlayerbySoftWareGeneration(SoftwareGeneration.ZG1);
                 List<SonosItem> genre = await sonosDiscovery.ZoneMethods.Browsing(player, SonosConstants.aGenre + "/Hörspiel", false);
-                if (sonosHelper.ChildGenrelist.Count != genre.Count - 1)
+                List<SonosItem> childmusic = await sonosDiscovery.ZoneMethods.Browsing(player, SonosConstants.aGenre + "/Children%e2%80%99s%20Music", false);
+                genre = genre.Union(childmusic).ToList();
+                int ge = genre.Count - 2;
+                if (sonosHelper.ChildGenrelist.Count != ge)
                 {
-                    if (sonosHelper.ChildGenrelist.Count > genre.Count - 1)
+                    if (sonosHelper.ChildGenrelist.Count > ge)
                     {
                         sonosHelper.ChildGenrelist.Clear(); //hier ist ein fehler passiert daher neu.
                     }
@@ -299,6 +302,7 @@ namespace Sonos.Controllers
                         SonosBrowseList sbl = new()
                         {
                             Artist = title,
+                            Source = item.ParentID,
                             Childs = await sonosDiscovery.ZoneMethods.Browsing(player, SonosConstants.aAlbumArtist + "/" + title, false)
                         };
                         if (sbl.Childs.Count > 0)
@@ -321,7 +325,7 @@ namespace Sonos.Controllers
                 //Zeiten füllen, wenn nicht gefüllt
                 foreach (var artistlist in sonosHelper.ChildGenrelist)
                 {
-
+                    if(artistlist.Source.EndsWith("Music")) continue;
 
                     foreach (SonosItem artistchildlist in artistlist.Childs)
                     {

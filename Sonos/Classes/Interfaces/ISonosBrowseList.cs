@@ -7,5 +7,6 @@ namespace Sonos.Classes.Interfaces
     {
         string Artist { get; set; }
         List<SonosItem> Childs { get; set; }
+        string Source { get; set; }
     }
 }

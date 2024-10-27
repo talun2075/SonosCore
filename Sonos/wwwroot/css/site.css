@@ -134,7 +134,7 @@ a {
     position: absolute;
     top: 412px;
     width: 110px;
-    transition: opacity 1s ease-in-out;
+    transition: opacity 300ms ease-in-out;
 }
 
 #SleepModeButton.aktiv {
@@ -780,6 +780,8 @@ a {
 .akt_device {
     font-style: italic;
     font-weight: bold;
+    font-family: initial;
+    font-size: larger;
 }
 
 #Play {
@@ -1089,7 +1091,7 @@ a {
     max-height: 500px;
     overflow-x: hidden;
     overflow-y: auto;
-    transition: opacity 1s ease-in-out;
+    transition: opacity 300ms ease-in-out;
 }
 
 .multivolumesliderVolumeNumber {

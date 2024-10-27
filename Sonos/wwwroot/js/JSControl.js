@@ -826,6 +826,9 @@ function SetHide(DomElement) {
 
 };//done
 function AddClass(DOMElement, cssClass) {
+    if (DOMElement === null) {
+        return;
+    }
     if (cssClass === undefined) {
         alert("Bei AddClass wurde keine Klasse für " + DOMElement.id + " mitgegeben.")
     }
@@ -1490,7 +1493,7 @@ function SonosWindows(sobj, remove, setobj) {
         sobj = SoVa.overlayDVIObject; //Vorhandene elemente schließen. 
     }
     let objectindex = SoVa.swindowlist.indexOf(sobj);
-    let transformtime = 700;
+    let transformtime = 300;
     let sobjtransition = "opacity " + transformtime + "ms linear";
     let rem = "notset";
     if (typeof remove !== "undefined") {

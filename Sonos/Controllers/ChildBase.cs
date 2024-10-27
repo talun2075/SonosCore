@@ -31,7 +31,9 @@ namespace Sonos.Controllers
         {
             if (sonosHelper.ChildGenrelist.Count != 0) return sonosHelper.ChildGenrelist;
             List<SonosItem> genre = await sonosDiscovery.ZoneMethods.Browsing(GetChild(), SonosConstants.aGenre + "/Hörspiel", false);
-            int ge = genre.Count - 1;
+            List<SonosItem> childmusic = await sonosDiscovery.ZoneMethods.Browsing(GetChild(), SonosConstants.aGenre + "/Children%e2%80%99s%20Music", false);
+            genre = genre.Union(childmusic).ToList();
+            int ge = genre.Count - 2;
             if (ge == sonosHelper.ChildGenrelist.Count)
             {
                 return sonosHelper.ChildGenrelist;//wenn ich hier hin komme, return weil fertig
@@ -55,6 +57,7 @@ namespace Sonos.Controllers
                 var sbl = new SonosBrowseList
                 {
                     Artist = title,
+                    Source = item.ParentID,
                     Childs = await sonosDiscovery.ZoneMethods.Browsing(GetChild(), SonosConstants.aAlbumArtist + "/" + title, false)
                 };
                 if (sbl.Childs.Count > 0)
