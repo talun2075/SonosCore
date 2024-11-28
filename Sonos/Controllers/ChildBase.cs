@@ -12,6 +12,8 @@ using SonosData.DataClasses;
 using SonosData;
 using SonosSQLiteWrapper.Interfaces;
 using SonosUPNPCore.Interfaces;
+using System.IO;
+using Microsoft.AspNetCore.Hosting;
 
 namespace Sonos.Controllers
 {
@@ -23,15 +25,15 @@ namespace Sonos.Controllers
         public static List<SonosItem> ChildPlaylistButtonsIDs { get; set; } = [];
         public static Boolean IsRunning { get; set; } = false;
         public static Dictionary<String, Dictionary<String, List<String>>> RandomPlaylistItems { get; set; } = [];
-
         #endregion Props
 
         #region Methods
+        
         public async Task<IList<ISonosBrowseList>> Start()
         {
             if (sonosHelper.ChildGenrelist.Count != 0) return sonosHelper.ChildGenrelist;
             List<SonosItem> genre = await sonosDiscovery.ZoneMethods.Browsing(GetChild(), SonosConstants.aGenre + "/Hörspiel", false);
-            List<SonosItem> childmusic = await sonosDiscovery.ZoneMethods.Browsing(GetChild(), SonosConstants.aGenre + "/Children%e2%80%99s%20Music", false);
+            List<SonosItem> childmusic = await sonosDiscovery.ZoneMethods.Browsing(GetChild(), SonosConstants.aGenre + "/Kids", false);
             genre = genre.Union(childmusic).ToList();
             int ge = genre.Count - 2;
             if (ge == sonosHelper.ChildGenrelist.Count)

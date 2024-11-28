@@ -37,7 +37,7 @@ namespace SonosSQLiteWrapper
             {
                 Createtable(sqlite, musictable);
             } 
-            adapter = new SQLiteDataAdapter("Select path,hash from "+ musictable, sqlite);
+            adapter = new SQLiteDataAdapter("Select path,hash,extension from "+ musictable, sqlite);
             builder = new SQLiteCommandBuilder(adapter);
             try
             {
@@ -75,7 +75,7 @@ namespace SonosSQLiteWrapper
         }
         private void Createtable(SQLiteConnection openConnection, string tableName)
         {
-            var sql = "CREATE TABLE "+ tableName + " (path text PRIMARY KEY,hash text NOT NULL)";
+            var sql = "CREATE TABLE "+ tableName + " (path text PRIMARY KEY,hash text NOT NULL,extension text NOT NULL)";
             OpenDatabase();
             if (openConnection.State == ConnectionState.Open)
             {

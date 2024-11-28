@@ -74,10 +74,14 @@ namespace SonosSQLiteWrapper
                     {
                         var row = sw.MusicPictures.Rows.Find(covershort);
                         object? hash = null;
-                        if(row != null && row.ItemArray.Length >0)
+                        string extension = ".png";
+                        if (row != null && row.ItemArray.Length > 0)
+                        {
                             hash = row.ItemArray[1];
+                            extension = row.ItemArray[2]?.ToString();
+                        }
                         if (hash != null)
-                            item.AlbumArtURI = SonosConstants.CoverHashPathForBrowser + hash + ".png";
+                            item.AlbumArtURI = SonosConstants.CoverHashPathForBrowser + hash + extension;
                     }
                 }
             }
@@ -94,6 +98,7 @@ namespace SonosSQLiteWrapper
             var dbvalues = sw.MusicPictures;
             var pathCn = dbvalues.Columns[0].ColumnName;
             var hashCn = dbvalues.Columns[1].ColumnName;
+            var extension = dbvalues.Columns[2].ColumnName;
             bool changes = false;
             foreach (string item in CoverPaths)
             {
@@ -103,13 +108,14 @@ namespace SonosSQLiteWrapper
                 changes = true;
                 //GetHash
                 var fixedpath = SonosConstants.AlbumArtToFile(item);
-                string hash = "";
+                MP3.DTO.MP3ImageData mP3ImageData = new MP3.DTO.MP3ImageData();
+                //string hash = "";
                 if (File.Exists(fixedpath))
                 {
                     try
                     {
                         if (fixedpath.EndsWith(".aiff")) continue;
-                        hash = MP3.TagLibDelivery.GetPictureHash(fixedpath);
+                        mP3ImageData = MP3.TagLibDelivery.GetPictureHashAndType(fixedpath);
                     }
                     catch (Exception ex)
                     {
@@ -119,7 +125,8 @@ namespace SonosSQLiteWrapper
                     //insert new row
                     var row = dbvalues.NewRow();
                     row[pathCn] = covernoversion;
-                    row[hashCn] = hash;//Hash ermitteln
+                    row[hashCn] = mP3ImageData.Hash;//Hash ermitteln
+                    row[extension] = mP3ImageData.Extension;
                     dbvalues.Rows.Add(row);
                 }
             }

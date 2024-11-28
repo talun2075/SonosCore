@@ -7,6 +7,26 @@
     background: URL("/images/settings_red.png");
     background-size: 100% 100%;
 }
+#LocalStorage {
+    background-color: red;
+    width: 40px;
+    height: 40px;
+    border-radius: 25px;
+    position: relative;
+    overflow: hidden;
+    right: -55px;
+    top: 5px;
+    align-content: center;
+    text-align: center;
+}
+    #LocalStorage.active {
+        background-color: green;
+    }
+#FirefoxLogo {
+    width: 30px;
+    height: 30px;
+    margin-top: 5px;
+}
 #ChildImage {
     position: fixed;
     bottom: 0px;

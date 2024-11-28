@@ -1,4 +1,5 @@
 ﻿function ChildPlayer(name) {
+    window.BasePath = "/"+name + "Data/";
     this.SonosItemList = [];
     this.Name = name;
     this.baseUrl = "";
@@ -18,6 +19,10 @@
             t.baseUrl = data;
             document.getElementById("vol1").addEventListener("click", function () {
                 t.SetVolume(1);
+            });
+            document.getElementById("LocalStorage").addEventListener("click", function () {
+                removeStore("Child");
+                this.classList.remove("active");
             });
             document.getElementById("vol2").addEventListener("click", function () {
                 t.SetVolume(2);
@@ -53,7 +58,7 @@
             });
 
         }).catch(function (jqXHR) {
-            console.log("fail");
+            console.log("fail to get baseurl");
             console.log(jqXHR);
         });
         
@@ -61,10 +66,18 @@
     }
     this.GetStart = function () {
         this.AjaxLoader.style.display = "block";
-        Send("GetStart").then(function (data) {
-            t.SonosItemList = data;
-            t.RenderStart();
-        });
+        var localstore = getStore("Child");
+        if (localstore === null || isUpdateRequired(localstore.lastUpdated)) {
+            Send("GetStart").then(function (data) {
+                t.SonosItemList = data;
+                setStore("Child", data);
+                t.RenderStart();
+            });
+        } else {
+            document.getElementById("LocalStorage").classList.add("active");
+            this.SonosItemList = localstore.value;
+            this.RenderStart();
+        }
     }
     this.RenderPlayState = function () {
         var p = document.getElementById("vol4");
@@ -136,8 +149,6 @@
     }
     this.SendClickChild = function (parent, child) {
         var uri = this.SonosItemList[parent].childs[child].containerID;
-        console.log(parent);
-        console.log(child);
         if (adminModeActive === true) {
             if (RemoveOld) {
                 Send("SetButton/" + adminFor + "/true", uri, "POST").catch(function (jqXHR) {
@@ -194,7 +205,6 @@
             childdom.append(childduration);
             childwrapper.append(childdom);
         }
-        console.log("blub");
         this.AjaxLoader.style.display = "none";
         if(jump ===1)
             window.scrollTo(0, childwrapper.offsetTop);
