@@ -1,52 +1,38 @@
 ﻿using HomeLogging;
+using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Configuration;
 using SonosConst;
 using SonosSQLiteWrapper.Interfaces;
 using System.Data;
-using System.Data.SQLite;
 using System.Diagnostics;
 
 namespace SonosSQLiteWrapper
 {
-    /// <summary>
-    /// Manages the tasks database
-    /// </summary>
     public class SQLiteWrapper : ISQLiteWrapper
     {
-        private readonly SQLiteConnection sqlite;
-        private readonly SQLiteDataAdapter adapter;
-        private readonly SQLiteCommandBuilder builder;
+        private readonly SqliteConnection sqlite;
         private readonly ILogging _logging;
         private readonly string cs = "";
         private const string musictable = "musicpictures";
-        /// <summary>
-        /// Creates a timesheet object that determines if the filepath exists.
-        /// If the filepath exists then it opens a database.
-        /// If it does not exist it creates a database.
-        /// </summary>
-        /// <param name="filePath">The path to open or create a database file at.</param>
+
         public SQLiteWrapper(IConfiguration configuration, ILogging logging)
         {
-            //CREATE TABLE musicpictures (path text PRIMARY KEY,hash text NOT NULL)
-            cs = @"URI=file:" + configuration["MusicPictureDBPath"];
+            cs = $"Data Source={configuration["MusicPictureDBPath"]}";
             if (Debugger.IsAttached)
-                cs = @"URI=file:"+ configuration["MusicPictureDBPathDebug"];
+                cs = $"Data Source={configuration["MusicPictureDBPathDebug"]}";
             _logging = logging;
-            sqlite = new SQLiteConnection(cs);
-            if(!tableAlreadyExists(sqlite, musictable))
-            {
-                Createtable(sqlite, musictable);
-            } 
-            adapter = new SQLiteDataAdapter("Select path,hash,extension from "+ musictable, sqlite);
-            builder = new SQLiteCommandBuilder(adapter);
+            sqlite = new SqliteConnection(cs);
+
             try
             {
                 OpenDatabase();
-                PrepareQueries();
-                adapter.Fill(MusicPictures);
+                if (!TableAlreadyExists(sqlite, musictable))
+                {
+                    CreateTable(sqlite, musictable);
+                }
+                FillMusicPictures();
                 PreparePrimaryKeys();
                 Close();
-
             }
             catch (Exception ex)
             {
@@ -54,57 +40,95 @@ namespace SonosSQLiteWrapper
             }
         }
 
-        private bool tableAlreadyExists(SQLiteConnection openConnection, string tableName)
-        {
-            var sql = "SELECT name FROM sqlite_master WHERE type='table' AND name='" + tableName + "';";
-            OpenDatabase();
-            if (openConnection.State == ConnectionState.Open)
-            {
-                SQLiteCommand command = new SQLiteCommand(sql, openConnection);
-                SQLiteDataReader reader = command.ExecuteReader();
-                if (reader.HasRows)
-                {
-                    return true;
-                }
-                return false;
-            }
-            else
-            {
-                throw new ArgumentException("Data.ConnectionState must be open");
-            }
-        }
-        private void Createtable(SQLiteConnection openConnection, string tableName)
-        {
-            var sql = "CREATE TABLE "+ tableName + " (path text PRIMARY KEY,hash text NOT NULL,extension text NOT NULL)";
-            OpenDatabase();
-            if (openConnection.State == ConnectionState.Open)
-            {
-                SQLiteCommand command = new SQLiteCommand(sql, openConnection);
-                command.ExecuteNonQuery();
-            }
-            else
-            {
-                throw new ArgumentException("Data.ConnectionState must be open");
-            }
-        }
-        /// <summary>
-        /// Return the task table
-        /// </summary>
-        /// <returns></returns>
         public DataTable MusicPictures { get; set; } = new();
 
         public void Update()
         {
-            OpenDatabase();
-            adapter.Update(MusicPictures);
-            MusicPictures.Clear();
-            adapter.Fill(MusicPictures);
-            Close();
+            int errorCount = 0;
+            const int maxConsecutiveErrors = 5;
+
+            try
+            {
+                OpenDatabase();
+                using var transaction = sqlite.BeginTransaction();
+                using var command = sqlite.CreateCommand();
+
+                foreach (DataRow row in MusicPictures.Rows)
+                {
+                    try
+                    {
+                        if (row.RowState == DataRowState.Added)
+                        {
+                            command.CommandText = "INSERT INTO musicpictures (path, hash, extension) VALUES (@path, @hash, @extension)";
+                        }
+                        else if (row.RowState == DataRowState.Modified)
+                        {
+                            command.CommandText = "UPDATE musicpictures SET hash = @hash, extension = @extension WHERE path = @path";
+                        }
+                        else if (row.RowState == DataRowState.Deleted)
+                        {
+                            command.CommandText = "DELETE FROM musicpictures WHERE path = @path";
+                        }
+                        else
+                        {
+                            continue;
+                        }
+
+                        command.Parameters.Clear();
+
+                        if (row.HasVersion(DataRowVersion.Original))
+                        {
+                            command.Parameters.AddWithValue("@path", row["path", DataRowVersion.Original]);
+                        }
+                        else
+                        {
+                            command.Parameters.AddWithValue("@path", row["path"]);
+                        }
+
+                        if (row.RowState != DataRowState.Deleted)
+                        {
+                            if (row.HasVersion(DataRowVersion.Current))
+                            {
+                                command.Parameters.AddWithValue("@hash", row["hash", DataRowVersion.Current]);
+                                command.Parameters.AddWithValue("@extension", row["extension", DataRowVersion.Current]);
+                            }
+                            else
+                            {
+                                command.Parameters.AddWithValue("@hash", row["hash"]);
+                                command.Parameters.AddWithValue("@extension", row["extension"]);
+                            }
+                        }
+
+                        command.ExecuteNonQuery();
+
+                        // Zurücksetzen des Fehlerzählers bei erfolgreicher Verarbeitung
+                        errorCount = 0;
+                    }
+                    catch (Exception rowEx)
+                    {
+                        errorCount++;
+                        _logging.ServerErrorsAdd($"Update: Error processing row with path {row["path"]}", rowEx, "SQLiteWrapper");
+
+                        if (errorCount >= maxConsecutiveErrors)
+                        {
+                            _logging.ServerErrorsAdd($"Update: Aborting after {maxConsecutiveErrors} consecutive errors", null, "SQLiteWrapper");
+                            break;
+                        }
+                    }
+                }
+
+                transaction.Commit();
+                MusicPictures.AcceptChanges();
+                FillMusicPictures();
+                Close();
+            }
+            catch (Exception ex)
+            {
+                _logging.ServerErrorsAdd("Update: General error", ex, "SQLiteWrapper");
+            }
         }
 
-        /// <summary>
-        /// Closes the database connection
-        /// </summary>
+
         private void Close()
         {
             try
@@ -112,15 +136,12 @@ namespace SonosSQLiteWrapper
                 if (sqlite.State != ConnectionState.Closed)
                     sqlite.Close();
             }
-            catch (SQLiteException ex)
+            catch (SqliteException ex)
             {
                 _logging.ServerErrorsAdd("CloseDatabase", ex, "SQLiteWrapper");
             }
         }
 
-        /// <summary>
-        /// Creates the database connection
-        /// </summary>
         private void OpenDatabase()
         {
             try
@@ -128,28 +149,35 @@ namespace SonosSQLiteWrapper
                 if (sqlite.State != ConnectionState.Open)
                     sqlite.Open();
             }
-            catch (SQLiteException ex)
+            catch (SqliteException ex)
             {
                 _logging.ServerErrorsAdd("OpenDatabase", ex, "SQLiteWrapper");
             }
         }
 
-        /// <summary>
-        /// Prepares the queries used to manipulate the timesheet
-        /// </summary>
-        private void PrepareQueries()
+        private bool TableAlreadyExists(SqliteConnection connection, string tableName)
         {
-            try
-            {
-                adapter.UpdateCommand = builder.GetUpdateCommand();
-                adapter.DeleteCommand = builder.GetDeleteCommand();
-                adapter.InsertCommand = builder.GetInsertCommand();
-            }
-            catch (Exception ex)
-            {
-                _logging.ServerErrorsAdd("PrepareQueries", ex, "SQLiteWrapper");
-            }
+            using var command = connection.CreateCommand();
+            command.CommandText = $"SELECT name FROM sqlite_master WHERE type='table' AND name='{tableName}';";
+            return command.ExecuteScalar() != null;
         }
+
+        private void CreateTable(SqliteConnection connection, string tableName)
+        {
+            using var command = connection.CreateCommand();
+            command.CommandText = $"CREATE TABLE {tableName} (path TEXT PRIMARY KEY, hash TEXT NOT NULL, extension TEXT NOT NULL)";
+            command.ExecuteNonQuery();
+        }
+
+        private void FillMusicPictures()
+        {
+            MusicPictures.Clear();
+            using var command = sqlite.CreateCommand();
+            command.CommandText = $"SELECT path, hash, extension FROM {musictable}";
+            using var reader = command.ExecuteReader();
+            MusicPictures.Load(reader);
+        }
+
         private void PreparePrimaryKeys()
         {
             try

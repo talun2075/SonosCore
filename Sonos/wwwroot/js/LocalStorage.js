@@ -23,7 +23,7 @@ function removeStore(key) {
 // Funktion zur Überprüfung, ob eine Aktualisierung erforderlich ist
 function isUpdateRequired(lastUpdated) {
 
-    const twentyFourHoursInMilliseconds = 24 * 60 * 60 * 1000;
+    const twentyFourHoursInMilliseconds = 24 * 60 * 60 * 1000 * 7; //Letzten 7 Tage nicht aktualisieren.
     const lastUpdateDate = new Date(lastUpdated);
     return (new Date() - lastUpdateDate) > twentyFourHoursInMilliseconds;
 }

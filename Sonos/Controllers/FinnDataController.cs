@@ -47,7 +47,11 @@ namespace Sonos.Controllers
         {
             return await Pause();
         }
-
+        [HttpGet("SetPlay")]
+        public async Task<Boolean> SetPlay()
+        {
+            return await Play();
+        }
         [HttpGet("SetVolume/{id}")]
         public async Task<Boolean> SetVolume(string id)
         {

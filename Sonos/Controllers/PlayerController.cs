@@ -14,15 +14,21 @@ using SonosUPNPCore.Classes;
 using SonosData;
 using SonosSQLiteWrapper.Interfaces;
 using SonosUPNPCore.Interfaces;
-using Microsoft.Extensions.Logging;
 using System.IO;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Sonos.Controllers
 {
     [Route("/[controller]")]
     public class PlayerController(IMusicPictures musicPictures, ISonosHelper sonosHelper, ILogging logger, ISonosDiscovery sonosDiscovery) : Controller
     {
+        private JsonSerializerOptions jsonOptions = new()
+        {
+            PropertyNameCaseInsensitive = true,
+            Converters = { new JsonStringEnumConverter() }
+        };
+
 
         #region Frontend GET Fertig
         /// <summary>
@@ -966,9 +972,11 @@ namespace Sonos.Controllers
 
             MP3File.MP3File lied = new MP3File.MP3File();
             var pla = sonosDiscovery.GetPlayerbyUuid(id);
+
             try
             {
-                lied = JsonConvert.DeserializeObject<MP3File.MP3File>(content);
+                lied = System.Text.Json.JsonSerializer.Deserialize<MP3File.MP3File>(content, jsonOptions);
+                //lied = JsonConvert.DeserializeObject<MP3File.MP3File>(content);
             }
             catch (Exception ex) {
                 logger.ServerErrorsAdd("SetSongMeta:" + id+ "Content:"+content, ex, "PlayerController");

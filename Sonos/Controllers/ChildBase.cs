@@ -157,11 +157,16 @@ namespace Sonos.Controllers
             var bu = GetChild();
             return await bu.AVTransport.Pause();
         }
+        public async Task<Boolean> Play()
+        {
+            var bu = GetChild();
+            return await bu.AVTransport.Play();
+        }
         public async Task<Boolean> Volume(string id)
         {
             try
             {
-                UInt16 volume = 5;
+                UInt16 volume = 6;
                 switch (id)
                 {
                     case "2":

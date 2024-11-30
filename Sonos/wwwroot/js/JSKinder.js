@@ -31,7 +31,7 @@
                 t.SetVolume(3);
             });
             document.getElementById("vol4").addEventListener("click", function () {
-                t.SetPause();
+                t.SetTogglePlayPause();
             });
             document.getElementById("SettingsButton").addEventListener("click", function () {
                 var x = document.getElementById("Settings");
@@ -39,7 +39,7 @@
                     x.style.display = "block";
                 } else {
                     x.style.display = "none";
-                    this.ActivateAdmin("Reset");
+                    t.ActivateAdmin("Reset");
                 }
             }); 
             const buttons = document.querySelectorAll('.button');
@@ -96,6 +96,19 @@
         Send("SetPause");
         this.PlayState = 0;
         this.RenderPlayState();
+    }
+    this.SetPlay = function () {
+        Send("SetPlay");
+        this.PlayState = 1;
+        this.RenderPlayState();
+    }
+    this.SetTogglePlayPause = function () {
+        if (this.PlayState === 0) {
+            this.SetPlay();
+        } else {
+            this.SetPause();
+        }
+        
     }
     var inLoadinInterval;
     this.RenderStart = function () {
