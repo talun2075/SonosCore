@@ -761,6 +761,10 @@ function SonosZonesObject() {
                 if (this.AllPlaylists.length === 0) return;
                 let domlelemts = "";
                 this.AllPlaylists.forEach(function (item, i) { 
+
+                    if (item.title.startsWith("zzz") && SoVa.IsAdmin === false) {
+                        return;
+                    }
                     var playlisttype;
                     var acclass = "";
                     if (item.description === "M3U") {

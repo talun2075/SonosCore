@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Sonos.Classes;
 using SonosUPnP;
-using SonosConst;
 using System;
 using System.Collections.Generic;
 using System.Linq;

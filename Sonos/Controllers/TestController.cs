@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using SonosSQLiteWrapper.Interfaces;
 
 namespace Sonos.Controllers
 {

@@ -64,6 +64,16 @@ namespace Sonos.Controllers
         {
            return await ReplacePlaylist(v, SonosConstants.IanzimmerVolume);
         }
+        /// <summary>
+        /// Aktuelle Wiedergabeliste ersetzen
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="v"></param>
+        [HttpGet("ReplacePlaylistGet/{id}")]
+        public async Task<Boolean> ReplacePlaylistGet(string id)
+        {
+            return await ReplacePlaylistGet(id, SonosConstants.IanzimmerVolume);
+        }
 
         [HttpPost("SetButton/{id}/{RemoveOld}")]
         public async Task<QueueData> SetButton(string id, Boolean RemoveOld, [FromBody] string containerid)

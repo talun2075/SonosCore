@@ -2,6 +2,7 @@
 //Liste mit Allen Sonos Variablen
 function SonosVariablen() {
     this.apiDeviceURL = '/Devices/'; //Url der API der Geräte
+    this.IsAdmin = false; //Url der API der Geräte
     this.apiPlayerURL = '/Player/'; //URL der API des einzelnen Players
     this.apiZoneURL = '/Zone/'; //URL der API des einzelnen Players
     this.apiSettingURL = '/settings/'; //URL der API des einzelnen Players
@@ -37,7 +38,7 @@ function SonosVariablen() {
     this.TopologieChangeID = 0; //TopologieChange SetTimeout ProzessID, damit nicht doppelt Topologiechange gemacht wird.
     this.TopologieChangeTime = 10000; //TopologieChange SetTimeout Timer in MS
     this.GetAktSongInfoTimerID = 0; //GetAktsongInfo Timer ID
-    this.metaUse = new Array("jahr", "genre", "pfad", "komponist", "verlag", "album", "typ", "kommentar"); //Propertys aus Currenttrack.mP3 die als Details angezeigt werden sollen.
+    this.metaUse = new Array("jahr", "genres", "pfad", "komponist", "verlag", "album", "typ", "kommentar"); //Propertys aus Currenttrack.mP3 die als Details angezeigt werden sollen.
     this.GlobalPlaylistLoaded = false;
     this.eventErrorChangeID = 0;// Sollten Fehler auftreten beim JSSonosEvent.js wird dieser Prozess immer und immer wieder aufgerufen, bis der Fehler weg ist, danach werden die Events wieder gestartet.
     this.eventErrorsSource = "";//Quelle, die den Fehler ursächlich gemeldet hat.

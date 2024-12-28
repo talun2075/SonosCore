@@ -287,6 +287,12 @@ var GetZonesTimer = 0;
 function LoadDevices() {
     try {
         SoVa.urldevice = GetURLParameter('device').toLowerCase();
+        let admin = GetURLParameter('admin').toLowerCase();
+        console.log(admin);
+        if (admin === "true") {
+            SoVa.IsAdmin = true;
+        }
+        SoVa.IsAdmin
         clearTimeout(SoVa.TopologieChangeID);
         SoVa.GetZonesTimer = window.setTimeout("GetZones()", 100);
     }
@@ -1006,7 +1012,7 @@ function ChangeRating(v, c) {
     if (typeof c !== "undefined" && c === true && v > 50) {
         SetRatingArtistpl(true);
     }
-    SoVa.ratingMP3.bewertung = v;
+    SoVa.ratingMP3.bewertung = v.toString();
     let currentRating = SoDo.ratingListBox.querySelector(":scope > .rating_bar_aktiv");
     if (currentRating !== null) {
         RemoveClass(currentRating, "rating_bar_aktiv");
