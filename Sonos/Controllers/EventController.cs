@@ -51,7 +51,7 @@ namespace Sonos.Controllers
                 await Response.WriteAsync($"data: {jsonConnection}\n\n", cancellationToken);
                 await Response.Body.FlushAsync(cancellationToken);
 
-                _messageRepository.NotificationEvent += OnNotification;
+                _messageRepository.NotificationEvent += (sender, args) => OnNotification(sender, args, cancellationToken);
                 try
                 {
                     while (!cancellationToken.IsCancellationRequested)
@@ -71,49 +71,7 @@ namespace Sonos.Controllers
                 }
                 finally
                 {
-                    _messageRepository.NotificationEvent -= OnNotification;
-                }
-                async void OnNotification(object? sender, NotificationArgs eventArgs)
-                {
-                    String json = "Fehler Beim Prepare somit nichts vorhanden.";
-                    try
-                    {
-
-                        if (!cancellationToken.IsCancellationRequested)
-                        {
-                            // idea: https://stackoverflow.com/a/58565850/80527
-
-                            try
-                            {
-                                json = PrepareData(eventArgs);
-                            }
-                            catch (Exception ex)
-                            {
-                                _logger.ServerErrorsAdd("SubscribeEvents:Json:EventType:" + eventArgs.Notification.EventType, ex, "EventController");
-                            }
-                            try
-                            {
-                                await Response.WriteAsync($"event:sonos\n", cancellationToken);
-                            }
-                            catch(Exception ex)
-                            {
-                                _logger.ServerErrorsAdd("SubscribeEvents:WriteAsync:Event:" + eventArgs.Notification.EventType + " Json:" + json, ex, "EventController");
-                            }
-                            try
-                            {
-                                await Response.WriteAsync($"data:{json}\n\n", cancellationToken);
-                            }
-                            catch (Exception ex)
-                            {
-                                _logger.ServerErrorsAdd("SubscribeEvents:WriteAsync:data:" + eventArgs.Notification.EventType + " Json:" + json, ex, "EventController");
-                            }
-                            await Response.Body.FlushAsync(cancellationToken);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.ServerErrorsAdd("SubscribeEvents:inner:EventType:" + eventArgs.Notification.EventType + " Json:" + json + " Token:" + cancellationToken + " EndeToken", ex, "EventController");
-                    }
+                    _messageRepository.NotificationEvent -= (sender, args) => OnNotification(sender, args, cancellationToken);
                 }
             }
             catch (Exception ex)
@@ -121,6 +79,50 @@ namespace Sonos.Controllers
                 _logger.ServerErrorsAdd("SubscribeEvents:Outer", ex, "EventController");
             }
         }
+
+        private async void OnNotification(object? sender, NotificationArgs eventArgs, CancellationToken cancellationToken)
+        {
+            String json = "Fehler Beim Prepare somit nichts vorhanden.";
+            try
+            {
+
+                if (!cancellationToken.IsCancellationRequested)
+                {
+                    // idea: https://stackoverflow.com/a/58565850/80527
+
+                    try
+                    {
+                        json = PrepareData(eventArgs);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.ServerErrorsAdd("SubscribeEvents:Json:EventType:" + eventArgs.Notification.EventType, ex, "EventController");
+                    }
+                    try
+                    {
+                        await Response.WriteAsync($"event:sonos\n", cancellationToken);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.ServerErrorsAdd("SubscribeEvents:WriteAsync:Event:" + eventArgs.Notification.EventType + " Json:" + json, ex, "EventController");
+                    }
+                    try
+                    {
+                        await Response.WriteAsync($"data:{json}\n\n", cancellationToken);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.ServerErrorsAdd("SubscribeEvents:WriteAsync:data:" + eventArgs.Notification.EventType + " Json:" + json, ex, "EventController");
+                    }
+                    await Response.Body.FlushAsync(cancellationToken);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.ServerErrorsAdd("SubscribeEvents:inner:EventType:" + eventArgs.Notification.EventType + " Json:" + json + " Token:" + cancellationToken + " EndeToken", ex, "EventController");
+            }
+        }
+
         private string PrepareData(NotificationArgs eventArgs)
         {
             try

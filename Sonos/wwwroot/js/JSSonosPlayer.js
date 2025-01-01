@@ -667,24 +667,33 @@ function SonosPlayer(_uuid, _name,_swgen) {
                         }
                         break;
                     default:
-                        alert("SendPlaymode Unbekannter Value:" + value);
+                        throw new Error("SendPlaymode Unbekannter Value:" + value);
                 }
                 var oldval = this.playerProperties.currentPlayModeString;
                 this.playerProperties.currentPlayModeString = value;
                 var player = this;
-                SonosAjax("SetPlaymode", "", value).then(function (data) {
-                    if (data !== true) {
-                        return;
-                    }
-                    if (player.uuid === SonosZones.ActiveZoneUUID) {
-                        SonosZones.RenderPlayMode(player.uuid);
-                    }
-                });
+                SonosAjax("SetPlaymode", "", value)
+                    .then(function (data) {
+                        if (data === true) {
+                            if (player.uuid === SonosZones.ActiveZoneUUID) {
+                                SonosZones.RenderPlayMode(player.uuid);
+                            }
+                        } else {
+                            console.warn("SetPlaymode war nicht erfolgreich.");
+                            player.playerProperties.currentPlayModeString = oldval; // Zurücksetzen auf alten Wert
+                        }
+                    })
+                    .catch(function (error) {
+                        //console.error("Fehler bei SetPlaymode:", error);
+                        player.playerProperties.currentPlayModeString = oldval; // Zurücksetzen auf alten Wert
+                        
+                        alert(" Fehler bei: SetPlaymode\n" + error);
+                    });
             }
             catch (fehlernachricht) {
                 alert(fehlernachricht + " Fehler bei:" + fehlernachricht.fileName + "\n" + "Meldung:" + fehlernachricht.message + "\n" + "Zeile:" + fehlernachricht.lineNumber);
             }
-        };//done
+        };
     }
     catch (fehlernachricht) {
         alert(fehlernachricht + " Fehler bei:" + fehlernachricht.fileName + "\n" + "Meldung:" + fehlernachricht.message + "\n" + "Zeile:" + fehlernachricht.lineNumber);

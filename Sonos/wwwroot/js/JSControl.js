@@ -279,8 +279,36 @@ function InitSystem() {
 
 
 function RepairActiveZone() {
-    SonosAjax("FillPlayerPropertiesDefaults", "", SonosZones.ActiveZoneUUID, true);
+    SonosAjax("FillPlayerPropertiesDefaults", "", SonosZones.ActiveZoneUUID, true)
+        .then(function (result) {
+            if (result) {
+                console.log("Aktive Zone wurde erfolgreich repariert.");
+            } else {
+                console.warn("Die Reparatur der aktiven Zone war nicht erfolgreich.");
+            }
+        })
+        .catch(function (error) {
+            console.error("Fehler bei der Reparatur der aktiven Zone:", error);
+            let errorMessage = "Es ist ein Fehler bei der Reparatur der aktiven Zone aufgetreten.";
+
+            if (error.response) {
+                switch (error.response.status) {
+                    case 404:
+                        errorMessage = "Die aktive Zone wurde nicht gefunden.";
+                        break;
+                    case 500:
+                        errorMessage = "Ein interner Serverfehler ist aufgetreten.";
+                        break;
+                }
+                if (error.response.data) {
+                    errorMessage += "\n" + error.response.data;
+                }
+            }
+
+            alert(errorMessage);
+        });
 }
+
 //Gerät Url ermitteln und laden
 var GetZonesTimer = 0;
 
@@ -918,10 +946,15 @@ function ResortPlaylist(evt) {
         if (item.id === cpl) {
             var old = GetIDfromCurrentPlaylist(cpl);
             SonosPlayers[SonosZones.ActiveZoneUUID].playlist.ReorderPlaylist(SonosPlayers[SonosZones.ActiveZoneUUID], old, i);
-            SonosAjax("ReorderTracksinQueue", "", old + 1, i + 1).catch(function (jqXHR) {
-                if (jqXHR.statusText === "Internal Server Error") {
+            SonosAjax("ReorderTracksinQueue", "", old + 1, i + 1).catch(function (error) {
+                console.error("Fehler bei ReorderTracksinQueue:", error);
+                if (error.message.includes("status: 500")) {
                     ReloadSite("ResortPlaylist");
-                } else { alert("Beim der Aktion:ResortPlaylist(" + ui + ") ist ein Fehler aufgetreten."); }
+                } else if (error.message.includes("status: 400") || error.message.includes("status: 404")) {
+                    alert("Fehler beim Neuordnen der Playlist: " + error.message);
+                } else {
+                    alert("Bei der Aktion ResortPlaylist ist ein unerwarteter Fehler aufgetreten: " + error.message);
+                }
             });
         }
         RemoveClass(item.firstChild, SoVa.aktiv);
@@ -1168,10 +1201,17 @@ function SetRatingLyric() {
         SetVisible(SoDo.ratingCheck)
         setTimeout("SetHide(SoDo.ratingCheck)", 2000);
     })
-        .catch(function (jqXHR) {
-            if (jqXHR.statusText === "Internal Server Error") {
+        .catch(function (error) {
+            console.error("Fehler bei SetSongMeta:", error);
+            if (error.message.includes("status: 500")) {
                 ReloadSite("SetRating Lyric");
-            } else { SonosWindows(SoDo.ratingListBox, true); alert("Es ist ein Fehler bei SetRatingLyric aufgetreten<br>" + jqXHR.message); }
+            } else {
+                SonosWindows(SoDo.ratingListBox, true);
+                alert("Es ist ein Fehler bei SetSongMeta aufgetreten:\n" + error.message);
+            }
+            //if (jqXHR.statusText === "Internal Server Error") {
+            //    ReloadSite("SetRating Lyric");
+            //} else { SonosWindows(SoDo.ratingListBox, true); alert("Es ist ein Fehler bei SetRatingLyric aufgetreten<br>" + jqXHR.message); }
         });
 };//done
 

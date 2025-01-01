@@ -38,22 +38,28 @@ namespace Sonos.Controllers
         /// <param name="v"></param>
         /// <returns></returns>
         [HttpGet("FillPlayerPropertiesDefaults/{id}/{v}")]
-        public async Task<Boolean> FillPlayerPropertiesDefaults(string id, Boolean v)
+        public async Task<IActionResult> FillPlayerPropertiesDefaults(string id, bool v)
         {
             try
             {
                 SonosPlayer pl = sonosDiscovery.GetPlayerbyUuid(id);
-                if (pl == null) return false;
-                if (await pl.FillPlayerPropertiesDefaultsAsync(v))
+                if (pl == null)
+                {
+                    return NotFound($"Spieler mit ID {id} wurde nicht gefunden.");
+                }
+
+                bool result = await pl.FillPlayerPropertiesDefaultsAsync(v);
+                if (result)
                 {
                     sonosHelper.CheckPlayerForHashImages(pl);
                 }
-                return true;
+
+                return Ok(result);
             }
             catch (Exception ex)
             {
-                logger.ServerErrorsAdd("FillPlayerPropertiesDefaults:" + id, ex, "PlayerController");
-                throw;
+                logger.ServerErrorsAdd($"FillPlayerPropertiesDefaults: {id}", ex, "PlayerController");
+                return StatusCode(500, $"Ein interner Serverfehler ist aufgetreten: {ex.Message}");
             }
         }
         /// <summary>
@@ -62,24 +68,31 @@ namespace Sonos.Controllers
         /// <param name="id"></param>
         /// <param name="v">SHUFFLE,NORMAL,SHUFFLE_NOREPEAT,REPEAT_ALL, REPEAT_ONE,SHUFFLE_REPEAT_ONE</param>
         [HttpGet("SetPlaymode/{id}/{v}")]
-        public async Task<Boolean> SetPlaymode(string id, string v)
+        public async Task<IActionResult> SetPlaymode(string id, string v)
         {
             try
             {
-                if (!Enum.TryParse(v, out SonosEnums.PlayModes k))
+                if (!Enum.TryParse(v, out SonosEnums.PlayModes playMode))
                 {
-                    return false;
+                    return BadRequest($"Ungültiger Playmodus: {v}");
                 }
-                var pl = sonosDiscovery.GetPlayerbyUuid(id);
-                return await pl.AVTransport.SetPlayMode(k);
+
+                var player = sonosDiscovery.GetPlayerbyUuid(id);
+                if (player == null)
+                {
+                    return NotFound($"Spieler mit ID {id} wurde nicht gefunden.");
+                }
+
+                bool result = await player.AVTransport.SetPlayMode(playMode);
+                return Ok(result);
             }
             catch (Exception ex)
             {
                 AddServerErrors("SetPlaymode", ex);
-                throw;
+                return StatusCode(500, $"Ein interner Serverfehler ist aufgetreten: {ex.Message}");
             }
-
         }
+
         /// <summary>
         /// Umsortierung eines Songs in der Playlist
         /// </summary>
@@ -87,30 +100,51 @@ namespace Sonos.Controllers
         /// <param name="v">alteposition</param>
         /// <param name="v2">neueposition</param>
         [HttpGet("ReorderTracksInQueue/{id}/{v}/{v2}")]
-        public async Task<Boolean> ReorderTracksInQueue(string id, string v, string v2)
+        public async Task<IActionResult> ReorderTracksInQueue(string id, string v, string v2)
         {
             try
             {
-                if (string.IsNullOrEmpty(v) || string.IsNullOrEmpty(v2)) return false;
-                if (int.TryParse(v, out int oldposition) && int.TryParse(v2, out int newposition))
+                if (string.IsNullOrEmpty(v) || string.IsNullOrEmpty(v2))
                 {
-                    if (newposition > 0 && oldposition < newposition)
-                        newposition++;
-                    if (oldposition != newposition && oldposition > 0 && newposition > 0)
-                    {
-                        var pl = sonosDiscovery.GetPlayerbyUuid(id);
-                        await pl.AVTransport.ReorderTracksInQueue(oldposition, newposition);
-                    }
+                    return BadRequest("Ungültige Eingabeparameter: Positionen dürfen nicht leer sein.");
                 }
-                return true;
+
+                if (!int.TryParse(v, out int oldposition) || !int.TryParse(v2, out int newposition))
+                {
+                    return BadRequest("Ungültige Eingabeparameter: Positionen müssen ganze Zahlen sein.");
+                }
+
+                if (oldposition <= 0 || newposition <= 0)
+                {
+                    return BadRequest("Ungültige Eingabeparameter: Positionen müssen größer als 0 sein.");
+                }
+
+                if (oldposition == newposition)
+                {
+                    return Ok(true); // Keine Änderung notwendig
+                }
+
+                var pl = sonosDiscovery.GetPlayerbyUuid(id);
+                if (pl == null)
+                {
+                    return NotFound($"Spieler mit ID {id} wurde nicht gefunden.");
+                }
+
+                if (newposition > oldposition)
+                {
+                    newposition++;
+                }
+
+                await pl.AVTransport.ReorderTracksInQueue(oldposition, newposition);
+                return Ok(true);
             }
             catch (Exception ex)
             {
                 AddServerErrors("ReorderTracksInQueue", ex);
-                throw;
+                return StatusCode(500, $"Ein interner Serverfehler ist aufgetreten: {ex.Message}");
             }
-
         }
+
         /// <summary>
         /// Liefert die Baseulr für den Angegeben Player zurück.
         /// </summary>
@@ -961,13 +995,13 @@ namespace Sonos.Controllers
         /// <param name="id">UUID Des Players</param>
         /// <param name="v">PFAD#Rating'Gelegenheit</param>
         [HttpPost("SetSongMeta/{id}")]
-        public async Task<Boolean> SetSongMeta(string id)
+        public async Task<IActionResult> SetSongMeta(string id)
         {
             var requestReader = new StreamReader(HttpContext.Request.Body);
             var content = await requestReader.ReadToEndAsync();
             if (string.IsNullOrEmpty(content))
             {
-                return false;
+                return BadRequest("Der Request-Body ist leer.");
             }
 
             MP3File.MP3File lied = new MP3File.MP3File();
@@ -976,14 +1010,14 @@ namespace Sonos.Controllers
             try
             {
                 lied = System.Text.Json.JsonSerializer.Deserialize<MP3File.MP3File>(content, jsonOptions);
-                //lied = JsonConvert.DeserializeObject<MP3File.MP3File>(content);
             }
             catch (Exception ex) {
                 logger.ServerErrorsAdd("SetSongMeta:" + id+ "Content:"+content, ex, "PlayerController");
+                return BadRequest($"Fehler bei der JSON-Deserialisierung: {ex.Message}");
             }
             if (string.IsNullOrEmpty(lied.Pfad))
             {
-                return false;
+                return BadRequest("Der Pfad des MP3-Files ist leer oder null.");
             }
             try
             {
@@ -1019,12 +1053,12 @@ namespace Sonos.Controllers
                         MP3ReadWrite.Add(lied);
                     }
                 }
-                return true;
+                return Ok(true);
             }
             catch
             {
                 //Kein Catch, da dies über Finally gemacht wird
-                return true;
+                return Ok(true);
             }
             finally
             {
