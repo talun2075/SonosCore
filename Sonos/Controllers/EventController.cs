@@ -74,7 +74,7 @@ namespace Sonos.Controllers
                 finally
                 {
                     _activeClient = null;
-                    //_messageRepository.NotificationEvent -= (sender, args) => OnNotification(sender, args, cancellationToken);
+                    _messageRepository.NotificationEvent -= (sender, args) => OnNotification(sender, args, cancellationToken);
                 }
             }
             catch (Exception ex)
@@ -96,7 +96,7 @@ namespace Sonos.Controllers
                 }
                 try
                 {
-                    json = PrepareData(eventArgs);
+                    json = PrepareData(eventArgs.Notification);
                     await _activeClient.WriteAsync($"event:sonos\n", cancellationToken);
                     await _activeClient.WriteAsync($"data:{json}\n\n", cancellationToken);
                     await _activeClient.Body.FlushAsync(cancellationToken);
@@ -113,16 +113,16 @@ namespace Sonos.Controllers
             }
         }
 
-        private string PrepareData(NotificationArgs eventArgs)
+        private string PrepareData(Notification notification)
         {
             try
             {
-                if (eventArgs.Notification.Player != null)
-                    return PrepareDataForPlayer(eventArgs);
-                if (eventArgs.Notification.Discovery != null)
-                    return PrepareDataForDiscovery(eventArgs);
+                if (notification.Player != null)
+                    return PrepareDataForPlayer(notification);
+                if (notification.Discovery != null)
+                    return PrepareDataForDiscovery(notification);
 
-                _logger.ServerErrorsAdd("PrepareData", new Exception("Eventargs ist leer; Typ:" + eventArgs.Notification.EventType), "EventController");
+                _logger.ServerErrorsAdd("PrepareData", new Exception("Eventargs ist leer; Typ:" + notification.EventType), "EventController");
                 return String.Empty;
             }
             catch (Exception ex)
@@ -138,12 +138,12 @@ namespace Sonos.Controllers
             return Task.CompletedTask;
         }
 
-        private string PrepareDataForPlayer(NotificationArgs eventArgs)
+        private string PrepareDataForPlayer(Notification notification)
         {
             try
             {
-                var pl = eventArgs.Notification.Player;
-                var eventchange = eventArgs.Notification.EventType;
+                var pl = notification.Player;
+                var eventchange = notification.EventType;
 
                 var t = new RinconLastChangeItem
                 {
@@ -301,19 +301,19 @@ namespace Sonos.Controllers
             }
             catch (Exception ex)
             {
-                _logger.ServerErrorsAdd("EventPlayerChange Eventenum:" + eventArgs.Notification.EventType.ToString(), ex, "EventController");
+                _logger.ServerErrorsAdd("EventPlayerChange Eventenum:" + notification.EventType.ToString(), ex, "EventController");
                 return "Fehler beim eventing Player";
             }
 
 
         }
-        private string PrepareDataForDiscovery(NotificationArgs eventArgs)
+        private string PrepareDataForDiscovery(Notification notification)
         {
 
             try
             {
-                var sd = eventArgs.Notification.Discovery;
-                var eventchange = eventArgs.Notification.EventType;
+                var sd = notification.Discovery;
+                var eventchange = notification.EventType;
                 RinconLastChangeItem t = new()
                 {
                     UUID = "Discovery",
