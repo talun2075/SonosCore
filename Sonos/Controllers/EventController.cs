@@ -26,6 +26,7 @@ namespace Sonos.Controllers
         private readonly JsonSerializerOptions _jsonSerializerOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         private readonly ILogging _logger;
         private readonly IMusicPictures _musicPictures;
+        private HttpResponse? _activeClient;
         public EventController(ILogging log, IMusicPictures imu)
         {
             _logger = log;
@@ -44,6 +45,7 @@ namespace Sonos.Controllers
             try
             {
                 SetServerSentEventHeaders();
+                _activeClient = Response;
                 // On connect, welcome message ;)
                 var data = new { Message = "connected!" };
                 var jsonConnection = JsonSerializer.Serialize(data, _jsonSerializerOptions);
@@ -71,7 +73,8 @@ namespace Sonos.Controllers
                 }
                 finally
                 {
-                    _messageRepository.NotificationEvent -= (sender, args) => OnNotification(sender, args, cancellationToken);
+                    _activeClient = null;
+                    //_messageRepository.NotificationEvent -= (sender, args) => OnNotification(sender, args, cancellationToken);
                 }
             }
             catch (Exception ex)
@@ -83,38 +86,25 @@ namespace Sonos.Controllers
         private async void OnNotification(object? sender, NotificationArgs eventArgs, CancellationToken cancellationToken)
         {
             String json = "Fehler Beim Prepare somit nichts vorhanden.";
+            List<HttpResponse> clientsToRemove = new List<HttpResponse>();
             try
             {
 
-                if (!cancellationToken.IsCancellationRequested)
+                if (_activeClient == null || cancellationToken.IsCancellationRequested)
                 {
-                    // idea: https://stackoverflow.com/a/58565850/80527
-
-                    try
-                    {
-                        json = PrepareData(eventArgs);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.ServerErrorsAdd("SubscribeEvents:Json:EventType:" + eventArgs.Notification.EventType, ex, "EventController");
-                    }
-                    try
-                    {
-                        await Response.WriteAsync($"event:sonos\n", cancellationToken);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.ServerErrorsAdd("SubscribeEvents:WriteAsync:Event:" + eventArgs.Notification.EventType + " Json:" + json, ex, "EventController");
-                    }
-                    try
-                    {
-                        await Response.WriteAsync($"data:{json}\n\n", cancellationToken);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.ServerErrorsAdd("SubscribeEvents:WriteAsync:data:" + eventArgs.Notification.EventType + " Json:" + json, ex, "EventController");
-                    }
-                    await Response.Body.FlushAsync(cancellationToken);
+                    return;
+                }
+                try
+                {
+                    json = PrepareData(eventArgs);
+                    await _activeClient.WriteAsync($"event:sonos\n", cancellationToken);
+                    await _activeClient.WriteAsync($"data:{json}\n\n", cancellationToken);
+                    await _activeClient.Body.FlushAsync(cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    _logger.ServerErrorsAdd("SubscribeEvents:WriteAsync:data:" + eventArgs.Notification.EventType + " Json:" + json, ex, "EventController");
+                    _activeClient = null;
                 }
             }
             catch (Exception ex)
