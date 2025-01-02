@@ -27,6 +27,7 @@ namespace Sonos.Controllers
         private readonly ILogging _logger;
         private readonly IMusicPictures _musicPictures;
         private HttpResponse? _activeClient;
+        private CancellationToken _cancellationToken;
         public EventController(ILogging log, IMusicPictures imu)
         {
             _logger = log;
@@ -44,6 +45,7 @@ namespace Sonos.Controllers
         {
             try
             {
+                _cancellationToken = cancellationToken;
                 SetServerSentEventHeaders();
                 _activeClient = Response;
                 // On connect, welcome message ;)
@@ -83,7 +85,7 @@ namespace Sonos.Controllers
             }
         }
 
-        private async void OnNotification(object? sender, NotificationArgs eventArgs, CancellationToken cancellationToken)
+        private async void OnNotification(object? sender, Notification notification, CancellationToken cancellationToken)
         {
             String json = "Fehler Beim Prepare somit nichts vorhanden.";
             List<HttpResponse> clientsToRemove = new List<HttpResponse>();
@@ -96,23 +98,22 @@ namespace Sonos.Controllers
                 }
                 try
                 {
-                    json = PrepareData(eventArgs.Notification);
+                    json = PrepareData(notification);
                     await _activeClient.WriteAsync($"event:sonos\n", cancellationToken);
                     await _activeClient.WriteAsync($"data:{json}\n\n", cancellationToken);
                     await _activeClient.Body.FlushAsync(cancellationToken);
                 }
                 catch (Exception ex)
                 {
-                    _logger.ServerErrorsAdd("SubscribeEvents:WriteAsync:data:" + eventArgs.Notification.EventType + " Json:" + json, ex, "EventController");
+                    _logger.ServerErrorsAdd("SubscribeEvents:WriteAsync:data:" + notification.EventType + " Json:" + json, ex, "EventController");
                     _activeClient = null;
                 }
             }
             catch (Exception ex)
             {
-                _logger.ServerErrorsAdd("SubscribeEvents:inner:EventType:" + eventArgs.Notification.EventType + " Json:" + json + " Token:" + cancellationToken + " EndeToken", ex, "EventController");
+                _logger.ServerErrorsAdd("SubscribeEvents:inner:EventType:" + notification.EventType + " Json:" + json + " Token:" + cancellationToken + " EndeToken", ex, "EventController");
             }
         }
-
         private string PrepareData(Notification notification)
         {
             try

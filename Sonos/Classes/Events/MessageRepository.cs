@@ -8,11 +8,11 @@ namespace Sonos.Classes.Events
         {
         }
 
-        public event EventHandler<NotificationArgs> NotificationEvent;
+        public event EventHandler<Notification> NotificationEvent;
 
         public void Broadcast(Notification notification)
         {
-            NotificationEvent?.Invoke(this, new NotificationArgs(notification));
+            NotificationEvent?.Invoke(this, notification);
         }
     }
 }

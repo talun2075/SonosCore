@@ -5,7 +5,7 @@ namespace Sonos.Classes.Interfaces
 {
     public interface IMessageRepository
     {
-        event EventHandler<NotificationArgs> NotificationEvent;
+        event EventHandler<Notification> NotificationEvent;
         void Broadcast(Notification notification);
     }
 }
