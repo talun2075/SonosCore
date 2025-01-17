@@ -4,7 +4,7 @@
     this.type = Types[_ty];
 }
 var Types = {
-    buttonLockState: 0, bass: 1, ledState: 2, loudness: 3, outputFixed: 4, treble: 5
+    buttonLockState: 0, bass: 1, ledState: 2, loudness: 3, outputFixed: 4, treble: 5, name: 6
 };
 
 function SettingClass() {
@@ -99,7 +99,10 @@ function SettingClass() {
                 if (val !== propdom.checked) {
                     propdom.checked = val;
                 }
-            } else {
+            } else if (typeof val == "string") {
+                propdom.value = val;
+            }
+            else {
                 propdom.value = val;
                 let slidertext = document.getElementById(prop + Slidertext);
                 slidertext.innerText = val;
@@ -121,7 +124,10 @@ function SettingClass() {
             let dom;
             if (typeof val == "boolean") {
                 dom = this.GiveMeaCheckbox(prop);
-            } else {
+            } else if (typeof val == "string") {
+                dom = this.GiveMeaTextbox(prop);
+            }
+            else {
                 dom = this.GiveMeaSilder(prop);
             }
             dom.classList.add("playerpropval");
@@ -191,6 +197,33 @@ function SettingClass() {
 
         return divwrapper;
     }
+    this.GiveMeaTextbox = function (id) {
+        let divwrapper = document.createElement("DIV");
+        //divwrapper.classList.add("onoffswitch");
+        let txtbox = document.createElement("input");
+        txtbox.type = "text";
+        txtbox.id = id;
+        //checkbox.classList.add("onoffswitch-checkbox");
+        divwrapper.appendChild(txtbox);
+        let label = document.createElement("label");
+        //label.classList.add("onoffswitch-label");
+        label.htmlFor = id;
+        let divinner = document.createElement("DIV");
+        //divinner.classList.add("onoffswitch-inner");
+        let divswitch = document.createElement("DIV");
+        //divswitch.classList.add("onoffswitch-switch");
+        label.appendChild(divinner);
+        label.appendChild(divswitch);
+        divwrapper.appendChild(label);
+
+        //eventing
+        txtbox.addEventListener("change", function (s) {
+            t.SendRequest(s.target.id, s.target.value)
+        })
+
+        return divwrapper;
+    }
+
     this.HidePlayerDom = function (val = true) {
         console.log("HidePlayer:" + val);
         let playerdom = document.getElementById("PlayerProps");
@@ -250,7 +283,7 @@ function SettingClass() {
             if (this.settingprops.indexOf(propertyName) == -1) continue;
 
             let valwrapper = document.createElement("DIV");
-            valwrapper.classList.add("valueWrapper"+count);
+            valwrapper.classList.add("valueWrapper" + count);
             let val = data[propertyName];
             let dataname = document.createElement("DIV");
             dataname.classList.add("settingValueName" + count);
@@ -302,7 +335,7 @@ function SettingClass() {
         ppr.value = value.toString();
         ppr.uuid = selectedplayer;
         ppr.type = Types[proper];
-        Send("/devices/SetPlayerProperties",ppr,"POST").then(function () { console.log("Playerdaten erfolgreich Update"); }).catch(function (ex) {
+        Send("/devices/SetPlayerProperties", ppr, "POST").then(function () { console.log("Playerdaten erfolgreich Update"); }).catch(function (ex) {
             t.SetPlayer(ppr.uuid);
             alert(ex.statusText + " " + ex.responseText);
         });

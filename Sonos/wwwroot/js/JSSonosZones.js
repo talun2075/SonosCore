@@ -469,10 +469,21 @@ function SonosZonesObject() {
             return;
         }
         if (player.playerProperties.groupRenderingControl_GroupVolume === 0) {
-            SonosAjax("GetGroupVolume").then(function (data) {
-                player.playerProperties.groupRenderingControl_GroupVolume = data;
-                window.setTimeout("SonosZones.RenderVolume()", 1000);
-            });
+            SonosAjax("GetGroupVolume")
+                .then(function (data) {
+                    if (typeof data === 'number') {
+                        player.playerProperties.groupRenderingControl_GroupVolume = data;
+                        window.setTimeout(function () {
+                            SonosZones.RenderVolume();
+                        }, 1000);
+                    } else {
+                        console.warn("Unerwarteter Rückgabewert von GetGroupVolume:", data);
+                    }
+                })
+                .catch(function (error) {
+                    console.error("Fehler bei GetGroupVolume:", error);
+                    alert("Fehler beim Abrufen der Gruppenlautstärke: " + error);
+                });
             return;
         }
         var val = SoDo.volumeSlider.value;

@@ -239,24 +239,42 @@ function SonosPlayer(_uuid, _name,_swgen) {
                 if (value === "PLAYING") {
                     if (this.GetPlayerChangeEventIsRunning === false) {
                         //Ajax Request
-                        var request = SonosAjax("Play", "", this.uuid);
-                        request.catch(function () {
-                            ReloadSite("SonosZone:SetPlayState:Play");
-                        }).then(function () {
-                            SonosPlayers[t.uuid].playerProperties.transportStateString = "PLAYING";
-                            SonosZones.RenderTransportState(t.uuid);
-                        });
+                        SonosAjax("Play", "", this.uuid)
+                            .then(function (data) {
+                                if (data === true) {
+                                    SonosPlayers[t.uuid].playerProperties.transportStateString = "PLAYING";
+                                    SonosZones.RenderTransportState(t);
+                                } else {
+                                    console.warn("Wiedergabe konnte nicht gestartet werden");
+                                    // Optional: Benutzer über fehlgeschlagenen Wiedergabestart informieren
+                                }
+                            })
+                            .catch(function (error) {
+                                console.error("Fehler bei Play:", error);
+                                alert("Fehler bei: Play\n" + error);
+                                ReloadSite("SonosZone:SetPlayState:Play");
+                            });
+
                     }
                 } else {
                     if (this.GetPlayerChangeEventIsRunning === false) {
                         //Ajax Request
-                        var request2 = SonosAjax("Pause", "", this.uuid);
-                        request2.catch(function () {
-                            ReloadSite("SonosZone:SetPlayState:Pause");
-                        }).then(function () {
-                            SonosPlayers[t.uuid].playerProperties.transportStateString = "PAUSED_PLAYBACK";
-                            SonosZones.RenderTransportState(t.uuid);
-                        });
+                        SonosAjax("Pause", "", this.uuid)
+                            .then(function (data) {
+                                if (data === true) {
+                                    SonosPlayers[t.uuid].playerProperties.transportStateString = "PAUSED_PLAYBACK";
+                                    SonosZones.RenderTransportState(t.uuid);
+                                } else {
+                                    console.warn("Pause konnte nicht ausgeführt werden");
+                                    // Optional: Benutzer über fehlgeschlagenen Pause-Versuch informieren
+                                }
+                            })
+                            .catch(function (error) {
+                                console.error("Fehler bei Pause:", error);
+                                alert("Fehler bei: Pause\n" + error);
+                                ReloadSite("SonosZone:SetPlayState:Pause");
+                            });
+
                     }
                 }
             }

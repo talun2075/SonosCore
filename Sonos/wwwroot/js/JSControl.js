@@ -527,9 +527,19 @@ function SetMute(rincon) {
         SonosPlayers[rincon].playerProperties.groupRenderingControl_GroupMute != SonosPlayers[rincon].playerProperties.groupRenderingControl_GroupMute;
     }
     SonosPlayers[rincon].playerProperties.mute != SonosPlayers[rincon].playerProperties.mute;
-    SonosAjax("SetMute", "", rincon).then(function () {
-        SonosZones.RenderMute(rincon);
-    });
+    SonosAjax("SetMute", "", rincon)
+        .then(function (data) {
+            if (data === true) {
+                SonosZones.RenderMute(rincon);
+            } else {
+                console.warn("SetMute konnte nicht ausgeführt werden");
+            }
+        })
+        .catch(function (error) {
+            console.error("Fehler bei SetMute:", error);
+            alert("Fehler beim Ändern des Mute-Status: " + error);
+        });
+
 };//done
 //Lautstärke anpassen
 function SetVolume(k) {
@@ -1492,18 +1502,16 @@ function GetMusicIndexInProgress() {
 };//done
 //Funktion zum Absenden ohne Rückmeldung
 function doit(d) {
-    var request = SonosAjax(d);
-    request.then(function (data) {
-        if (data === "Fehler") {
-            alert("Beim laden der Aktion:" + d + " wurde ein Fehler gemeldet.");
+    SonosAjax(d).catch(function (jqXHR) {
+        console.error(`Fehler bei ${d}:`, jqXHR);
+        if (jqXHR.status === 500) {
+            ReloadSite("doit:" + d);
+        } else {
+            alert(`Beim Ausführen der Aktion ${d} ist ein Fehler aufgetreten: ${jqXHR.statusText}`);
         }
     });
-    request.catch(function (jqXHR) {
-        if (jqXHR.statusText === "Internal Server Error") {
-            ReloadSite("doit:" + d);
-        } else { alert("Beim laden der doit Aktion:" + d + " ist ein Fehler aufgetreten."); }
-    });
-} //Ende von DO
+}//Ende von DO
+
 //Funktion zum Absenden ohne Rückmeldung mit Wertübergabe
 function doitValue(d, v) {
     var request = SonosAjax(d, v);

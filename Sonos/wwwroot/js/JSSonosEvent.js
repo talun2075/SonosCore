@@ -10,8 +10,18 @@ function CheckPlayersPP() {
         //Bei Refreshstop sich selber aufrufen bis das wieder normal ist
         var uuid = SonosZones.ActiveZoneUUID;
         SonosAjax("CheckPlayerPropertiesWithClient", SonosPlayers[uuid].playerProperties, uuid)
-            .then(function () { console.log("CheckPlayersPP gut gelaufen") })
-            .catch(console.log("CheckPlayersPP schlecht gelaufen"));
+            .then(function (data) {
+                if (data === true) {
+                    console.log("CheckPlayerPropertiesWithClient erfolgreich durchgeführt");
+                } else {
+                    console.warn("CheckPlayerPropertiesWithClient war nicht erfolgreich");
+                }
+            })
+            .catch(function (error) {
+                console.error("Fehler bei CheckPlayerPropertiesWithClient:", error);
+                alert("Fehler bei: CheckPlayerPropertiesWithClient\n" + error);
+            });
+
 
 
     } catch (ex) {

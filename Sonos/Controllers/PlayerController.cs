@@ -151,21 +151,24 @@ namespace Sonos.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("BaseURL/{id}")]
-        public string BaseURL(string id)
+        public IActionResult BaseURL(string id)
         {
             try
             {
-
                 SonosPlayer pl = sonosDiscovery.GetPlayerbyUuid(id);
-                if (pl == null) return String.Empty;
-                return pl.PlayerProperties.BaseUrl;
+                if (pl == null)
+                {
+                    return NotFound($"Spieler mit ID {id} wurde nicht gefunden.");
+                }
+                return Ok(pl.PlayerProperties.BaseUrl);
             }
             catch (Exception ex)
             {
                 AddServerErrors("BaseURL", ex);
-                throw;
+                return StatusCode(500, $"Ein interner Serverfehler ist aufgetreten: {ex.Message}");
             }
         }
+
 
         /// <summary>
         /// Player zum Absoielen bewegen
@@ -173,20 +176,26 @@ namespace Sonos.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("Play/{id}")]
-        public async Task<Boolean> Play(string id)
+        public async Task<IActionResult> Play(string id)
         {
             try
             {
                 SonosPlayer pl = sonosDiscovery.GetPlayerbyUuid(id);
-                if (pl == null || pl.AVTransport == null) return false;
-                return await pl.AVTransport?.Play();
+                if (pl == null || pl.AVTransport == null)
+                {
+                    return NotFound($"Spieler mit ID {id} wurde nicht gefunden oder AVTransport ist nicht verfügbar.");
+                }
+
+                bool result = await pl.AVTransport.Play();
+                return Ok(result);
             }
             catch (Exception ex)
             {
                 AddServerErrors("Play", ex);
-                throw;
+                return StatusCode(500, $"Ein interner Serverfehler ist aufgetreten: {ex.Message}");
             }
         }
+
         [HttpGet("Cover/{id}")]
         public String Cover(string id)
         {
@@ -212,181 +221,271 @@ namespace Sonos.Controllers
 
 
         [HttpGet("CheckPlayerPropertiesWithClient/{id}")]
-        public Boolean CheckPlayerPropertiesWithClient(string id, [FromBody] PlayerProperties v)
+        public IActionResult CheckPlayerPropertiesWithClient(string id, [FromBody] PlayerProperties v)
         {
-            SonosPlayer sp = sonosDiscovery.GetPlayerbyUuid(id);
-            if (sp == null) return false;
             try
             {
+                SonosPlayer sp = sonosDiscovery.GetPlayerbyUuid(id);
+                if (sp == null)
+                {
+                    return NotFound($"Spieler mit ID {id} wurde nicht gefunden.");
+                }
+
                 sp.CheckPlayerPropertiesWithClient(v);
-                return true;
+                return Ok(true);
             }
             catch (Exception ex)
             {
-                sp.ServerErrorsAdd("CheckPlayerPropertiesWithClient", "PlayerController", ex);
-                throw;
+                string errorMessage = $"Fehler beim Überprüfen der Spielereigenschaften: {ex.Message}";
+                sonosDiscovery.GetPlayerbyUuid(id)?.ServerErrorsAdd("CheckPlayerPropertiesWithClient", "PlayerController", ex);
+                return StatusCode(500, errorMessage);
             }
         }
+
         /// <summary>
         /// Setzen von Pause
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("Pause/{id}")]
-        public async Task<Boolean> Pause(string id)
+        public async Task<IActionResult> Pause(string id)
         {
             try
             {
                 SonosPlayer pl = sonosDiscovery.GetPlayerbyUuid(id);
-                if (pl == null) return false;
-                var retv = await pl.AVTransport?.Pause();
-                pl.PlayerProperties.TransportState = SonosEnums.TransportState.PAUSED_PLAYBACK;
-                return retv;
+                if (pl == null)
+                {
+                    return NotFound($"Spieler mit ID {id} wurde nicht gefunden.");
+                }
+
+                if (pl.AVTransport == null)
+                {
+                    return BadRequest("AVTransport ist nicht verfügbar für diesen Spieler.");
+                }
+
+                var retv = await pl.AVTransport.Pause();
+                if (retv)
+                {
+                    pl.PlayerProperties.TransportState = SonosEnums.TransportState.PAUSED_PLAYBACK;
+                }
+
+                return Ok(retv);
             }
             catch (Exception ex)
             {
                 AddServerErrors("Pause", ex);
-                throw;
+                return StatusCode(500, $"Ein interner Serverfehler ist aufgetreten: {ex.Message}");
             }
         }
+
         /// <summary>
         /// Player Stoppen
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("Stop/{id}")]
-        public async Task<Boolean> Stop(string id)
+        public async Task<IActionResult> Stop(string id)
         {
             try
             {
                 SonosPlayer pl = sonosDiscovery.GetPlayerbyUuid(id);
-                if (pl == null) return false;
+                if (pl == null)
+                {
+                    return NotFound($"Spieler mit ID {id} wurde nicht gefunden.");
+                }
+
+                if (pl.AVTransport == null)
+                {
+                    return BadRequest("AVTransport ist nicht verfügbar für diesen Spieler.");
+                }
+
                 var retv = await pl.AVTransport.Stop();
-                pl.PlayerProperties.TransportState = SonosEnums.TransportState.STOPPED;
-                return retv;
+                if (retv)
+                {
+                    pl.PlayerProperties.TransportState = SonosEnums.TransportState.STOPPED;
+                }
+
+                return Ok(retv);
             }
             catch (Exception ex)
             {
                 AddServerErrors("Stop", ex);
-                throw;
+                return StatusCode(500, $"Ein interner Serverfehler ist aufgetreten: {ex.Message}");
             }
         }
+
         /// <summary>
         /// Nächster Song
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("Next/{id}")]
-        public async Task<Boolean> Next(string id)
+        public async Task<IActionResult> Next(string id)
         {
             try
             {
                 SonosPlayer pl = sonosDiscovery.GetPlayerbyUuid(id);
-                if (pl == null) return false;
-                return await pl.AVTransport.Next();
+                if (pl == null)
+                {
+                    return NotFound($"Spieler mit ID {id} wurde nicht gefunden.");
+                }
+
+                if (pl.AVTransport == null)
+                {
+                    return BadRequest("AVTransport ist nicht verfügbar für diesen Spieler.");
+                }
+
+                bool result = await pl.AVTransport.Next();
+                return Ok(result);
             }
             catch (Exception ex)
             {
                 AddServerErrors("Next", ex);
-                throw;
+                return StatusCode(500, $"Ein interner Serverfehler ist aufgetreten: {ex.Message}");
             }
         }
+
         /// <summary>
         /// Vorheriger Song
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("Previous/{id}")]
-        public async Task<Boolean> Previous(string id)
+        public async Task<IActionResult> Previous(string id)
         {
             try
             {
                 SonosPlayer pl = sonosDiscovery.GetPlayerbyUuid(id);
-                if (pl == null) return false;
-                return await pl.AVTransport.Previous();
+                if (pl == null)
+                {
+                    return NotFound($"Spieler mit ID {id} wurde nicht gefunden.");
+                }
+
+                if (pl.AVTransport == null)
+                {
+                    return BadRequest("AVTransport ist nicht verfügbar für diesen Spieler.");
+                }
+
+                bool result = await pl.AVTransport.Previous();
+                return Ok(result);
             }
             catch (Exception ex)
             {
                 AddServerErrors("Previous", ex);
-                throw;
+                return StatusCode(500, $"Ein interner Serverfehler ist aufgetreten: {ex.Message}");
             }
         }
+
         /// <summary>
         /// Stummschalten eines Players
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("SetMute/{id}")]
-        public async Task<Boolean> SetMute(string id)
+        public async Task<IActionResult> SetMute(string id)
         {
             try
             {
                 SonosPlayer sonosPlayer = sonosDiscovery.GetPlayerbyUuid(id);
+                if (sonosPlayer == null)
+                {
+                    return NotFound($"Spieler mit ID {id} wurde nicht gefunden.");
+                }
+
                 if (sonosPlayer.PlayerProperties.GroupCoordinatorIsLocal)
                 {
+                    if (sonosPlayer.GroupRenderingControl == null)
+                    {
+                        return BadRequest("GroupRenderingControl ist nicht verfügbar für diesen Spieler.");
+                    }
                     await sonosPlayer.GroupRenderingControl.SetGroupMute(!sonosPlayer.PlayerProperties.GroupRenderingControl_GroupMute);
                 }
                 else
                 {
+                    if (sonosPlayer.RenderingControl == null)
+                    {
+                        return BadRequest("RenderingControl ist nicht verfügbar für diesen Spieler.");
+                    }
                     await sonosPlayer.RenderingControl.SetMute(!sonosPlayer.PlayerProperties.Mute);
                 }
-                return true;
+
+                return Ok(true);
             }
             catch (Exception ex)
             {
                 AddServerErrors("SetMute", ex);
-                throw;
+                return StatusCode(500, $"Ein interner Serverfehler ist aufgetreten: {ex.Message}");
             }
         }
+
         [HttpGet("GetMute/{id}")]
-        public Boolean GetMute(string id)
+        public IActionResult GetMute(string id)
         {
             try
             {
                 SonosPlayer sp = sonosDiscovery.GetPlayerbyUuid(id);
-                if (sp == null) return false;
+                if (sp == null)
+                {
+                    return NotFound($"Spieler mit ID {id} wurde nicht gefunden.");
+                }
+
+                bool muteStatus;
                 if (sp.PlayerProperties.GroupCoordinatorIsLocal)
                 {
-                    return sp.PlayerProperties.GroupRenderingControl_GroupMute;
+                    muteStatus = sp.PlayerProperties.GroupRenderingControl_GroupMute;
                 }
-                return sp.PlayerProperties.Mute;
+                else
+                {
+                    muteStatus = sp.PlayerProperties.Mute;
+                }
+
+                return Ok(muteStatus);
             }
             catch (Exception ex)
             {
                 AddServerErrors("GetMute", ex);
-                throw;
+                return StatusCode(500, $"Ein interner Serverfehler ist aufgetreten: {ex.Message}");
             }
         }
+
         /// <summary>
         /// Ermitteln des Sleeptimers.
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("GetSleepTimer/{id}")]
-        public async Task<String> GetSleepTimer(string id)
+        public async Task<IActionResult> GetSleepTimer(string id)
         {
             try
             {
                 var pla = sonosDiscovery.GetPlayerbyUuid(id);
                 if (pla == null)
                 {
-                    return SonosConstants.Off;
+                    return NotFound($"Spieler mit ID {id} wurde nicht gefunden.");
                 }
-                return await pla.AVTransport.GetRemainingSleepTimerDuration();
+
+                if (pla.AVTransport == null)
+                {
+                    return BadRequest("AVTransport ist nicht verfügbar für diesen Spieler.");
+                }
+
+                string sleepTimerDuration = await pla.AVTransport.GetRemainingSleepTimerDuration();
+                return Ok(sleepTimerDuration);
             }
             catch (Exception ex)
             {
-                AddServerErrors("SetPlaymode", ex);
-                return SonosConstants.Off;
+                AddServerErrors("GetSleepTimer", ex);
+                return StatusCode(500, $"Ein interner Serverfehler ist aufgetreten: {ex.Message}");
             }
         }
+
         /// <summary>
         /// Ermitteln der Lautstärke
         /// </summary>
         /// <param name="id">Rincon des Players</param>
         /// <returns>Wert zwischen 1 und 100</returns>
         [HttpGet("GetVolume/{id}")]
-        public async Task<int> GetVolume(string id)
+        public async Task<IActionResult> GetVolume(string id)
         {
             try
             {
@@ -398,26 +497,37 @@ namespace Sonos.Controllers
                 catch (Exception ex)
                 {
                     AddServerErrors("GetVolume:GetPlayer", ex);
-                    return 1;
+                    return StatusCode(500, "Fehler beim Abrufen des Players");
                 }
-                if (pl == null) return 0;
+
+                if (pl == null)
+                {
+                    return NotFound($"Spieler mit ID {id} wurde nicht gefunden.");
+                }
+
+                if (pl.RenderingControl == null)
+                {
+                    return BadRequest("RenderingControl ist nicht verfügbar für diesen Spieler.");
+                }
+
                 var vol = await pl.RenderingControl.GetVolume();
                 pl.PlayerProperties.Volume = vol;
-                return vol;
+                return Ok(vol);
             }
             catch (Exception ex)
             {
                 AddServerErrors("GetVolume", ex);
-                return 1;
+                return StatusCode(500, $"Ein interner Serverfehler ist aufgetreten: {ex.Message}");
             }
         }
+
         /// <summary>
         /// Ermitteln der Lautstärke
         /// </summary>
         /// <param name="id">Rincon des Players</param>
         /// <returns>Wert zwischen 1 und 100</returns>
         [HttpGet("GetGroupVolume/{id}")]
-        public async Task<int> GetGroupVolume(string id)
+        public async Task<IActionResult> GetGroupVolume(string id)
         {
             try
             {
@@ -429,32 +539,54 @@ namespace Sonos.Controllers
                 catch (Exception ex)
                 {
                     AddServerErrors("GetGroupVolume:GetPlayer", ex);
-                    return 1;
+                    return StatusCode(500, "Fehler beim Abrufen des Players");
                 }
-                if (pl == null || pl.GroupRenderingControl == null) return 0;
+
+                if (pl == null)
+                {
+                    return NotFound($"Spieler mit ID {id} wurde nicht gefunden.");
+                }
+
+                if (pl.GroupRenderingControl == null)
+                {
+                    return BadRequest("GroupRenderingControl ist nicht verfügbar für diesen Spieler.");
+                }
+
                 var vol = await pl.GroupRenderingControl.GetGroupVolume();
                 pl.PlayerProperties.GroupRenderingControl_GroupVolume = vol;
-                return vol;
+                return Ok(vol);
             }
             catch (Exception ex)
             {
                 AddServerErrors("GetGroupVolume", ex);
-                return 1;
+                return StatusCode(500, $"Ein interner Serverfehler ist aufgetreten: {ex.Message}");
             }
         }
+
         /// <summary>
         /// Ermittelt den Fade Mode
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("GetFadeMode/{id}")]
-        public Boolean? GetFadeMode(string id)
+        public IActionResult GetFadeMode(string id)
         {
+            try
+            {
+                SonosPlayer sp = sonosDiscovery.GetPlayerbyUuid(id);
+                if (sp == null)
+                {
+                    return NotFound($"Spieler mit ID {id} wurde nicht gefunden.");
+                }
 
-            SonosPlayer sp = sonosDiscovery.GetPlayerbyUuid(id);
-            if (sp == null) return false;
-            return sp.PlayerProperties.CurrentCrossFadeMode;
+                return Ok(sp.PlayerProperties.CurrentCrossFadeMode);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Ein interner Serverfehler ist aufgetreten: {ex.Message}");
+            }
         }
+
 
         /// <summary>
         ///Falls ein AudioIn Element vorhanden ist, dann kann dieses hier gesetzt werden.

@@ -11,9 +11,9 @@ namespace SonosConst
         public const int EsszimmerVolume = relativerVolWert + 11;
         public const string WohnzimmerName = "Wohnzimmer";
         public const int WohnzimmerVolume = relativerVolWert + 64;
-        public const string GästezimmerName = "Gästezimmer";
-        public const int GästezimmerVolume = 1;
-        public const string SchlafzimmerName = "Schlafzimmer";
+        public const string SpielzimmerName = "Spielen";
+        public const int SpielzimmerVolume = 1;
+        public const string SchlafzimmerName = "Schlafen";
         public const int SchlafzimmerVolume = 9;
         public const string IanzimmerName = "Ian";
         public const int IanzimmerVolume = 6;

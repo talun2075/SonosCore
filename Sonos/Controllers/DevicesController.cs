@@ -177,6 +177,14 @@ namespace Sonos.Controllers
                         if (Int16.TryParse(playerPropertiesRequest.value, out Int16 treble))
                             retval = await player.RenderingControl.SetTreble(treble);
                         break;
+                    case PlayerDevicePropertiesTypes.Name:
+                        var zone = await player.DeviceProperties.GetZoneAttributes();
+                        if (zone != null)
+                        {
+                            zone.ZoneName = playerPropertiesRequest.value;
+                           retval = await player.DeviceProperties.SetZoneAttributes(zone);
+                        }
+                        break;
                 }
 
                 return Ok(retval);

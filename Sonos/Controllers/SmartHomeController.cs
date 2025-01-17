@@ -589,15 +589,15 @@ namespace Sonos.Controllers
         }
         #endregion Workroom
         #region Guest
-        [HttpGet("GuestRoom/{id}/{v}")]
-        public async Task<Boolean> GuestRoom(string id, int v)
+        [HttpGet("PlayRoom/{id}/{v}")]
+        public async Task<Boolean> PlayRoom(string id, int v)
         {
             
             if (string.IsNullOrEmpty(id)) return false;
             try
             {
                 string playlistToPlay = id;
-                SonosPlayer pp = sonosDiscovery.GetPlayerbyName(SonosConstants.GästezimmerName);
+                SonosPlayer pp = sonosDiscovery.GetPlayerbyName(SonosConstants.SpielzimmerName);
                 if (pp == null) return false;
                 if ((string.IsNullOrEmpty(pp.PlayerProperties.AVTransportURI) || pp.PlayerProperties.AVTransportURI.StartsWith(SonosConstants.xrinconstream)) && pp.AVTransport != null)
                 {
@@ -660,31 +660,31 @@ namespace Sonos.Controllers
             }
             catch (Exception ex)
             {
-                logger.ServerErrorsAdd("GuestRoom:" + id, ex, "SmarthomeController");
+                logger.ServerErrorsAdd("PlayRoom:" + id, ex, "SmarthomeController");
                 throw;
             }
         }
-        [HttpGet("GuestRoom/{id}")]
-        public async Task<Boolean> GuestRoom(string id)
+        [HttpGet("PlayRoom/{id}")]
+        public async Task<Boolean> PlayRoom(string id)
         {
             
             //_logger.TraceLog("GuestRoom", "Start");
             if (string.IsNullOrEmpty(id)) return false;
-            return await GuestRoom(id, SonosConstants.GästezimmerVolume);
+            return await PlayRoom(id, SonosConstants.SpielzimmerVolume);
 
         }
-        [HttpGet("GuestRoomOff")]
-        public async Task<Boolean> GuestRoomOff()
+        [HttpGet("PlayRoomOff")]
+        public async Task<Boolean> PlayRoomOff()
         {
-            return await GenericRoomOff(SonosConstants.GästezimmerName);
+            return await GenericRoomOff(SonosConstants.SpielzimmerName);
         }
-        [HttpGet("GuestRoomAudioInOn")]
-        public async Task<Boolean> GuestRoomAudioInOn()
+        [HttpGet("PlayRoomAudioInOn")]
+        public async Task<Boolean> PlayRoomAudioInOn()
         {
             
             try
             {
-                var pl = sonosDiscovery.GetPlayerbyName(SonosConstants.GästezimmerName);
+                var pl = sonosDiscovery.GetPlayerbyName(SonosConstants.SpielzimmerName);
                 var retval = await pl.AVTransport.SetAVTransportURI(SonosConstants.xrinconstream + pl.UUID);
                 if (retval)
                 {
@@ -696,17 +696,17 @@ namespace Sonos.Controllers
             }
             catch (Exception ex)
             {
-                logger.ServerErrorsAdd("GuestRoomAudioInOn", ex, "SmarthomeController");
+                logger.ServerErrorsAdd("PlayRoomAudioInOn", ex, "SmarthomeController");
                 throw;
             }
         }
-        [HttpGet("GuestRoomAudioInOff")]
-        public async Task<Boolean> GuestRoomAudioInOff()
+        [HttpGet("PlayRoomAudioInOff")]
+        public async Task<Boolean> PlayRoomAudioInOff()
         {
             
             try
             {
-                var pl = sonosDiscovery.GetPlayerbyName(SonosConstants.GästezimmerName);
+                var pl = sonosDiscovery.GetPlayerbyName(SonosConstants.SpielzimmerName);
                 await pl.AVTransport.Stop();
                 var retval = await pl.AVTransport.SetAVTransportURI(SonosConstants.xrinconqueue + pl.UUID + "#0");
                 if (retval)

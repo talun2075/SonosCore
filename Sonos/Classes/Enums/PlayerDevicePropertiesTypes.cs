@@ -2,6 +2,6 @@
 {
     public enum PlayerDevicePropertiesTypes
     {
-        ButtonLockState, Bass, LEDState, Loudness, OutputFixed, Treble
+        ButtonLockState, Bass, LEDState, Loudness, OutputFixed, Treble, Name
     }
 }

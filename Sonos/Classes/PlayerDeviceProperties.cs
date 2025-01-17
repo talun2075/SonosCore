@@ -14,7 +14,7 @@ namespace Sonos.Classes
             if (sp == null) return null;
             if (sp.DeviceProperties == null) return null;
             if (sp.RenderingControl == null) return null;
-
+            Name = sp.Name;
             var lo = await sp.DeviceProperties.GetButtonLockState();
             if (Enum.TryParse(lo, out OnOffSwitch oos))
             {
@@ -60,6 +60,7 @@ namespace Sonos.Classes
         public bool SupportsOutputFixed { get; set; }
         public int Treble { get; set; }
 
+        public string Name { get; set; }
 
     }
 }
