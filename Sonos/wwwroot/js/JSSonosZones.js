@@ -248,7 +248,7 @@ function SonosZonesObject() {
         }
     };
     this.CheckStringIsNullOrEmpty = function (s) {
-        if (typeof s === "undefined" || s === null || s === "leer" || s === "Leer" || s === "") return true;
+        if (typeof s === "undefined" || s === null || s === "leer" || s === "Leer" || s === "" || s==="NoLyrics") return true;
 
         return false;
     };//done

@@ -49,7 +49,17 @@
             <div id="BrowsePlaylist" onclick="LoadBrowse('A:PLAYLISTS')">Playlist</div>
             <div id="BrowseArtist" onclick="LoadBrowse('A:ALBUMARTIST')">Interpreten</div>
             <div id="BrowseGenre" onclick="LoadBrowse('A:GENRE')">Genre</div>
+            <div id="BrowseTracks" onclick="LoadBrowseTracks()">Tracks</div>
             <div id="Browseboxwrapper"></div>
+        </div>
+        <div id="BrowseTrackBox">
+            <div id="BrowseTrackclose" class="righttopclose">X</div>
+            <img id="BrowseTrackLoader" src="/images/ajax-loader2.gif" alt="" />
+            <div id="BrowseTrackSearchWrapper" class="">
+                <input type="text" id="BrowseTrackSearch" placeholder="Suchen" />
+                <img id="TrackSearchImage" src="/images/search2.png" />
+            </div>
+            <div id="BrowseTrackBoxResultWrapper"></div>
         </div>
         <div id="AlarmClockOpen" class="mediabutton"></div>
         <div id="AlarmClock" class="alarmclockarrow"><div id="AlarmClockLoader" style="display: none;"><img alt="Device Loader" id="AlarmClockLoaderIMG" src="/images/ajax-loader.gif"></div><div id="AlarmClockWrapper"></div></div>

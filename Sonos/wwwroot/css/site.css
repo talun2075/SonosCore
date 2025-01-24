@@ -604,7 +604,9 @@ a {
         height: 24px;
         width: 24px;
     }
-
+#BrowseTrackBoxResultWrapper > div div.bomb {
+    display: block;
+}
 .mediabutton {
     width: 75px;
     height: 75px;
@@ -1496,7 +1498,7 @@ a {
     Background-Color: grey;
 }
 
-#Browsebox {
+#Browsebox, #BrowseTrackBox {
     display: none;
     background-color: white;
     border: 4px solid #000000;
@@ -1542,17 +1544,43 @@ a {
 
 #BrowseGenre {
     position: absolute;
-    right: 200px;
+    left: 300px;
     top: 0;
 }
+#BrowseTracks {
+    position: absolute;
+    left: 380px;
+    top: 0;
+}
+#BrowseTrackSearchWrapper {
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+#BrowseTrackSearch {
+    width: 80%;
+    margin:0 auto;
+    border-radius: 25px;
+    padding: 10px;
+}
+    #BrowseTrackSearch:focus {
+        outline: none; /* Entfernt den Standard-Outline */
+        border: 2px solid #FF2200; /* Fügt einen roten Rahmen hinzu */
+        box-shadow: 0 0 5px #F00, 0 0 10px #F00, 0 0 15px #F00;
+    }
 
+#BrowseTrackLoader {
+    display: none;
+    right: 90px;
+    top: 43px;
+    position: absolute;
+}
 #BrowseLoader {
     display: none;
     position: absolute;
     top: 0;
     right: 5px;
 }
-
 .font34 {
     font-size: 34px;
 }
@@ -1590,7 +1618,18 @@ a {
     height: 39px;
     line-height: 39px;
     border-top: 1px solid;
-    width: 320px
+    width: 320px;
+    white-space: nowrap;
+}
+#BrowseTrackBoxResultWrapper {
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    height: 100%;
+    max-height: calc(100% - 35px);
+}
+#TrackSearchImage{
+    height: 50px;
+    width: 50px;
 }
 .allContent {
     width: 360px;

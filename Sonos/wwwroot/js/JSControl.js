@@ -149,7 +149,14 @@ function InitSystem() {
     });
     SoDo.BrowseClosebutton.addEventListener("click", function () {
         BrowsePress();
-        console.log("ok");
+    });
+    SoDo.browseTrackclose.addEventListener("click", function () {
+        SoDo.browseTrackSearch.value = "";
+        SoDo.browseTrackBoxResultWrapper.innerHTML = "";
+        LoadBrowseTracks();
+    });
+    SoDo.browseTrackSearch.addEventListener("change", function () {
+        GetTrackResult();
     });
     //Events verarbeiten, wenn ein Button geklickt wurde.
     SoDo.nextButton.addEventListener("click", function () {
@@ -545,7 +552,7 @@ function SetMute(rincon) {
 function SetVolume(k) {
     //Multivolume
     k = parseInt(k);
-    
+
     var cordplayer = SonosZones.ZonesList[SonosZones.ActiveZoneUUID].CoordinatedUUIDS;
     console.log("SetVolume");
     console.log(cordplayer);
@@ -846,14 +853,19 @@ function ShowPlaylistLyric(t) {
         SoDo.lyricsPlaylist.innerHTML = "";
         SoDo.lyricsPlaylist.innerHTML = '<DIV class="righttopclose" onclick="ClosePlaylistLyric()">X</DIV>';
         var datalyric = player.playerProperties.playlist.playListItems[curentid].mP3.lyric;
+        if (datalyric === "NoLyrics") {
+            datalyric = "Kein Liedtext gefunden";
+        }
         SoDo.lyricsPlaylist.innerHTML += '<DIV class="lyricplaylistclass">' + datalyric + '</DIV>';
         SonosWindows(SoDo.lyricsPlaylist, undefined, { UseFadeIn: true });
+        SoDo.lyricsPlaylist.children[1].scrollTop = 0;
     }
 };//done
 function ShowPlaylistLyricCurrent() {
     if (SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.currentTrack.uri !== "leer") {
         SoDo.lyricButton.classList.toggle(SoVa.aktiv);
         SonosWindows(SoDo.lyric, undefined, { UseFadeIn: true });
+        SoDo.lyricWrapper.scrollTop = 0;
     }
 };//done
 //Neue Funktionen für Jquery remove
@@ -1232,11 +1244,83 @@ function SetRatingLyric() {
 function BrowsePress() {
     SoDo.browseButton.classList.toggle(SoVa.aktiv);
     SonosWindows(SoDo.browse, undefined, { UseFadeIn: true });
+    SonosWindows(SoDo.browseTrackBox, true);
     if (SoVa.browsefirst === 0) {
         window.setTimeout("LoadBrowse('A:ALBUMARTIST')", 150);
         SoVa.browsefirst = 1;
     }
 };//Done
+function LoadBrowseTracks() {
+    SoDo.browseButton.classList.remove(SoVa.aktiv);
+    SonosWindows(SoDo.browse, true);
+    SonosWindows(SoDo.browseTrackBox, undefined, { UseFadeIn: true });
+    //A:TRACKS:xxx doppelpunkt heißt suchen.
+    if (IsVisible(SoDo.browseTrackBox)) {
+        //hier nun code verarbeiten
+
+    } else {
+        //Reset vom input etc.
+        if (IsVisible(SoDo.browseTrackLoader)) {
+            SetHide(SoDo.browseTrackLoader);
+        }
+        SoDo.browseTrackSearch.value = ""
+    }
+}
+function GetTrackResult() {
+    let inputvalue = SoDo.browseTrackSearch.value;
+    SoDo.browseTrackBoxResultWrapper.innerHTML = "";
+    if (inputvalue.length < 4) {
+        SoDo.browseTrackBoxResultWrapper.innerHTML = "<b>Minimum Länge zum suchen sind 4 Zeichen.</b>";
+        return;
+        //todo: hinweis einblenden, dass zu wenig.
+    }
+    SetVisible(SoDo.browseTrackLoader)
+    let data = "A:TRACKS:";
+    data += inputvalue;
+    SonosAjax("Browsing", data).then(function (result) {
+        let browsecontent="";
+        if (result.length > 0) {
+            result.forEach(function (item, i) {
+                var rating = '<div class="bomb"><img src="/images/bombe.png" alt="playlistbomb"/></div>';
+                if (parseInt(item.mP3.bewertung) !== -1) {
+                    rating = '<div style="margin-left: 10px;margin-top: 10px;" class="rating_bar"><div style="width:' + item.mP3.bewertung + '%;"></div></div>';
+                }
+                let im = "";
+                if (item.albumArtURI !== null && item.mP3.hatCover === true) {
+                    var itmAAURi = "http://" + SonosPlayers[SonosZones.ActiveZoneUUID].playerProperties.baseUrl + item.albumArtURI;
+                    //Prüfen woher das cover stammt.
+                    if (!item.albumArtURI.startsWith("/getaa?u=")) {
+                        itmAAURi = item.albumArtURI;
+                    }
+                    im = '<div class="browsingCover"><img loading="lazy" src="' + itmAAURi + '" class="lazy"></div>';
+                } else {
+                    im = '<div class="browsingCover"><img src="' + SoVa.nocoverpfad + '"></div>';
+                }
+                var itmuri = item.uri;
+                if (item.itemID.startsWith("FV:2")) {
+                    itmuri = item.itemID;
+                }
+                browsecontent += '<div id="Browsing' + (i + 1) + '" data-containerid="' + itmuri + '" class="currentbrowse">' + im + '<DIV class="browsetitle" style="width:210px;">' + item.title + '</div><DIV class="browseaddcontainertoplaylist" onclick="AddToPlaylist(this)"></DIV><DIV class="browsereplacecontainertoplaylist" onclick="ReplacePlaylist(this)"></DIV>' + rating + '</DIV>';
+            });
+            SetHide(SoDo.browseTrackLoader);
+        } else {
+            SetHide(SoDo.browseTrackLoader);
+            browsecontent = "Es wurde nichts gefunden."
+        }
+        SoDo.browseTrackBoxResultWrapper.innerHTML = browsecontent;
+
+    }).catch(function (jqXHR) {
+        if (jqXHR.statusText === "Internal Server Error") {
+            ReloadSite("LoadBrowse");
+        } else {
+            SetHide(SoDo.browseTrackLoader); alert("Beim laden der Aktion:BrowseTracks ist ein Fehler aufgetreten.");
+            console.log(jqXHR);
+        }
+    });
+}
+function RenderTrackResult() {
+
+}
 //Bibliothekt durchsuchen und darstellen
 function LoadBrowse(v) {
     if (!IsVisible(SoDo.browseLoader)) {
@@ -1593,7 +1677,7 @@ function SonosWindows(sobj, remove, setobj) {
             setTimeout(function () {
                 sobj.style.opacity = 1;
             }, transformtime);
-            
+
         }
         sobj.style.zIndex = SoVa.szindex
         SoVa.szindex++;
@@ -1609,12 +1693,12 @@ function SonosWindows(sobj, remove, setobj) {
                 SoVa.overlayDVIObject = "";
                 if (SoVa.selectetdivs.length > 0) {
                     for (i = 0; i < SoVa.selectetdivs.length; i++) {
-                        SoVa.selectetdivs[i].style.removeProperty("z-index") 
+                        SoVa.selectetdivs[i].style.removeProperty("z-index")
                     }
                     SoVa.selectetdivs = [];
                 }
             }
-            if (useFadeIn || sobj.style.transition ===sobjtransition) {
+            if (useFadeIn || sobj.style.transition === sobjtransition) {
                 sobj.style.opacity = 0;
                 setTimeout(function () {
                     SetHide(sobj);
@@ -1624,7 +1708,7 @@ function SonosWindows(sobj, remove, setobj) {
             } else {
                 SetHide(sobj);
             }
-            SoDo.ratingListBox.style.removeProperty("z-index") 
+            SoDo.ratingListBox.style.removeProperty("z-index")
         }
     }
     if (SoVa.swindowlist.length === 0) {

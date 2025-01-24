@@ -237,7 +237,7 @@ namespace SonosUPNPCore.Classes
         /// </summary>
         /// <param name="v"></param>
         /// <returns></returns>
-        public async Task<List<SonosItem>> Browsing(SonosPlayer pl, string v, bool useRating = false, SonosEnums.BrowseFlagData bfd = SonosEnums.BrowseFlagData.BrowseDirectChildren)
+        public async Task<List<SonosItem>> Browsing(SonosPlayer pl, string v, bool useRating = false, SonosEnums.BrowseFlagData bfd = SonosEnums.BrowseFlagData.BrowseDirectChildren,int requestLimit = 200)
         {
             if (pl == null) return null;
             List<SonosItem> browselist = new();
@@ -245,7 +245,7 @@ namespace SonosUPNPCore.Classes
             int TotalMatches = -1;
             while (NumberReturned != TotalMatches)
             {
-                var browseresults = await pl.ContentDirectory.Browse(v, NumberReturned, 100, bfd);
+                var browseresults = await pl.ContentDirectory.Browse(v, NumberReturned, requestLimit, bfd);
                 NumberReturned += browseresults.NumberReturned;
                 TotalMatches = browseresults.TotalMatches;
                 if (browseresults.Result.Count > 0)

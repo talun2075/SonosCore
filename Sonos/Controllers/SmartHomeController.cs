@@ -560,7 +560,7 @@ namespace Sonos.Controllers
                 case "Random": //Next
 
                     int ix;
-                    List<String> RandomPlaylistList = ["Mine", "4.5 Sterne", "5 Sterne", "Amon Armath", "Five Finger Death Punch", "Disturbed", "Foo Fighters", "Harte Gruppen", "Harte Gruppen Genre", "Herbert Grönemeyer", "I Prevail"];
+                    List<String> RandomPlaylistList = ["Mine", "4.5 Sterne", "5 Sterne", "Amon Armath", "Five Finger Death Punch", "Disturbed", "Foo Fighters", "Harte Gruppen", "Harte Gruppen Genre", "Herbert Grönemeyer", "I Prevail", "Band mit K","Awolnation"];
                     try
                     {
                         //Playlist Ermitteln

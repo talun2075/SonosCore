@@ -410,8 +410,9 @@ function SonosPlayer(_uuid, _name,_swgen) {
             if (!SonosZones.CheckStringIsNullOrEmpty(curt.mP3.lyric)) {
                 SoDo.lyricWrapper.innerHTML = '<div>' + curt.mP3.lyric + '</div>';
             } else {
-                SoDo.lyricWrapper.innerHTML= '<div>No Lyrics in Song</div>';
+                SoDo.lyricWrapper.innerHTML= '<div>Kein Liedtext gefunden.</div>';
             }
+            SoDo.lyricWrapper.scrollTop = 0;
             if (curt.stream === true) {
                 if (IsVisible(SoDo.bewertungWidth)) {
                     SetHide(SoDo.bewertungWidth);

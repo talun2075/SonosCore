@@ -927,7 +927,6 @@ namespace Sonos.Controllers
             musicPictures.UpdateItemListToHashPath(retval);
             return retval;
         }
-
         /// <summary>
         /// Wenn currentstate nicht funktioniert liefert die funktion dennoch Daten
         /// </summary>

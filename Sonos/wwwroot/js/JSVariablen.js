@@ -68,6 +68,11 @@ function SonosDOMObjects() {
     this.browse = document.getElementById("Browsebox"); //Browsebox, die alles fürs Browsing hält, wie ankerlist, browseloader, warpper etc.
     this.browseWrapper = document.getElementById("Browseboxwrapper"); //Wrapper mit der Ergebnisliste.
     this.browseLoader = document.getElementById("BrowseLoader"); //Loader beim Browse
+    this.browseTrackBox = document.getElementById("BrowseTrackBox"); //Box zum Anzeigen der Track Suche
+    this.browseTrackclose = document.getElementById("BrowseTrackclose"); //Track Schließen
+    this.browseTrackLoader = document.getElementById("BrowseTrackLoader"); //Track Loader
+    this.browseTrackSearch = document.getElementById("BrowseTrackSearch"); //Track Input zum Suchen
+    this.browseTrackBoxResultWrapper = document.getElementById("BrowseTrackBoxResultWrapper"); //Track Ergebniss Wrapper.
     this.cover = document.getElementById("Cover"); //Currentcover
     this.currentBomb = document.getElementById("CurrentBomb"); //Currentbomb
     this.currentMeta = document.getElementById("CurrentMeta"); //Zeigt mit klick die aktuellen Meta Daten eines Songs an.

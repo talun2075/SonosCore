@@ -335,7 +335,11 @@
     #Filterlist {
         left: 50px;
     }
-    
+    #BrowseTrackBox {
+        right: auto;
+        left: 5px;
+        width: calc(100% - 55px);
+    }
     #Cover {
         right: unset;
         top: unset;
@@ -550,9 +554,11 @@
 
     #BrowseGenre {
         position: unset;
+    }
+    #BrowseTracks {
+        position: unset;
         border-bottom: 1px solid;
     }
-
     #Browseboxwrapper {
         max-height: calc(100% - 110px);
     }
@@ -584,6 +590,12 @@
     }
     #Volume {
         top: 240px;
+    }
+    #BrowseTrackBoxResultWrapper > div div.rating_bar {
+        display: none;
+    }
+    #BrowseTrackBoxResultWrapper > div div.bomb {
+        display: none;
     }
     #LabelVolume {
         left: 75px;
