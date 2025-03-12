@@ -955,14 +955,16 @@ a {
     -o-transition: all 1s ease-in-out;
     -webkit-transition: all 1s ease-in-out;
     transition: all 1s ease-in-out;
-    width: 500px;
+    width: calc(100% - 630px);
     display: inline-flex;
+    overflow: hidden;
 }
 
 #Akttitle {
     height: 23px;
     overflow: hidden;
-    max-width: 50%;
+    max-width: 70%;
+    white-space: nowrap;
 }
 
 #Aktartist::before {
@@ -974,8 +976,10 @@ a {
     height: 23px;
     overflow: hidden;
     margin-left: 10px;
-    max-width: 50%;
+    max-width: 30%;
+    white-space: nowrap;
 }
+
 
 #Nextcover {
     width: 50px;

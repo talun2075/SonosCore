@@ -95,10 +95,17 @@
     }
 
     #AktSongInfo {
-        width: 390px;
         display: block;
     }
-
+        #Aktartist::before {
+            content: "";
+        }
+        #Aktartist{
+            margin-left:0;
+        }
+#Aktartist,#Akttitle{
+    max-width:fit-content;
+}
     #CurrentMeta {
         left: 541px;
         bottom: 110px;
@@ -198,6 +205,13 @@
         display: inline-flex;
         bottom: 53px;
         left: 500px;
+    }
+    #Aktartist::before {
+        content: " - ";
+    }
+
+    #Aktartist {
+        margin-left: 10px;
     }
 
     #Currentplaylist {
@@ -351,8 +365,9 @@
 
     #CurrentPlaylistOpen {
         display: block;
-        right: 5px;
-        top: 270px;
+        right: 275px;
+        top: unset;
+        bottom:165px;
         align-content: center;
     }
 
@@ -447,6 +462,9 @@
 }
 
 @media screen and (max-width: 620px) {
+    #NextSongWrapper{
+        display:none;
+    }
 
     #Cover {
         width: 150px;
@@ -518,14 +536,20 @@
     }
 
     #AktSongInfo {
-        left: 200px;
         display: block;
-        bottom: unset;
-        top: 390px;
+        bottom: 60px;
+        top: unset;
+        left: 15px;
+        width: calc(100% - 100px);
     }
-
+    #Akttitle{
+        width: 100%;
+        max-width: 100%;
+    }
     #Aktartist {
         margin-left: 0;
+        width: 100%;
+        max-width: 100%;
     }
 
         #Aktartist::before {
@@ -610,38 +634,38 @@
         width: auto;
     }
 
-    #AktSongInfo {
-        left: 20px;
-        top: 450px;
-        width:200px;
-    }
-    #Akttitle, #Aktartist{
-        max-width:unset;
-    }
     #PlaylistCount.aktiv {
         display: none;
     }
 
     #Next, #Play, #Pre {
         left: unset;
-        right: 75px;rk
+        right: 75px;
         bottom:unset
     }
     #Browse, #Lyric, #AlarmClockOpen {
         bottom: unset;
     }
-    #Pre,#AlarmClockOpen {
+    #AlarmClockOpen {
         top: 510px;
     }
-
-    #Next,#Lyric {
+    #Pre {
         top: 440px;
     }
 
-    #Play,#Browse {
+    #Lyric {
+        top: 440px;
+    }
+    #Next {
         top: 370px;
     }
 
+    #Browse {
+        top: 370px;
+    }
+    #Play {
+        top: 300px;
+    }
     #Browseclose {
         display: block;
     }

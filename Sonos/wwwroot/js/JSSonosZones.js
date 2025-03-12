@@ -563,7 +563,9 @@ function SonosZonesObject() {
         //new
         if (!SonosZones.CheckStringIsNullOrEmpty(player.playerProperties.nextTrack.uri)) {
             if (!IsVisible(SoDo.nextSongWrapper)) {
-                SetVisible(SoDo.nextSongWrapper);
+                if (document.body.clientWidth > 620) {
+                    SetVisible(SoDo.nextSongWrapper);
+                }
             }
             var seap = " - ";
             var text = "";
@@ -586,7 +588,9 @@ function SonosZonesObject() {
                 }
             } else {
                 if (!IsVisible(SoDo.nextcover)) {
-                   SetVisible(SoDo.nextcover);
+                    if (document.body.clientWidth > 620) {
+                        SetVisible(SoDo.nextcover);
+                    }
                 }
                 //Wenn nicht mit /getaa startet nicht BASEURL nehmen, dann ist das evtl. DLNA
                 var albumart = 'http://' + player.playerProperties.baseUrl + player.playerProperties.nextTrack.albumArtURI;

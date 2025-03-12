@@ -1037,22 +1037,48 @@ function SetRatingMine(rmine) {
 };//done
 //Geschwindigkeit
 function SetGeschwindigkeit(tempo) {
-    SoVa.ratingMP3.geschwindigkeit = tempo;
+    let speedenum = ["None", 'Sehr_Langsam', 'Langsam', 'Moderat', 'Schnell', 'Sehr_Schnell', 'unset']
+    let currentspeedText = ''
+    let currentspeedNumber = 6
+    if (isNaN(tempo)) {
+        //Text
+        currentspeedText = tempo
+        currentspeedNumber = speedenum.indexOf(tempo);
+    } else {
+        //zahl
+        currentspeedText = speedenum[tempo]
+        currentspeedNumber = tempo
+    }
+    SoVa.ratingMP3.geschwindigkeit = currentspeedText;
     let speedselected = SoDo.geschwindigkeit.querySelector(":scope > .selected");
     if (speedselected !== null) {
         RemoveClass(speedselected, SoVa.selected);
     }
-    AddClass(document.getElementById("geschwindigkeit_" + tempo), SoVa.selected);
+    AddClass(document.getElementById("geschwindigkeit_" + currentspeedNumber), SoVa.selected);
 
 };//done
 //Stimmung setzen
 function SetStimmung(stimmung) {
-    SoVa.ratingMP3.stimmung = stimmung;
+    let stimmungenum = ["None", 'Wild', 'Fröhlich', 'Entspannt', 'Düster', 'Einschläfernd', 'unset']
+    let currentstimmungText = ''
+    let currentstimmungNumber = 6
+    if (isNaN(stimmung)) {
+        //Text
+        currentstimmungText = stimmung
+        currentstimmungNumber = stimmungenum.indexOf(stimmung);
+    } else {
+        //zahl
+        currentstimmungText = stimmungenum[stimmung]
+        currentstimmungNumber = stimmung
+    }
+
+        SoVa.ratingMP3.stimmung = currentstimmungText;
+    
     let stimmungselected = SoDo.stimmungen.querySelector(":scope > .selected");
     if (stimmungselected !== null) {
         RemoveClass(stimmungselected, SoVa.selected);
     }
-    AddClass(document.getElementById("stimmung_" + stimmung), SoVa.selected);
+        AddClass(document.getElementById("stimmung_" + currentstimmungNumber), SoVa.selected);
 };//done
 //Aufwecken setzten
 function SetRatingAufwecken(aufwecken) {
@@ -1082,12 +1108,26 @@ function ChangeRating(v, c) {
 };//done
 //Gelegenheit in das Data beim Rating schreiben
 function SetSituation(situation) {
-    SoVa.ratingMP3.gelegenheit = situation;
+    
+    let gelegenheitenenum = ["None", "Party", "Hintergrund", "Romantisch", "Saisonal", "unset"];
+    let currentsituationText = ''
+    let currentsituationNumber = 6
+    if (isNaN(situation)) {
+        //Text
+        currentsituationText = situation
+        currentsituationNumber = gelegenheitenenum.indexOf(situation);
+    } else {
+        //zahl
+        currentsituationText = gelegenheitenenum[situation]
+        currentsituationNumber = situation
+    }
+    SoVa.ratingMP3.gelegenheit = currentsituationText;
+
     let gelselected = SoDo.gelegenheiten.querySelector(":scope > .selected");
     if (gelselected !== null) {
         RemoveClass(gelselected, SoVa.selected);
     }
-    AddClass(document.getElementById("gelegenheit_" + situation), SoVa.selected);
+    AddClass(document.getElementById("gelegenheit_" + currentsituationNumber), SoVa.selected);
 };//done
 //Ratinglist vorbereiten von Songs aus der Wiedergabeliste
 function ShowPlaylistRating(t) {
@@ -1278,7 +1318,7 @@ function GetTrackResult() {
     let data = "A:TRACKS:";
     data += inputvalue;
     SonosAjax("Browsing", data).then(function (result) {
-        let browsecontent="";
+        let browsecontent = "";
         if (result.length > 0) {
             result.forEach(function (item, i) {
                 var rating = '<div class="bomb"><img src="/images/bombe.png" alt="playlistbomb"/></div>';
