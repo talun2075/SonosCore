@@ -357,6 +357,41 @@ namespace Sonos.Controllers
             }
 
         }
+        public async Task<Playlist> Playlist()
+        {
+            var pl = GetChild();
+            if (pl == null) return new();
+            await pl.GetPlayerPlaylist();
+            try
+            {
+                if (!pl.PlayerProperties.Playlist.IsEmpty && !pl.PlayerProperties.Playlist.PlayListItemsHashChecked)
+                {
+                    lock (pl.PlayerProperties.Playlist.PlayListItems)
+                    {
+                        foreach (SonosItem item in pl.PlayerProperties.Playlist.PlayListItems)
+                        {
+                            try
+                            {
+                                if (item != null)
+                                    musicPictures.UpdateItemToHashPath(item);
+                                else
+                                    break;
+                            }
+                            catch
+                            {
+                                continue;
+                            }
+                        }
+                        pl.PlayerProperties.Playlist.PlayListItemsHashChecked = true;
+                    }
+                }
+            }
+            catch
+            {
+                //ignore; wird zu fehlern führen beim wechsel der Playlist.
+            }
+            return pl.PlayerProperties.Playlist;
+        }
         #endregion Methods
     }
 

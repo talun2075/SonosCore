@@ -34,6 +34,11 @@ namespace Sonos.Controllers
         {
             return BaseURL();
         }
+        [HttpGet("GetPlaylist")]
+        public async Task<Playlist> GetPlaylist()
+        {
+            return await Playlist();
+        }
         [HttpGet("GetTransport")]
         public async Task<int> GetTransport()
         {

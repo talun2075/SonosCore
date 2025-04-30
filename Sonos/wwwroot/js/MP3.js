@@ -5,6 +5,8 @@
     this.aufwecken = false;
     this.bewertung = 0;
     this.bewertungMine = 0;
+    this.bewertungIan = 0;
+    this.bewertungFinn = 0;
     this.gelegenheit = "None";
     this.genre = "leer";
     this.geschwindigkeit = "None";
@@ -29,6 +31,8 @@
         this.artistPlaylist = mp3.artistPlaylist;
         this.bewertung = mp3.bewertung;
         this.bewertungMine = mp3.bewertungMine;
+        this.bewertungIan = mp3.bewertungIan;
+        this.bewertungFinn = mp3.bewertungFinn;
     }
     this.FillServerMP3fromThis = function (mp3) {
         mp3.gelegenheit = this.gelegenheit;
@@ -38,5 +42,7 @@
         mp3.artistPlaylist = this.artistPlaylist;
         mp3.bewertung = this.bewertung;
         mp3.bewertungMine = this.bewertungMine;
+        mp3.bewertungIan = this.bewertungIan;
+        mp3.bewertungFinn = this.bewertungFinn;
     }
 }
