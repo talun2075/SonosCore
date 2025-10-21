@@ -46,6 +46,11 @@ function SonosZonesObject() {
                 for (var i = 0; i < data.zoneGroupStates.length; i++) {
                     var zuuid = data.zoneGroupStates[i].coordinatorUUID;
                     var zonemember = data.zoneGroupStates[i].zoneGroupMember;
+                    if (SoVa.LimitPlayer == true) {
+                        let name = zonemember[0].zoneName;
+                        if (name.toLowerCase() !== SoVa.AllowedPlayer)
+                            continue;
+                    }
                     SonosZones.ZonesList[zuuid] = new Zone();
                     SonosZones.ZonesList[zuuid].uuid = zuuid;
                     SonosZones.ZonesList[zuuid].CoordinatedUUIDS = zonemember;
@@ -90,7 +95,7 @@ function SonosZonesObject() {
                 if (IsVisible(SoDo.deviceLoader)) {
                     SetHide(SoDo.deviceLoader);
                 }
-                if (!IsVisible(SoDo.groupDeviceShow)) {
+                if (!IsVisible(SoDo.groupDeviceShow) && SoVa.LimitPlayer !== true) {
                     SetVisible(SoDo.groupDeviceShow);
                 }
                 SonosZones.RenderActiveZone(SonosZones.ActiveZoneUUID, true);

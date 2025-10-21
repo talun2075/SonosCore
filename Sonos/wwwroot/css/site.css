@@ -3,6 +3,7 @@
     font-family: Verdana;
     font-size: 1.1em
 }
+
 #TestData {
     position: absolute;
     width: calc(100% - 20px);
@@ -209,6 +210,24 @@ a {
     z-index: 1;
 }
 
+.ratingWrapper {
+    display: flex;
+    margin-bottom: 10px;
+    border: 1px solid;
+    border-radius: 15px;
+    padding: 5px;
+}
+
+    .ratingWrapper > div:first-child {
+        flex: 3; /* 30% */
+    }
+
+    .ratingWrapper > div:last-child {
+        flex: 7; /* 70% */
+    }
+#RatingFinnSelector, #RatingMineSelector, #RatingIanSelector, #RatingSelector {
+    width: 86px;
+}
 .rating_bar {
     margin-right: 1px;
     width: 100px;
@@ -604,9 +623,11 @@ a {
         height: 24px;
         width: 24px;
     }
+
 #BrowseTrackBoxResultWrapper > div div.bomb {
     display: block;
 }
+
 .mediabutton {
     width: 75px;
     height: 75px;
@@ -1272,10 +1293,6 @@ a {
     background-color: grey;
 }
 
-#RatingMineSelector {
-    margin-left: 18px;
-}
-
 .curpopdown > DIV {
     float: left;
 }
@@ -1439,20 +1456,21 @@ a {
 }
 
 
-#Lyricbox > .righttopclose {
-    display: none;
-}
-#Lyricbox::after {
-    border-style: solid;
-    border-width: 25px;
-    content: "";
-    height: 0px;
-    position: absolute;
-    top: 370px;
-    width: 0px;
-    border-color: transparent transparent transparent rgb(0, 0, 0);
-    left: 100%;
-}
+    #Lyricbox > .righttopclose {
+        display: none;
+    }
+
+    #Lyricbox::after {
+        border-style: solid;
+        border-width: 25px;
+        content: "";
+        height: 0px;
+        position: absolute;
+        top: 370px;
+        width: 0px;
+        border-color: transparent transparent transparent rgb(0, 0, 0);
+        left: 100%;
+    }
 
 #Lyricboxwrapper {
     overflow: auto;
@@ -1470,7 +1488,6 @@ a {
     background-size: 100% 100%;
     background-repeat: no-repeat;
     background-color: white;
-    
 }
 
 #Browseclose {
@@ -1515,6 +1532,7 @@ a {
     position: absolute;
     top: 5px;
 }
+
     #Browsebox:after {
         border-style: solid;
         border-width: 25px;
@@ -1551,22 +1569,26 @@ a {
     left: 300px;
     top: 0;
 }
+
 #BrowseTracks {
     position: absolute;
     left: 380px;
     top: 0;
 }
+
 #BrowseTrackSearchWrapper {
     justify-content: center;
     align-items: center;
     display: flex;
 }
+
 #BrowseTrackSearch {
     width: 80%;
-    margin:0 auto;
+    margin: 0 auto;
     border-radius: 25px;
     padding: 10px;
 }
+
     #BrowseTrackSearch:focus {
         outline: none; /* Entfernt den Standard-Outline */
         border: 2px solid #FF2200; /* Fügt einen roten Rahmen hinzu */
@@ -1579,12 +1601,14 @@ a {
     top: 43px;
     position: absolute;
 }
+
 #BrowseLoader {
     display: none;
     position: absolute;
     top: 0;
     right: 5px;
 }
+
 .font34 {
     font-size: 34px;
 }
@@ -1625,19 +1649,23 @@ a {
     width: 320px;
     white-space: nowrap;
 }
+
 #BrowseTrackBoxResultWrapper {
     overflow: auto;
     -webkit-overflow-scrolling: touch;
     height: 100%;
     max-height: calc(100% - 35px);
 }
-#TrackSearchImage{
+
+#TrackSearchImage {
     height: 50px;
     width: 50px;
 }
+
 .allContent {
     width: 360px;
 }
+
 .currentbrowse {
     height: 40px;
     display: inline-flex;
@@ -1902,7 +1930,7 @@ a {
 }
 /*Export An / Aus Schalter  ENDE*/
 /*Aufwecken An / Aus Schalter  */
-#AufweckenonoffswitchWrapper, #RatingMine {
+#AufweckenonoffswitchWrapper, #RatingMine, #RatingFinn, #RatingIan,#Rating {
     width: 190px;
 }
 

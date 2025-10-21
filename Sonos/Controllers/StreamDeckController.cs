@@ -52,7 +52,7 @@ namespace Sonos.Controllers
             }
             try
             {
-                if (pl == null) return null;
+                if (pl == null) return _streamDeckResponse;
                 string cover;
                 if (pl.PlayerProperties.CurrentTrack.AlbumArtURI.StartsWith(SonosConstants.CoverHashPathForBrowser))
                 {
@@ -69,7 +69,7 @@ namespace Sonos.Controllers
             catch (Exception ex)
             {
                 AddServerErrors("StreamDeck2", ex);
-                return null;
+                return _streamDeckResponse;
             }
         }
         /// <summary>

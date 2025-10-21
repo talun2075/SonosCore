@@ -10,6 +10,7 @@
     let adminFor = 0;
     let RemoveOld = true;
     this.Buttons;
+    this.Playlist;
     this.hashPic = "/hashimages";
     this.Init = function () {
         //Initieren und Daten holen.
@@ -56,6 +57,10 @@
                 t.PlayState = data;
                 t.RenderPlayState();
             });
+            Send("GetPlaylist").then(function (data) {
+                t.Playlist = data;
+                t.RenderPlayList();
+            });
 
         }).catch(function (jqXHR) {
             console.log("fail to get baseurl");
@@ -63,6 +68,9 @@
         });
         
         
+    }
+    this.RenderPlayList = function () {
+        console.log(this.Playlist);
     }
     this.GetStart = function () {
         this.AjaxLoader.style.display = "block";

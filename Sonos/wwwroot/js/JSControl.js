@@ -11,7 +11,13 @@
 //    if (seconds < 10) { seconds = "0" + seconds; }
 //    return hours + ':' + minutes + ':' + seconds;
 //}
+/*
+parameter:
+admin= zeigt alle Playlisten an auch, die die nur für die Knöpfe sind
+limit= true es wird auf ein player limitiert. 
+player = name des players, auf den limitiert werden muss. 
 
+*/
 //todo: find a solution for drag and drop on mobile browsers.
 window.onerror = Fehlerbehandlung;
 var debug = false; //Wenn true wird kein Refesh gemacht		
@@ -97,6 +103,7 @@ function InitSystem() {
             SoVa.SSE_Event_Source.close();
         }
     });
+
     LoadDevices();
     SoDo.lyricButton.addEventListener("click", function () {
         ShowPlaylistLyricCurrent();
@@ -126,6 +133,9 @@ function InitSystem() {
             SoVa.ratingonlycurrent = false;
         }
     });
+    SoDo.ratingSelector.addEventListener("change", function (event) {
+        ChangeRating(event.target.value, true);
+    });
     //Initialisierung Musikindexaktualisierung
     SoDo.musikIndex.addEventListener("click", function () {
         UpdateMusicIndex();
@@ -133,6 +143,12 @@ function InitSystem() {
     //Ratingmine änderungen abfangen
     SoDo.ratingMineSelector.addEventListener("change", function () {
         SetRatingMine(SoDo.ratingMineSelector.value);
+    });
+    SoDo.ratingIanSelector.addEventListener("change", function () {
+        SetRatingIan(SoDo.ratingIanSelector.value);
+    });
+    SoDo.ratingFinnSelector.addEventListener("change", function () {
+        SetRatingFinn(SoDo.ratingFinnSelector.value);
     });
     SoDo.filterListButton.addEventListener("click", function () {
         SonosWindows(SoDo.filterListBox);
@@ -322,6 +338,14 @@ var GetZonesTimer = 0;
 function LoadDevices() {
     try {
         SoVa.urldevice = GetURLParameter('device').toLowerCase();
+        let limit = GetURLParameter('limit').toLowerCase();
+        if (limit === "true") {
+            SoVa.LimitPlayer = true;
+        }
+        SoVa.AllowedPlayer = GetURLParameter('player').toLowerCase();
+        if (SoVa.LimitPlayer === true && SoVa.AllowedPlayer === "") {
+            SoVa.LimitPlayer = false;
+        }
         let admin = GetURLParameter('admin').toLowerCase();
         console.log(admin);
         if (admin === "true") {
@@ -349,6 +373,14 @@ function GetZones() {
             var plpromise = new Promise(function (resolve, reject) {
                 for (var i = 0; i < data.length; i++) {
                     var u = data[i].uuid;
+                    if (SoVa.LimitPlayer == true) {
+                        if (IsVisible(SoDo.groupDeviceShow)) {
+                            SetHide(SoDo.groupDeviceShow);
+                        }
+                        let name = data[i].name;
+                        if (name.toLowerCase() !== SoVa.AllowedPlayer)
+                            continue;
+                    }
                     if (typeof SonosPlayers[u] === "undefined") {
                         SonosPlayers[u] = new SonosPlayer(data[i].uuid, data[i].name, data[i].softwareGeneration);
                         SonosPlayers[u].CheckPlayerProperties(data[i].playerProperties);
@@ -1035,6 +1067,14 @@ function SetRatingMine(rmine) {
     SoVa.ratingMP3.bewertungMine = rmine;
     SoDo.ratingMineSelector.value = rmine;
 };//done
+function SetRatingIan(rian) {
+    SoVa.ratingMP3.bewertungIan = rian;
+    SoDo.ratingIanSelector.value = rian;
+};//done
+function SetRatingFinn(rfinn) {
+    SoVa.ratingMP3.bewertungFinn = rfinn;
+    SoDo.ratingFinnSelector.value = rfinn;
+};//done
 //Geschwindigkeit
 function SetGeschwindigkeit(tempo) {
     let speedenum = ["None", 'Sehr_Langsam', 'Langsam', 'Moderat', 'Schnell', 'Sehr_Schnell', 'unset']
@@ -1094,17 +1134,7 @@ function ChangeRating(v, c) {
         SetRatingArtistpl(true);
     }
     SoVa.ratingMP3.bewertung = v.toString();
-    let currentRating = SoDo.ratingListBox.querySelector(":scope > .rating_bar_aktiv");
-    if (currentRating !== null) {
-        RemoveClass(currentRating, "rating_bar_aktiv");
-    }
-    RemoveClass(SoDo.ratingBomb, "rating_bar_aktiv");
-    if (v === -1) {
-        //Bombe
-        AddClass(SoDo.ratingBomb, "rating_bar_aktiv");
-    } else {
-        AddClass(document.getElementById("rating_id_" + v), "rating_bar_aktiv");
-    }
+    SoDo.ratingSelector.value = v;
 };//done
 //Gelegenheit in das Data beim Rating schreiben
 function SetSituation(situation) {
@@ -1150,6 +1180,8 @@ function ShowPlaylistRating(t) {
     SetRatingArtistpl(SoVa.ratingMP3.artistPlaylist);
     ChangeRating(SoVa.ratingMP3.bewertung);
     SetRatingMine(SoVa.ratingMP3.bewertungMine);
+    SetRatingFinn(SoVa.ratingMP3.bewertungFinn);
+    SetRatingIan(SoVa.ratingMP3.bewertungIan);
 };//done
 //Ratinglist vorbereiten vom current Song
 function ShowCurrentRating(t) {
@@ -1194,6 +1226,8 @@ function ShowCurrentRating(t) {
     SetRatingArtistpl(SoVa.ratingMP3.artistPlaylist);
     ChangeRating(SoVa.ratingMP3.bewertung);
     SetRatingMine(SoVa.ratingMP3.bewertungMine);
+    SetRatingFinn(SoVa.ratingMP3.bewertungFinn);
+    SetRatingIan(SoVa.ratingMP3.bewertungIan);
 };//done;
 //Filter für das Rating setzen und Filterlist schließen.
 function SetRatingFilter(type, v) {

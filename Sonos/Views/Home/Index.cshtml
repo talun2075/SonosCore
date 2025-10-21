@@ -284,44 +284,63 @@
                     </label>
                 </div>
             </div><br>
-            <div id="RatingMine">
-                Rating Mine: <select id="RatingMineSelector"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select>
+            <div id="RatingMine" class="ratingWrapper">
+                <div>Mine:</div>
+                <div>
+                    <select id="RatingMineSelector">
+                        <option value="0">&#x2606;&#x2606;&#x2606;&#x2606;&#x2606;</option>
+                        <option value="1">&#x2605;&#x2606;&#x2606;&#x2606;&#x2606;</option>
+                        <option value="2">&#x2605;&#x2605;&#x2606;&#x2606;&#x2606;</option>
+                        <option value="3">&#x2605;&#x2605;&#x2605;&#x2606;&#x2606;</option>
+                        <option value="4">&#x2605;&#x2605;&#x2605;&#x2605;&#x2606;</option>
+                        <option value="5">&#x2605;&#x2605;&#x2605;&#x2605;&#x2605;</option>
+                    </select>
+                </div>
             </div>
-            <div class="rating_bar_bomb" id="Rating_id_bomb" onclick="ChangeRating(-1,true)">
-                <img src="/images/bombe.png" alt="RatingBomb" />
+            <div id="RatingIan" class="ratingWrapper">
+                <div>Ian:</div>
+                <div>
+                    <select id="RatingIanSelector">
+                        <option value="0">&#x2606;&#x2606;&#x2606;&#x2606;&#x2606;</option>
+                        <option value="1">&#x2605;&#x2606;&#x2606;&#x2606;&#x2606;</option>
+                        <option value="2">&#x2605;&#x2605;&#x2606;&#x2606;&#x2606;</option>
+                        <option value="3">&#x2605;&#x2605;&#x2605;&#x2606;&#x2606;</option>
+                        <option value="4">&#x2605;&#x2605;&#x2605;&#x2605;&#x2606;</option>
+                        <option value="5">&#x2605;&#x2605;&#x2605;&#x2605;&#x2605;</option>
+                    </select>
+                </div>
             </div>
-            <div class="rating_bar" id="rating_id_0" onclick="ChangeRating(0,true)">
-                <div style="width: 0;"></div>
+            <div id="RatingFinn" class="ratingWrapper">
+                <div>Finn:</div>
+                <div>
+                    <select id="RatingFinnSelector">
+                        <option value="0">&#x2606;&#x2606;&#x2606;&#x2606;&#x2606;</option>
+                        <option value="1">&#x2605;&#x2606;&#x2606;&#x2606;&#x2606;</option>
+                        <option value="2">&#x2605;&#x2605;&#x2606;&#x2606;&#x2606;</option>
+                        <option value="3">&#x2605;&#x2605;&#x2605;&#x2606;&#x2606;</option>
+                        <option value="4">&#x2605;&#x2605;&#x2605;&#x2605;&#x2606;</option>
+                        <option value="5">&#x2605;&#x2605;&#x2605;&#x2605;&#x2605;</option>
+                    </select>
+                </div>
             </div>
-            <div class="rating_bar" id="rating_id_10" onclick="ChangeRating(10,true)">
-                <div style="width: 10%;"></div>
-            </div>
-            <div class="rating_bar" id="rating_id_20" onclick="ChangeRating(20,true)">
-                <div style="width: 20%;"></div>
-            </div>
-            <div class="rating_bar" id="rating_id_30" onclick="ChangeRating(30,true)">
-                <div style="width: 30%;"></div>
-            </div>
-            <div class="rating_bar" id="rating_id_40" onclick="ChangeRating(40,true)">
-                <div style="width: 40%;"></div>
-            </div>
-            <div class="rating_bar" id="rating_id_50" onclick="ChangeRating(50,true)">
-                <div style="width: 50%;"></div>
-            </div>
-            <div class="rating_bar" id="rating_id_60" onclick="ChangeRating(60,true)">
-                <div style="width: 60%;"></div>
-            </div>
-            <div class="rating_bar" id="rating_id_70" onclick="ChangeRating(70,true)">
-                <div style="width: 70%;"></div>
-            </div>
-            <div class="rating_bar" id="rating_id_80" onclick="ChangeRating(80,true)">
-                <div style="width: 80%;"></div>
-            </div>
-            <div class="rating_bar" id="rating_id_90" onclick="ChangeRating(90,true)">
-                <div style="width: 90%;"></div>
-            </div>
-            <div class="rating_bar" id="rating_id_100" onclick="ChangeRating(100,true)">
-                <div style="width: 100%;"></div>
+            <div id="Rating" class="ratingWrapper">
+                <div>TaLun:</div>
+                <div>
+                    <select id="RatingSelector">
+                        <option value="-1">&#x1F4A3;</option>
+                        <option value="0">&#x2606;&#x2606;&#x2606;&#x2606;&#x2606;</option>
+                        <option value="10">0.5</option>
+                        <option value="20">&#x2605;&#x2606;&#x2606;&#x2606;&#x2606;</option>
+                        <option value="30">1,5</option>
+                        <option value="40">&#x2605;&#x2605;&#x2606;&#x2606;&#x2606;</option>
+                        <option value="50">2,5</option>
+                        <option value="60">&#x2605;&#x2605;&#x2605;&#x2606;&#x2606;</option>
+                        <option value="70">3,5</option>
+                        <option value="80">&#x2605;&#x2605;&#x2605;&#x2605;&#x2606;</option>
+                        <option value="90">4,5</option>
+                        <option value="100">&#x2605;&#x2605;&#x2605;&#x2605;&#x2605;</option>
+                    </select>
+                </div>
             </div>
             <div id="Setrating" onclick="SetRatingLyric();return false;">
                 <div>

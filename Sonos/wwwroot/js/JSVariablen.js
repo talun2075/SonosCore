@@ -49,6 +49,8 @@ function SonosVariablen() {
     this.aktiv = "aktiv" //wird für die CSS Klassen benutzt um dinge aktiv zu setzen.
     this.selected = "selected";
     this.moveLeft = "moveleft";
+    this.LimitPlayer = false;//Ist die DeviceListe zu Limitieren?
+    this.AllowedPlayer = "";//Welcher Player ist Erlaubt
 }
 
 //Globale Varibalen auf DOM Objekten
@@ -122,9 +124,11 @@ function SonosDOMObjects() {
     this.ratingCheck = document.getElementById("RatingCheck"); //Feedback, wenn Rating erfolgreich durchgeführt
     this.ratingErrorList = document.getElementById("RatingerrorsList"); //Wenn beim Rateing ein Fehlerauftritt auf dem Server, dann wird diese liste Gefüllt.
     this.ratingErrors = document.getElementById("Ratingerrors"); //Box mit der Liste der Errors.
-    this.ratingBomb = document.getElementById("Rating_id_bomb");//bombe in der Ratingliste
+    this.ratingSelector = document.getElementById("RatingSelector");//Rating Dropdown
     this.ratingListBox = document.getElementById("Ratinglist"); //Liste für die Bewertung
     this.ratingMineSelector = document.getElementById("RatingMineSelector"); //Selection für Mine Rating
+    this.ratingIanSelector = document.getElementById("RatingIanSelector"); //Selection für Ian Rating
+    this.ratingFinnSelector = document.getElementById("RatingFinnSelector"); //Selection für Finn Rating
     this.repeatButton = document.getElementById("Repeat");//Mediabutton
     this.runtimeCurrentSong = document.getElementById("CurrentSongRuntime"); //Box mit der Laufzeit
     this.runtimeRelTime = document.getElementById("CurrentSongRuntimeRelTime"); // Abgelaufene Zeit
