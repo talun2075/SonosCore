@@ -13,6 +13,7 @@ using SonosData.DataClasses;
 using SonosData;
 using SonosSQLiteWrapper.Interfaces;
 using SonosUPNPCore.Interfaces;
+using SonosUPNPCore;
 
 namespace Sonos.Classes
 {
@@ -246,13 +247,13 @@ namespace Sonos.Classes
         {
             if (Sonos != null && Sonos.Players != null && Sonos.Players.Count != 0)
             {
-                if (Sonos.ZoneProperties.ListOfAllPlaylist == null || Sonos.ZoneProperties.ListOfAllPlaylist.Count == 0)
+                if (Sonos.Zone.Properties.ListOfAllPlaylist == null || Sonos.Zone.Properties.ListOfAllPlaylist.Count == 0)
                 {
                     await Sonos.SetPlaylists();
                 }
 
             }
-            return Sonos.ZoneProperties.ListOfAllPlaylist;
+            return Sonos.Zone.Properties.ListOfAllPlaylist;
         }
         /// <summary>
         /// Füllt alle Player einmal mit aktuellen Daten inkl. Playlist

@@ -6,6 +6,7 @@ using SonosUPnP.Services;
 using SonosUPnP.Services.MediaRendererService;
 using SonosUPnP.Services.MediaServerServices;
 using SonosUPNPCore.Classes;
+using SonosUPNPCore.Services;
 using System;
 using System.Threading.Tasks;
 

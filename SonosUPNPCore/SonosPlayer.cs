@@ -16,6 +16,7 @@ using SonosData.DataClasses;
 using SonosUPNPCore.Classes;
 using SonosData;
 using SonosUPNPCore.Interfaces;
+using SonosUPNPCore.Services;
 
 namespace SonosUPnP
 {

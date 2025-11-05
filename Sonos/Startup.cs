@@ -50,12 +50,13 @@ namespace Sonos
             {
                 app.UseFileServer(new FileServerOptions
                 {
-                    FileProvider = new PhysicalFileProvider(Configuration["MusicHashFolder"]),
+                    FileProvider = new PhysicalFileProvider(Configuration["MusicHashFolderDebug"]),
                     RequestPath = new PathString("/hashimages"),
                     EnableDirectoryBrowsing = true
                 });
+                
             }
-
+               
             app.UseMiddleware<ExceptionMiddleware>();
             app.UseStaticFiles();
             app.UseRouting();

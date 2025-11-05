@@ -11,14 +11,13 @@ namespace SonosUPNPCore.Interfaces
     {
         IList<SonosPlayer> Players { get; set; }
         ZoneMethods ZoneMethods { get; set; }
-        DiscoveryZoneProperties ZoneProperties { get; set; }
+        Zone Zone { get; set; }
 
         event EventHandler<SonosDiscovery> GlobalSonosChange;
         event EventHandler<SonosPlayer> PlayerChange;
 
         SonosPlayer GetPlayerbyName(string playerName);
         SonosPlayer GetPlayerbyUuid(string uuid);
-        SonosPlayer GetPlayerbySoftwareGenerationPlaylistentry(string playlist);
         SonosPlayer GetPlayerbySoftWareGeneration(SoftwareGeneration softgen);
 
         void CheckDevicesToPlayer();

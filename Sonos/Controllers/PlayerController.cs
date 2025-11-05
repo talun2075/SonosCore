@@ -883,9 +883,9 @@ namespace Sonos.Controllers
             if (v == null || !v.StartsWith(SonosConstants.FV2)) return false;
             try
             {
-                var k = sonosDiscovery.ZoneProperties.ListOfFavorites.FirstOrDefault(x => x.ItemID == v);
-                if (k == null && sonosDiscovery.ZoneProperties.ListOfFavorites.Count > 0) return false;
-                var pl = sonosDiscovery.GetPlayerbySoftwareGenerationPlaylistentry(v);
+                var k = sonosDiscovery.Zone.Properties.ListOfFavorites.FirstOrDefault(x => x.ItemID == v);
+                if (k == null && sonosDiscovery.Zone.Properties.ListOfFavorites.Count > 0) return false;
+                var pl = sonosDiscovery.Players.FirstOrDefault();
                 return await pl.ContentDirectory.DestroyObject(v);
             }
             catch (Exception ex)
@@ -1135,7 +1135,7 @@ namespace Sonos.Controllers
                 return BadRequest("Der Request-Body ist leer.");
             }
 
-            MP3File.MP3File lied = new MP3File.MP3File();
+            MP3File.MP3File lied = new();
             var pla = sonosDiscovery.GetPlayerbyUuid(id);
 
             try

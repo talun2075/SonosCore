@@ -127,14 +127,14 @@ namespace Sonos.Controllers
                     {
                         //Die Zielarchitektur existiert, daher nur Playlist
                         int oldcurrenttrack = primaryplayer.PlayerProperties.CurrentTrackNumber;
-                        if (sonosDiscovery.ZoneProperties.ListOfAllPlaylist.Count == 0)
+                        if (sonosDiscovery.Zone.Properties.ListOfAllPlaylist.Count == 0)
                             await sonosHelper.GetAllPlaylist();
-                        var playlist = sonosDiscovery.ZoneProperties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.Equals(playlistToPlay, StringComparison.CurrentCultureIgnoreCase));
+                        var playlist = sonosDiscovery.Zone.Properties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.Equals(playlistToPlay, StringComparison.CurrentCultureIgnoreCase));
                         //if (playlist == null)
                         //{
                         //    await _sonosHelper.GetAllPlaylist();//todo: prüfen ob das aukommentiert bleiben kann.
                         //}
-                        playlist = sonosDiscovery.ZoneProperties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.Equals(playlistToPlay, StringComparison.CurrentCultureIgnoreCase));
+                        playlist = sonosDiscovery.Zone.Properties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.Equals(playlistToPlay, StringComparison.CurrentCultureIgnoreCase));
                         Boolean loadPlaylist = false;
                         if (playlist != null)
                         {
@@ -169,9 +169,9 @@ namespace Sonos.Controllers
                         //alles neu
                         await sonosHelper.GenerateZoneConstruct(primaryplayer, [secondaryplayer.UUID, thirdplayer.UUID]);
                         //Playlist verarbeiten
-                        if (sonosDiscovery.ZoneProperties.ListOfAllPlaylist.Count == 0)
+                        if (sonosDiscovery.Zone.Properties.ListOfAllPlaylist.Count == 0)
                             await sonosHelper.GetAllPlaylist();
-                        var playlist = sonosDiscovery.ZoneProperties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.Equals(playlistToPlay, StringComparison.CurrentCultureIgnoreCase));
+                        var playlist = sonosDiscovery.Zone.Properties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.Equals(playlistToPlay, StringComparison.CurrentCultureIgnoreCase));
                         if (!await sonosHelper.LoadPlaylist(playlist, primaryplayer))
                             return false;
                     }
@@ -423,14 +423,14 @@ namespace Sonos.Controllers
                 //Playlist befüllen
                 try
                 {
-                    if (sonosDiscovery.ZoneProperties.ListOfAllPlaylist.Count == 0)
+                    if (sonosDiscovery.Zone.Properties.ListOfAllPlaylist.Count == 0)
                         await sonosHelper.GetAllPlaylist();
                 }
                 catch (Exception ex)
                 {
                     logger.ServerErrorsAdd("WohnzimmerSpezial:AllPlaylist", ex, "SmartHomeWrapper");
                 }
-                var playlist = sonosDiscovery.ZoneProperties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.Equals(selectedplaylistname, StringComparison.CurrentCultureIgnoreCase));
+                var playlist = sonosDiscovery.Zone.Properties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.Equals(selectedplaylistname, StringComparison.CurrentCultureIgnoreCase));
                 if (playlist == null)
                 {
                     logger.ServerErrorsAdd("WohnzimmerSpezial:Playlist", new Exception("Playlist konnte nicht ermittelt werden.Ermittelter Name:" + selectedplaylistname + " Ermittelter Index:" + ix ?? "Null"), "SmartHomeWrapper");
@@ -603,17 +603,17 @@ namespace Sonos.Controllers
                 {
                     await pp.AVTransport?.SetAVTransportURI(SonosConstants.xrinconqueue + pp.UUID + "#0");
                 }
-                if (sonosDiscovery.ZoneProperties.ListOfAllPlaylist.Count == 0)
+                if (sonosDiscovery.Zone.Properties.ListOfAllPlaylist.Count == 0)
                 {
                     //_logger.TraceLog("GuestRoom", "get allplaylist");
                     await sonosHelper.GetAllPlaylist();
                 }
-                var playlist = sonosDiscovery.ZoneProperties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.Equals(playlistToPlay, StringComparison.CurrentCultureIgnoreCase));
+                var playlist = sonosDiscovery.Zone.Properties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.Equals(playlistToPlay, StringComparison.CurrentCultureIgnoreCase));
                 if (playlist == null)
                 {
                     await sonosHelper.GetAllPlaylist();
                 }
-                playlist = sonosDiscovery.ZoneProperties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.Equals(playlistToPlay, StringComparison.CurrentCultureIgnoreCase));
+                playlist = sonosDiscovery.Zone.Properties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.Equals(playlistToPlay, StringComparison.CurrentCultureIgnoreCase));
                 Boolean loadPlaylist = false;
                 if (playlist != null)
                 {
@@ -735,14 +735,14 @@ namespace Sonos.Controllers
                 if (pp == null) return false;
                 if (!string.IsNullOrEmpty(Playlist))
                 {
-                    if (sonosDiscovery.ZoneProperties.ListOfAllPlaylist.Count == 0)
+                    if (sonosDiscovery.Zone.Properties.ListOfAllPlaylist.Count == 0)
                         await sonosHelper.GetAllPlaylist();
-                    var playlist = sonosDiscovery.ZoneProperties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.Equals(Playlist, StringComparison.CurrentCultureIgnoreCase));
+                    var playlist = sonosDiscovery.Zone.Properties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.Equals(Playlist, StringComparison.CurrentCultureIgnoreCase));
                     if (playlist == null)
                     {
                         await sonosHelper.GetAllPlaylist();
                     }
-                    playlist = sonosDiscovery.ZoneProperties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.Equals(Playlist, StringComparison.CurrentCultureIgnoreCase));
+                    playlist = sonosDiscovery.Zone.Properties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.Equals(Playlist, StringComparison.CurrentCultureIgnoreCase));
                     Boolean loadPlaylist = false;
                     if(playlist == null)
                     {

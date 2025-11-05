@@ -4,9 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using OSTL.UPnP;
 using SonosData.DataClasses;
+using SonosUPnP;
 using SonosUPnP.Classes;
 
-namespace SonosUPnP.Services
+namespace SonosUPNPCore.Services
 {
     public class ZoneGroupTopology
     {
@@ -24,7 +25,7 @@ namespace SonosUPnP.Services
         public UPnPStateVariable ThirdPartyMediaServersX { get; set; }
 
         public event EventHandler<SonosPlayer> ZoneGroupTopology_Changed = delegate { };
-        private readonly Dictionary<SonosEnums.EventingEnums, DateTime> LastChangeDates = new();
+        private readonly Dictionary<SonosEnums.EventingEnums, DateTime> LastChangeDates = [];
         public DateTime LastChangeByEvent { get; private set; }
         #endregion Klassenvariablen
         #region ctor und Service
@@ -206,7 +207,7 @@ namespace SonosUPnP.Services
         }
         #endregion Eventing
         #region public Methoden
-        public async Task<Boolean> BeginSoftwareUpdate(string UpdateURL, UInt16 Flags, string ExtraOptions)
+        public async Task<bool> BeginSoftwareUpdate(string UpdateURL, ushort Flags, string ExtraOptions)
         {
             var arguments = new UPnPArgument[3];
             arguments[0] = new UPnPArgument("UpdateURL", UpdateURL);
@@ -214,7 +215,7 @@ namespace SonosUPnP.Services
             arguments[2] = new UPnPArgument("ExtraOptions", ExtraOptions);
             return await Invoke("BeginSoftwareUpdate", arguments);
         }
-        public async Task<Boolean> CheckForUpdate(Boolean CachedOnly, string Version)
+        public async Task<bool> CheckForUpdate(bool CachedOnly, string Version)
         {
             var arguments = new UPnPArgument[4];
             arguments[0] = new UPnPArgument("UpdateType", null);
@@ -258,7 +259,7 @@ namespace SonosUPnP.Services
             }
             return new ZoneGroupStateList(arguments[0].DataValue.ToString());
         }
-        public async Task<Boolean> RegisterMobileDevice(string MobileDeviceName, string MobileDeviceUDN, string MobileIPAndPort)
+        public async Task<bool> RegisterMobileDevice(string MobileDeviceName, string MobileDeviceUDN, string MobileIPAndPort)
         {
             var arguments = new UPnPArgument[3];
             arguments[0] = new UPnPArgument("MobileDeviceName", MobileDeviceName);
@@ -266,18 +267,18 @@ namespace SonosUPnP.Services
             arguments[2] = new UPnPArgument("MobileIPAndPort", MobileIPAndPort);
             return await Invoke("RegisterMobileDevice", arguments);
         }
-        public async Task<Boolean> ReportAlarmStartedRunning()
+        public async Task<bool> ReportAlarmStartedRunning()
         {
             return await Invoke("ReportAlarmStartedRunning", null);
         }
-        public async Task<Boolean> ReportUnresponsiveDevice(string DeviceUUID, SonosEnums.UnresponsiveDeviceAction DesiredAction)
+        public async Task<bool> ReportUnresponsiveDevice(string DeviceUUID, SonosEnums.UnresponsiveDeviceAction DesiredAction)
         {
             var arguments = new UPnPArgument[2];
             arguments[0] = new UPnPArgument("DeviceUUID", DeviceUUID);
             arguments[1] = new UPnPArgument("DesiredAction", DesiredAction.ToString());
             return await Invoke("ReportUnresponsiveDevice", arguments);
         }
-        public async Task<Boolean> SubmitDiagnostics(Boolean IncludeControllers, string Type)
+        public async Task<bool> SubmitDiagnostics(bool IncludeControllers, string Type)
         {
             var arguments = new UPnPArgument[3];
             arguments[0] = new UPnPArgument("DiagnosticID", null);
@@ -287,7 +288,7 @@ namespace SonosUPnP.Services
         }
         #endregion public Methoden
         #region private Methoden
-        private async Task<Boolean> Invoke(String Method, UPnPArgument[] arguments, int Sleep = 0)
+        private async Task<bool> Invoke(string Method, UPnPArgument[] arguments, int Sleep = 0)
         {
             try
             {

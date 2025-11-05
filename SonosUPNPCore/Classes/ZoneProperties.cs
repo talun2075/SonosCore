@@ -44,23 +44,23 @@ namespace SonosUPNPCore.Classes
         #endregion AlarmClock
         #region Eigene
         [IgnoreDataMember]
-        public List<Alarm> ListOfAlarms { get; set; } = new List<Alarm>();
+        public List<Alarm> ListOfAlarms { get; set; } = [];
         /// <summary>
         /// Liste Aller Favoriten
         /// </summary>
         [IgnoreDataMember]
-        public List<SonosItem> ListOfFavorites { get; set; } = new List<SonosItem>();
+        public List<SonosItem> ListOfFavorites { get; set; } = [];
 
         /// <summary>
         /// Liste der SonosWiedergabeliste
         /// </summary>
         [IgnoreDataMember]
-        public List<SonosItem> ListOfSonosPlaylist { get; set; } = new List<SonosItem>();
+        public List<SonosItem> ListOfSonosPlaylist { get; set; } = [];
         /// <summary>
         /// Liste der Importierten Wiedergabelisten
         /// </summary>
         [IgnoreDataMember]
-        public List<SonosItem> ListOfImportedPlaylist { get; set; } = new List<SonosItem>();
+        public List<SonosItem> ListOfImportedPlaylist { get; set; } = [];
         /// <summary>
         /// Liste der Sonos und Importierten Wiedergabelisten
         /// </summary>
@@ -97,7 +97,7 @@ namespace SonosUPNPCore.Classes
         /// Liste aller Playlisten gefüllt mit Einträgen.
         /// </summary>
         [IgnoreDataMember]
-        public List<Playlist> ListOfAllFilledPlaylist { get; set; } = new List<Playlist>();
+        public List<Playlist> ListOfAllFilledPlaylist { get; set; } = [];
         /// <summary>
         /// Liste der Zonen
         /// </summary>
@@ -106,7 +106,7 @@ namespace SonosUPNPCore.Classes
         /// Pro Player ein Dictionary mit den URI´s und der Song der Abgespielt wurde.
         /// Dient dazu beim erneuten Aufruf den Song entsprechend zu setzen.
         /// </summary>
-        public Dictionary<string, Dictionary<string, int>> PlayerPlayedPlaylist { get; set; } = new Dictionary<string, Dictionary<string, int>>();
+        public Dictionary<string, Dictionary<string, int>> PlayerPlayedPlaylist { get; set; } = [];
         #endregion Eigene
     }
 }

@@ -10,7 +10,7 @@ var Types = {
 function SettingClass() {
     let t = this;
     this.settings = null;
-    this.settingprops = ["dateFormat", "timeFormat", "timeServer", "dailyIndexRefreshTime", "currentSonosTime", "currentUTCTime", "currentLocalTime", "ZG1", "ZG2", "timeZoneData", "externalString", "autoAdjustDst"];
+    this.settingprops = ["dateFormat", "timeFormat", "timeServer", "dailyIndexRefreshTime", "currentSonosTime", "currentUTCTime", "currentLocalTime", "timeZoneData", "externalString", "autoAdjustDst"];
     let NotRendered = "none";
     let PlayerDomCreated = NotRendered;
     let SettingsDomCreated = NotRendered;
@@ -68,6 +68,7 @@ function SettingClass() {
     }
     this.RenderPlayerDom = function (player) {
         console.log("RenderPlayerDom");
+        console.log(player);
         if (PlayerDomCreated === NotRendered) {
             this.CreatePlayerDom(player);
         }
@@ -225,9 +226,7 @@ function SettingClass() {
     }
 
     this.HidePlayerDom = function (val = true) {
-        console.log("HidePlayer:" + val);
         let playerdom = document.getElementById("PlayerProps");
-        console.log("dispaly:" + playerdom.style.display);
         if (val === true) {
             if (playerdom.style.display !== "none");
             playerdom.style.display = "none";
@@ -239,7 +238,7 @@ function SettingClass() {
     this.LoadSettings = function () {
         AjaxRenderSettings.style.display = "block";
         Send("/settings/GetSonosSettings/").then(function (data) {
-            t.settings = data;
+            t.settings = data.properties;
             t.RenderSettings();
         }).catch(function (ex) {
             console.log(ex);

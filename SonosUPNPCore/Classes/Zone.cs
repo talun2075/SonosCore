@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace SonosUPNPCore.Classes
 {
-    public class ZonePerSoftwareGeneration
+    public class Zone
     {
         #region Klassenvariablen
         private UPnPStateVariable AlarmListVersion { get; set; }
@@ -37,11 +37,11 @@ namespace SonosUPNPCore.Classes
         /// Wird wohl bei Indizierungsfehlern gefeuert
         /// </summary>
         private UPnPStateVariable ShareIndexLastError { get; set; }
-        public event EventHandler<ZonePerSoftwareGeneration> GlobalSonosChange = delegate { };
-        private readonly Dictionary<SonosEnums.EventingEnums, DateTime> LastChangeDates = new();
+        public event EventHandler<Zone> GlobalSonosChange = delegate { };
+        private readonly Dictionary<SonosEnums.EventingEnums, DateTime> LastChangeDates = [];
         private readonly ILogging Logger;
         #endregion Klassenvariablen
-        public ZonePerSoftwareGeneration(ILogging log = null)
+        public Zone(ILogging log = null)
         {
             if (log == null)
             {
@@ -114,9 +114,9 @@ namespace SonosUPNPCore.Classes
             if (nv.Contains(","))
                 nv = nv.Split(',')[1];
 
-            if (int.TryParse(nv, out int nvint) && ZoneProperties.ShareListUpdateID != nvint)
+            if (int.TryParse(nv, out int nvint) && Properties.ShareListUpdateID != nvint)
             {
-                ZoneProperties.ShareListUpdateID = nvint;
+                Properties.ShareListUpdateID = nvint;
                 if (LastChangeDates[SonosEnums.EventingEnums.ShareListUpdateID].Ticks == 0)
                 {
                     LastChangeDates[SonosEnums.EventingEnums.ShareListUpdateID] = DateTime.Now;
@@ -131,9 +131,9 @@ namespace SonosUPNPCore.Classes
             if (nv.Contains(","))
                 nv = nv.Split(',')[1];
 
-            if (int.TryParse(nv, out int nvint) && ZoneProperties.FavoritesUpdateID != nvint)
+            if (int.TryParse(nv, out int nvint) && Properties.FavoritesUpdateID != nvint)
             {
-                ZoneProperties.FavoritesUpdateID = nvint;
+                Properties.FavoritesUpdateID = nvint;
                 if (LastChangeDates[SonosEnums.EventingEnums.FavoritesUpdateID].Ticks == 0)
                 {
                     LastChangeDates[SonosEnums.EventingEnums.FavoritesUpdateID] = DateTime.Now;
@@ -145,9 +145,9 @@ namespace SonosUPNPCore.Classes
         private void EventFired_ShareIndexLastError(UPnPStateVariable sender, object NewValue)
         {
             var nv = NewValue.ToString();
-            if (ZoneProperties.ShareIndexLastError != nv)
+            if (Properties.ShareIndexLastError != nv)
             {
-                ZoneProperties.ShareIndexLastError = nv;
+                Properties.ShareIndexLastError = nv;
                 if (LastChangeDates[SonosEnums.EventingEnums.ShareIndexLastError].Ticks == 0)
                 {
                     LastChangeDates[SonosEnums.EventingEnums.ShareIndexLastError] = DateTime.Now;
@@ -161,9 +161,9 @@ namespace SonosUPNPCore.Classes
         {
             var nv = NewValue.ToString();
 
-            if (bool.TryParse(nv, out bool nvint) && ZoneProperties.ShareIndexInProgress != nvint)
+            if (bool.TryParse(nv, out bool nvint) && Properties.ShareIndexInProgress != nvint)
             {
-                ZoneProperties.ShareIndexInProgress = nvint;
+                Properties.ShareIndexInProgress = nvint;
                 if (LastChangeDates[SonosEnums.EventingEnums.ShareIndexInProgress].Ticks == 0)
                 {
                     LastChangeDates[SonosEnums.EventingEnums.ShareIndexInProgress] = DateTime.Now;
@@ -178,9 +178,9 @@ namespace SonosUPNPCore.Classes
             if (nv.Contains(","))
                 nv = nv.Split(',')[1];
 
-            if (int.TryParse(nv, out int nvint) && ZoneProperties.SavedQueuesUpdateID != nvint)
+            if (int.TryParse(nv, out int nvint) && Properties.SavedQueuesUpdateID != nvint)
             {
-                ZoneProperties.SavedQueuesUpdateID = nvint;
+                Properties.SavedQueuesUpdateID = nvint;
                 if (LastChangeDates[SonosEnums.EventingEnums.SavedQueuesUpdateID].Ticks == 0)
                 {
                     LastChangeDates[SonosEnums.EventingEnums.SavedQueuesUpdateID] = DateTime.Now;
@@ -192,9 +192,9 @@ namespace SonosUPNPCore.Classes
         private void EventFired_TimeZone(UPnPStateVariable sender, object NewValue)
         {
             var nv = NewValue.ToString();
-            if (ZoneProperties.TimeZone != nv)
+            if (Properties.TimeZone != nv)
             {
-                ZoneProperties.TimeZone = nv;
+                Properties.TimeZone = nv;
                 if (LastChangeDates[SonosEnums.EventingEnums.TimeZone].Ticks == 0)
                 {
                     LastChangeDates[SonosEnums.EventingEnums.TimeZone] = DateTime.Now;
@@ -206,9 +206,9 @@ namespace SonosUPNPCore.Classes
         private void EventFired_TimeServer(UPnPStateVariable sender, object NewValue)
         {
             var nv = NewValue.ToString();
-            if (ZoneProperties.TimeServer != nv)
+            if (Properties.TimeServer != nv)
             {
-                ZoneProperties.TimeServer = nv;
+                Properties.TimeServer = nv;
                 if (LastChangeDates[SonosEnums.EventingEnums.TimeServer].Ticks == 0)
                 {
                     LastChangeDates[SonosEnums.EventingEnums.TimeServer] = DateTime.Now;
@@ -219,9 +219,9 @@ namespace SonosUPNPCore.Classes
         }
         private void EventFired_TimeGeneration(UPnPStateVariable sender, object NewValue)
         {
-            if (int.TryParse(NewValue.ToString(), out int tg) && ZoneProperties.TimeGeneration != tg)
+            if (int.TryParse(NewValue.ToString(), out int tg) && Properties.TimeGeneration != tg)
             {
-                ZoneProperties.TimeGeneration = tg;
+                Properties.TimeGeneration = tg;
                 if (LastChangeDates[SonosEnums.EventingEnums.TimeGeneration].Ticks == 0)
                 {
                     LastChangeDates[SonosEnums.EventingEnums.TimeGeneration] = DateTime.Now;
@@ -233,9 +233,9 @@ namespace SonosUPNPCore.Classes
         private void EventFired_TimeFormat(UPnPStateVariable sender, object NewValue)
         {
             var nv = NewValue.ToString();
-            if (ZoneProperties.TimeFormat != nv)
+            if (Properties.TimeFormat != nv)
             {
-                ZoneProperties.TimeFormat = nv;
+                Properties.TimeFormat = nv;
                 if (LastChangeDates[SonosEnums.EventingEnums.TimeFormat].Ticks == 0)
                 {
                     LastChangeDates[SonosEnums.EventingEnums.TimeFormat] = DateTime.Now;
@@ -247,9 +247,9 @@ namespace SonosUPNPCore.Classes
         private void EventFired_DateFormat(UPnPStateVariable sender, object NewValue)
         {
             var nv = NewValue.ToString();
-            if (ZoneProperties.DateFormat != nv)
+            if (Properties.DateFormat != nv)
             {
-                ZoneProperties.DateFormat = nv;
+                Properties.DateFormat = nv;
                 if (LastChangeDates[SonosEnums.EventingEnums.DateFormat].Ticks == 0)
                 {
                     LastChangeDates[SonosEnums.EventingEnums.DateFormat] = DateTime.Now;
@@ -261,9 +261,9 @@ namespace SonosUPNPCore.Classes
         private void EventFired_DailyIndexRefreshTime(UPnPStateVariable sender, object NewValue)
         {
             var nv = NewValue.ToString();
-            if (ZoneProperties.DailyIndexRefreshTime != nv)
+            if (Properties.DailyIndexRefreshTime != nv)
             {
-                ZoneProperties.DailyIndexRefreshTime = nv;
+                Properties.DailyIndexRefreshTime = nv;
                 if (LastChangeDates[SonosEnums.EventingEnums.DailyIndexRefreshTime].Ticks == 0)
                 {
                     LastChangeDates[SonosEnums.EventingEnums.DailyIndexRefreshTime] = DateTime.Now;
@@ -285,9 +285,9 @@ namespace SonosUPNPCore.Classes
             {
                 var x = nv.Split(':');
 
-                if (int.TryParse(x[1], out int nvint) && ZoneProperties.AlarmListVersion != nvint)
+                if (int.TryParse(x[1], out int nvint) && Properties.AlarmListVersion != nvint)
                 {
-                    ZoneProperties.AlarmListVersion = nvint;
+                    Properties.AlarmListVersion = nvint;
                     if (LastChangeDates[SonosEnums.EventingEnums.AlarmListVersion].Ticks == 0)
                     {
                         LastChangeDates[SonosEnums.EventingEnums.AlarmListVersion] = DateTime.Now;
@@ -300,7 +300,7 @@ namespace SonosUPNPCore.Classes
         }
         #endregion Eventing
         #region Properties
-        public ZoneProperties ZoneProperties { get; set; } = new ZoneProperties();
+        public ZoneProperties Properties { get; set; } = new ZoneProperties();
         #endregion Properties
         #region Private Methoden
         /// <summary>

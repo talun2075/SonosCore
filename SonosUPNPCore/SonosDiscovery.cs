@@ -11,10 +11,11 @@ using Microsoft.Extensions.DependencyInjection;
 using OSTL.UPnP;
 using SonosData.DataClasses;
 using SonosData.Enums;
+using SonosUPnP;
 using SonosUPNPCore.Classes;
 using SonosUPNPCore.Interfaces;
 
-namespace SonosUPnP
+namespace SonosUPNPCore
 {
     public class SonosDiscovery : ISonosDiscovery
     {
@@ -24,11 +25,10 @@ namespace SonosUPnP
         public readonly IDictionary<string, UPnPDevice> playerDevices = new Dictionary<string, UPnPDevice>();
         private Timer stateChangedTimer;
         private readonly Dictionary<SonosEnums.EventingEnums, DateTime> LastChangeDates = new();
-        private string OnZoneGroupStateChangedValue = String.Empty;
+        private string OnZoneGroupStateChangedValue = string.Empty;
         public event EventHandler<SonosPlayer> PlayerChange = delegate { };
         public event EventHandler<SonosDiscovery> GlobalSonosChange = delegate { };
-        private readonly ZonePerSoftwareGeneration ZoneSwGen1;
-        private readonly ZonePerSoftwareGeneration ZoneSwGen2;
+
         private readonly IConfiguration _config;
         private readonly ILogging Logger;
         private readonly IServiceProvider _provider;
@@ -41,11 +41,9 @@ namespace SonosUPnP
             _provider = provider;
             try
             {
-                ZoneSwGen1 = new ZonePerSoftwareGeneration(Logger);
-                ZoneSwGen2 = new ZonePerSoftwareGeneration(Logger);
-                ZoneSwGen1.GlobalSonosChange += ZoneSwGen_GlobalSonosChange;
-                ZoneSwGen2.GlobalSonosChange += ZoneSwGen_GlobalSonosChange;
-                ZoneProperties = new DiscoveryZoneProperties(ZoneSwGen1, ZoneSwGen2);
+                Zone = new Zone(Logger);
+                Zone.GlobalSonosChange += ZoneSwGen_GlobalSonosChange;
+                //ZoneProperties = new DiscoveryZoneProperties(ZoneSwGen1);
             }
             catch (Exception ex)
             {
@@ -93,12 +91,6 @@ namespace SonosUPnP
             }
             return null;
         }
-
-        public SonosPlayer GetPlayerbySoftwareGenerationPlaylistentry(string playlist)
-        {
-            if (!Players.Any()) return null;
-            return Players.FirstOrDefault(x => x.SoftwareGeneration == ZoneProperties.GetSoftwareVersionForPlaylistEntry(playlist));
-        }
         /// <summary>
         /// Gibt den ersten Player einer bestimmten Softwaregen zurück
         /// </summary>
@@ -116,21 +108,21 @@ namespace SonosUPnP
         /// <summary>
         /// Alle Wiedergabelisten befüllen
         /// </summary>
-        public async Task<Boolean> SetPlaylists(Boolean makenew = false)
+        public async Task<bool> SetPlaylists(bool makenew = false)
         {
-            Boolean retval = true;
-            List<Boolean> retvallist = new();
+            bool retval = true;
+            List<bool> retvallist = new();
             if (Players.Count > 0)
             {
-                if (ZoneProperties.ListOfFavorites.Count == 0 || makenew)
+                if (Zone.Properties.ListOfFavorites.Count == 0 || makenew)
                 {
                     retvallist.Add(await SetFavoritesPlaylists());
                 }
-                if (ZoneProperties.ListOfImportedPlaylist.Count == 0 || makenew)
+                if (Zone.Properties.ListOfImportedPlaylist.Count == 0 || makenew)
                 {
                     retvallist.Add(await SetImportetPlaylist());
                 }
-                if (ZoneProperties.ListOfSonosPlaylist.Count == 0 || makenew)
+                if (Zone.Properties.ListOfSonosPlaylist.Count == 0 || makenew)
                 {
                     retvallist.Add(await SetSonosPlaylist());
                 }
@@ -160,9 +152,9 @@ namespace SonosUPnP
         /// <summary>
         /// Füllt die Alarmliste und die Uhrzeit;
         /// </summary>
-        public async Task<Boolean> GetSonosTimeStuff()
+        public async Task<bool> GetSonosTimeStuff()
         {
-            Boolean retval = true;
+            bool retval = true;
             if (Players.Count > 0)
             {
                 try
@@ -170,17 +162,17 @@ namespace SonosUPnP
                     try
                     {
                         //take only non Ikea Player. They have a Sync Bug and different ListAlarms
-                        SonosPlayer pl1 = Players.FirstOrDefault(x => x.SoftwareGeneration == SoftwareGeneration.ZG1 && (x.Device.FriendlyName.Contains("Play") || x.Device.FriendlyName.Contains("Conn")));
+                        SonosPlayer pl1 = Players.FirstOrDefault(x => (x.Device.FriendlyName.Contains("Play") || x.Device.FriendlyName.Contains("Conn")));
                         if (pl1 == null)
                         {
                             //Fallback
-                            pl1 = Players.FirstOrDefault(x => x.SoftwareGeneration == SoftwareGeneration.ZG1);
+                            pl1 = Players.FirstOrDefault();
                         }
                         if (pl1 != null)
                         {
                             try
                             {
-                                ZoneSwGen1.ZoneProperties.CurrentSonosTime = await pl1.AlarmClock?.GetTimeNow();
+                                Zone.Properties.CurrentSonosTime = await pl1.AlarmClock?.GetTimeNow();
                             }
                             catch (Exception ex)
                             {
@@ -188,25 +180,12 @@ namespace SonosUPnP
                             }
                             try
                             {
-                                ZoneSwGen1.ZoneProperties.ListOfAlarms = await pl1.AlarmClock?.ListAlarms();
+                                Zone.Properties.ListOfAlarms = await pl1.AlarmClock?.ListAlarms();
                             }
                             catch (Exception ex)
                             {
                                 Logger.ServerErrorsAdd("GetSonosTimeStuff:FillProps:ListOfAlarms:Player:" + pl1.Name, ex, "Discovery");
                             }
-                        }
-                        try
-                        {
-                            SonosPlayer pl2 = Players.FirstOrDefault(x => x.SoftwareGeneration == SoftwareGeneration.ZG2);
-                            if (pl2 != null)
-                            {
-                                ZoneSwGen2.ZoneProperties.CurrentSonosTime = await pl2.AlarmClock?.GetTimeNow();
-                                ZoneSwGen2.ZoneProperties.ListOfAlarms = await pl2.AlarmClock?.ListAlarms();
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.ServerErrorsAdd("GetSonosTimeStuff:FillProps:ListOfAlarms:Player2", ex, "Discovery");
                         }
                     }
                     catch (Exception ex)
@@ -215,9 +194,9 @@ namespace SonosUPnP
                     }
                     try
                     {
-                        if (ZoneProperties.ListOfAlarms.Count > 0)
+                        if (Zone.Properties.AlarmListVersion > 0)
                         {
-                            foreach (Alarm al in ZoneProperties.ListOfAlarms)
+                            foreach (Alarm al in Zone.Properties.ListOfAlarms)
                             {
                                 SonosPlayer plfe = Players.FirstOrDefault(y => y.UUID == al.RoomUUID);
                                 if (plfe != null)
@@ -244,7 +223,7 @@ namespace SonosUPnP
         /// Löst das Update des Musikindexes aus.
         /// </summary>
         /// <returns></returns>
-        public async Task<Boolean> UpdateMusicIndex()
+        public async Task<bool> UpdateMusicIndex()
         {
             if (Players.Any())
             {
@@ -277,11 +256,11 @@ namespace SonosUPnP
                         }
                     }
                     await SetPlaylists(true);
-                    foreach (var playerdic in ZoneProperties.PlayerPlayedPlaylist)
+                    foreach (var playerdic in Zone.Properties.PlayerPlayedPlaylist)
                     {
                         foreach (var item in playerdic.Value)
                         {
-                            ZoneProperties.PlayerPlayedPlaylist[playerdic.Key][item.Key] = 0;
+                            Zone.Properties.PlayerPlayedPlaylist[playerdic.Key][item.Key] = 0;
                         }
 
                     }
@@ -297,30 +276,20 @@ namespace SonosUPnP
         /// <summary>
         /// Verarbeitet die default Settings (wird über Checktimer verarbeitet)
         /// </summary>
-        public async Task<Boolean> SetSettings()
+        public async Task<bool> SetSettings()
         {
             //Setting für Timeserver
-            Boolean retval = false;
+            bool retval = false;
             if (!Players.Any())
                 return retval;
-            String timeServer = _config["TimeServer"];
+            string timeServer = _config["TimeServer"];
             if (!string.IsNullOrEmpty(timeServer))
             {
                 SonosPlayer sp1 = Players.FirstOrDefault(p => p.SoftwareGeneration == SoftwareGeneration.ZG1);
-                if (ZoneProperties.TimeServer[SoftwareGeneration.ZG1] != timeServer)
+                if (Zone.Properties.TimeServer != timeServer)
                 {
                     if (sp1 != null)
                         retval = await sp1.AlarmClock.SetTimeServer(timeServer);
-                }
-                else
-                {
-                    retval = true;
-                }
-                SonosPlayer sp2 = Players.FirstOrDefault(p => p.SoftwareGeneration == SoftwareGeneration.ZG2);
-                if (ZoneProperties.TimeServer[SoftwareGeneration.ZG2] != timeServer)
-                {
-                    if (sp2 != null)
-                        retval = await sp2.AlarmClock.SetTimeServer(timeServer);
                 }
                 else
                 {
@@ -333,9 +302,9 @@ namespace SonosUPnP
             }
             var retvalalarm = true;
             //Nach Updates die Wecker wieder richten
-            if (ZoneProperties.ListOfAlarms.Count == 0)
+            if (Zone.Properties.ListOfAlarms.Count == 0)
                 await GetSonosTimeStuff();
-            foreach (Alarm alarm in ZoneProperties.ListOfAlarms)
+            foreach (Alarm alarm in Zone.Properties.ListOfAlarms)
             {
                 try
                 {
@@ -359,7 +328,7 @@ namespace SonosUPnP
         #endregion Public Methoden
         #region Propertys
         public ZoneMethods ZoneMethods { get; set; } = new ZoneMethods();
-        public DiscoveryZoneProperties ZoneProperties { get; set; }
+        public Zone Zone { get; set; }
         /// <summary>
         /// Alle Geräte als Liste
         /// </summary>
@@ -380,7 +349,7 @@ namespace SonosUPnP
             }
             //define needed vars
             List<KeyValuePair<string, string>> customfields;
-            String swgen = String.Empty;
+            string swgen = string.Empty;
             try
             {
                 customfields = device.GetCustomFieldsFromDescription("urn:schemas-upnp-org:device-1-0");
@@ -420,24 +389,17 @@ namespace SonosUPnP
                         var stateVariable = service.GetStateVariableObject("ZoneGroupState");
                         stateVariable.OnModified += OnZoneGroupStateChanged;
                     });
-                if (swgen == "1")
-                {
-                    ZoneSwGen1.StartSubscription(device);
-                }
-                else
-                {
-                    ZoneSwGen2.StartSubscription(device);
-                }
+                Zone.StartSubscription(device);
             }
         }
         #endregion Devices       
-        #region Eventing
+            #region Eventing
 
-        /// <summary>
-        /// Eventing, wird benutzt um Änderungen an der Zone zu ermitteln
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="newvalue"></param>
+            /// <summary>
+            /// Eventing, wird benutzt um Änderungen an der Zone zu ermitteln
+            /// </summary>
+            /// <param name="sender"></param>
+            /// <param name="newvalue"></param>
         private void OnZoneGroupStateChanged(UPnPStateVariable sender, object newvalue)
         {
             // Avoid multiple state changes and consolidate them
@@ -459,7 +421,7 @@ namespace SonosUPnP
         {
             try
             {
-                ZoneProperties.ZoneGroupState.UpdateZoneGroups(xml);
+                Zone.Properties.ZoneGroupState.UpdateZoneGroups(xml);
             }
             catch (Exception ex)
             {
@@ -502,14 +464,14 @@ namespace SonosUPnP
                 SonosEnums.EventingEnums t = (SonosEnums.EventingEnums)sender;
                 if (t == SonosEnums.EventingEnums.QueueChangedSaved)
                 {
-                    ZoneProperties.ListOfSonosPlaylist.Clear();
+                    Zone.Properties.ListOfSonosPlaylist.Clear();
                     await SetPlaylists();
                 }
                 //Hier auf Änderungen in der Playlist reagieren.
                 if (t == SonosEnums.EventingEnums.EnqueuedTransportURI && !string.IsNullOrEmpty(e.PlayerProperties.EnqueuedTransportURI))
                 {
                     //Logger.TraceLog("playlistToCurrentTrack", "EnqueuedTransportURI:" + e.PlayerProperties.EnqueuedTransportURI);
-                    var playlistToCurrentTrack = ZoneProperties.PlayerPlayedPlaylist[e.UUID];
+                    var playlistToCurrentTrack = Zone.Properties.PlayerPlayedPlaylist[e.UUID];
                     if (playlistToCurrentTrack.ContainsKey(e.PlayerProperties.EnqueuedTransportURI) && playlistToCurrentTrack[e.PlayerProperties.EnqueuedTransportURI] != e.PlayerProperties.CurrentTrackNumber && e.PlayerProperties.CurrentTrackNumber < 2 && playlistToCurrentTrack[e.PlayerProperties.EnqueuedTransportURI] > 1)
                     {
                         //Logger.TraceLog("playlistToCurrentTrack", "EnqueuedTransportURI Seek. Currentracknumber: " + e.PlayerProperties.CurrentTrackNumber + " Dictionary Number: " + playlistToCurrentTrack[e.PlayerProperties.EnqueuedTransportURI]);
@@ -520,7 +482,7 @@ namespace SonosUPnP
                     {
                         if (!playlistToCurrentTrack.ContainsKey(e.PlayerProperties.EnqueuedTransportURI) && (e.PlayerProperties.EnqueuedTransportURI.StartsWith("file") || e.PlayerProperties.EnqueuedTransportURI.EndsWith(".m3u") || e.PlayerProperties.EnqueuedTransportURI.StartsWith("x-rincon-playlist")))
                         {
-                            var sonosplaylist = ZoneProperties.ListOfSonosPlaylist.FirstOrDefault(x => x.Uri == e.PlayerProperties.EnqueuedTransportURI);
+                            var sonosplaylist = Zone.Properties.ListOfSonosPlaylist.FirstOrDefault(x => x.Uri == e.PlayerProperties.EnqueuedTransportURI);
                             if (sonosplaylist == null || !sonosplaylist.Title.Contains("zzz"))
                                 playlistToCurrentTrack.Add(e.PlayerProperties.EnqueuedTransportURI, 1);
                             //Logger.TraceLog("playlistToCurrentTrack", "EnqueuedTransportURI zufügen: "+ e.PlayerProperties.EnqueuedTransportURI);
@@ -531,7 +493,7 @@ namespace SonosUPnP
                 {
                     //Logger.TraceLog("playlistToCurrentTrack", "CurrentTrackNumber: " + e.PlayerProperties.CurrentTrackNumber);
                     //wenn wert vorhanden die Currentrack nummer rein setzen.
-                    var ppp = ZoneProperties.PlayerPlayedPlaylist[e.UUID];
+                    var ppp = Zone.Properties.PlayerPlayedPlaylist[e.UUID];
                     if (ppp.ContainsKey(e.PlayerProperties.EnqueuedTransportURI))
                     {
                         ppp[e.PlayerProperties.EnqueuedTransportURI] = e.PlayerProperties.CurrentTrackNumber;
@@ -575,8 +537,8 @@ namespace SonosUPnP
                     if (sp == null)
                     {
                         Players.Add(player);
-                        if (!ZoneProperties.PlayerPlayedPlaylist.ContainsKey(player.UUID))
-                            ZoneProperties.PlayerPlayedPlaylist.Add(player.UUID, new Dictionary<string, int>());
+                        if (!Zone.Properties.PlayerPlayedPlaylist.ContainsKey(player.UUID))
+                            Zone.Properties.PlayerPlayedPlaylist.Add(player.UUID, new Dictionary<string, int>());
                         player.Player_Changed += Player_Changed;
                     }
                     SonosPlayer pl = Players.First(x => x.UUID == player.UUID);
@@ -593,7 +555,7 @@ namespace SonosUPnP
 
         private void PrepareZonesPerPlayer(SonosPlayer pl)
         {
-            var zone = ZoneProperties.ZoneGroupState.ZoneGroupStates.FirstOrDefault(x => x.CoordinatorUUID == pl.UUID);
+            var zone = Zone.Properties.ZoneGroupState.ZoneGroupStates.FirstOrDefault(x => x.CoordinatorUUID == pl.UUID);
             if (zone == null)
             {
                 //Player ist nicht cooridnator
@@ -603,7 +565,7 @@ namespace SonosUPnP
                     pl.LastChange = DateTime.Now;
                     PlayerChange(SonosEnums.EventingEnums.GroupCoordinatorIsLocal, pl);
                 }
-                foreach (var zoneGroup in ZoneProperties.ZoneGroupState.ZoneGroupStates)
+                foreach (var zoneGroup in Zone.Properties.ZoneGroupState.ZoneGroupStates)
                 {
                     var found = zoneGroup.ZoneGroupMember.FirstOrDefault(x => x.UUID == pl.UUID);
                     if (found == null) continue;
@@ -645,9 +607,9 @@ namespace SonosUPnP
         /// Prüft ob alle Playlisten geladen wurden. ACHTUNG: Software 1 wird bevorzugt.
         /// </summary>
         /// <returns>true, wenn neu geladen werden muss</returns>
-        public Boolean CheckPlaylists()
+        public bool CheckPlaylists()
         {
-            if (!ZoneSwGen1.ZoneProperties.ListOfSonosPlaylist.Any() || !ZoneProperties.ListOfImportedPlaylist.Any() || !ZoneSwGen1.ZoneProperties.ListOfFavorites.Any())
+            if (Zone.Properties.ListOfSonosPlaylist.Count == 0 || Zone.Properties.ListOfImportedPlaylist.Count == 0 || Zone.Properties.ListOfFavorites.Count == 0)
                 return true;
 
             return false;
@@ -665,10 +627,10 @@ namespace SonosUPnP
                     {
                         //define needed vars
                         List<KeyValuePair<string, string>> customfields;
-                        String name;
-                        String swgen = String.Empty;
-                        String uuid;
-                        String locat;
+                        string name;
+                        string swgen = string.Empty;
+                        string uuid;
+                        string locat;
                         customfields = device.GetCustomFieldsFromDescription("urn:schemas-upnp-org:device-1-0");
                         name = customfields.FirstOrDefault(x => x.Key == "roomName").Value;
                         swgen = customfields.FirstOrDefault(x => x.Key == "swGen").Value;
@@ -695,8 +657,8 @@ namespace SonosUPnP
                         pl.SetDevice(device);
                         pl.Player_Changed += Player_Changed;
                         Players.Add(pl);
-                        if (!ZoneProperties.PlayerPlayedPlaylist.ContainsKey(pl.UUID))
-                            ZoneProperties.PlayerPlayedPlaylist.Add(pl.UUID, new Dictionary<string, int>());
+                        if (!Zone.Properties.PlayerPlayedPlaylist.ContainsKey(pl.UUID))
+                            Zone.Properties.PlayerPlayedPlaylist.Add(pl.UUID, new Dictionary<string, int>());
                     }
                 }
             }
@@ -728,7 +690,7 @@ namespace SonosUPnP
         private void CtorInit()
         {
             StartScan();
-            Boolean ok = false;
+            bool ok = false;
             DateTime startnow = DateTime.Now;
             int minFoundedPlayers = int.Parse(_config["MinFoundedPlayers"]);
             while (!ok)
@@ -741,7 +703,7 @@ namespace SonosUPnP
                 }
             }
         }
-        private async void ZoneSwGen_GlobalSonosChange(object sender, ZonePerSoftwareGeneration e)
+        private async void ZoneSwGen_GlobalSonosChange(object sender, Zone e)
         {
             //implementierung
             SonosEnums.EventingEnums t = (SonosEnums.EventingEnums)sender;
@@ -766,8 +728,8 @@ namespace SonosUPnP
 
         private void HandleZoneUUIDinGroup(SonosPlayer sp, List<ZoneGroupMember> zgm)
         {
-            Boolean makenew = false;
-            if (sp.PlayerProperties.ZoneGroupTopology_ZonePlayerUUIDsInGroup.Count == 0 || (sp.PlayerProperties.GroupCoordinatorIsLocal == false && sp.PlayerProperties.ZoneGroupTopology_ZonePlayerUUIDsInGroup.Count == 1))
+            bool makenew = false;
+            if (sp.PlayerProperties.ZoneGroupTopology_ZonePlayerUUIDsInGroup.Count == 0 || sp.PlayerProperties.GroupCoordinatorIsLocal == false && sp.PlayerProperties.ZoneGroupTopology_ZonePlayerUUIDsInGroup.Count == 1)
             {
                 makenew = true;
             }
@@ -798,25 +760,17 @@ namespace SonosUPnP
         /// Läd die Favoriten
         /// </summary>
         /// <param name="sleep"></param>
-        private async Task<Boolean> SetFavoritesPlaylists()
+        private async Task<bool> SetFavoritesPlaylists()
         {
-            Boolean retval = false;
+            bool retval = false;
             if (Players?.Count > 0)
             {
                 SonosPlayer sp = Players.FirstOrDefault(x => x.SoftwareGeneration == SoftwareGeneration.ZG1);
                 if (sp != null && sp.ContentDirectory != null)
                 {
-                    ZoneSwGen1.ZoneProperties.ListOfFavorites.Clear();
+                    Zone.Properties.ListOfFavorites.Clear();
                     var br = await sp.ContentDirectory.Browse(BrowseObjects.Favorites);
-                    ZoneSwGen1.ZoneProperties.ListOfFavorites = br.Result;
-                    retval = true;
-                }
-                SonosPlayer sp2 = Players.FirstOrDefault(x => x.SoftwareGeneration == SoftwareGeneration.ZG2);
-                if (sp2 != null && sp2.ContentDirectory != null)
-                {
-                    ZoneSwGen2.ZoneProperties.ListOfFavorites.Clear();
-                    var br = await sp2.ContentDirectory.Browse(BrowseObjects.Favorites);
-                    ZoneSwGen2.ZoneProperties.ListOfFavorites = br.Result;
+                    Zone.Properties.ListOfFavorites = br.Result;
                     retval = true;
                 }
             }
@@ -826,23 +780,16 @@ namespace SonosUPnP
         /// Läd die SonosPlaylists
         /// </summary>
         /// <param name="sleep"></param>
-        private async Task<Boolean> SetSonosPlaylist()
+        private async Task<bool> SetSonosPlaylist()
         {
-            Boolean retval = false;
+            bool retval = false;
             if (Players.Count > 0)
             {
                 SonosPlayer sp = Players.FirstOrDefault(x => x.SoftwareGeneration == SoftwareGeneration.ZG1);
                 if (sp != null && sp.ContentDirectory != null)
                 {
                     var br = await sp.ContentDirectory.Browse(BrowseObjects.SonosPlaylist);
-                    ZoneSwGen1.ZoneProperties.ListOfSonosPlaylist = br.Result;
-                    retval = true;
-                }
-                SonosPlayer sp2 = Players.FirstOrDefault(x => x.SoftwareGeneration == SoftwareGeneration.ZG2);
-                if (sp2 != null && sp2.ContentDirectory != null)
-                {
-                    var br = await sp2.ContentDirectory.Browse(BrowseObjects.SonosPlaylist);
-                    ZoneSwGen2.ZoneProperties.ListOfSonosPlaylist = br.Result;
+                    Zone.Properties.ListOfSonosPlaylist = br.Result;
                     retval = true;
                 }
             }
@@ -852,26 +799,17 @@ namespace SonosUPnP
         /// Läd die M3U Playlist
         /// </summary>
         /// <param name="sleep"></param>
-        private async Task<Boolean> SetImportetPlaylist()
+        private async Task<bool> SetImportetPlaylist()
         {
-            Boolean retval = false;
+            bool retval = false;
             if (Players?.Count > 0)
             {
                 SonosPlayer sp = Players.FirstOrDefault(x => x.SoftwareGeneration == SoftwareGeneration.ZG1);
                 if (sp != null && sp.ContentDirectory != null)
                 {
-                    ZoneSwGen1.ZoneProperties.ListOfImportedPlaylist.Clear();
+                    Zone.Properties.ListOfImportedPlaylist.Clear();
                     var br = await sp.ContentDirectory.Browse(BrowseObjects.ImportetPlaylist);
-                    ZoneSwGen1.ZoneProperties.ListOfImportedPlaylist = br.Result;
-                    retval = true;
-                }
-
-                SonosPlayer sp2 = Players.FirstOrDefault(x => x.SoftwareGeneration == SoftwareGeneration.ZG2);
-                if (sp2 != null && sp2.ContentDirectory != null)
-                {
-                    ZoneSwGen2.ZoneProperties.ListOfImportedPlaylist.Clear();
-                    var br = await sp2.ContentDirectory.Browse(BrowseObjects.ImportetPlaylist);
-                    ZoneSwGen2.ZoneProperties.ListOfImportedPlaylist = br.Result;
+                    Zone.Properties.ListOfImportedPlaylist = br.Result;
                     retval = true;
                 }
             }

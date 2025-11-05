@@ -22,7 +22,7 @@ namespace Sonos.Controllers
     {
         private static readonly IMessageRepository _messageRepository = new MessageRepository();
         private static int EventID = 0;
-        private static readonly Dictionary<int, RinconLastChangeItem> ListEvents = new();
+        private static readonly Dictionary<int, RinconLastChangeItem> ListEvents = [];
         private readonly JsonSerializerOptions _jsonSerializerOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         private readonly ILogging _logger;
         private readonly IMusicPictures _musicPictures;
@@ -88,7 +88,7 @@ namespace Sonos.Controllers
         private async void OnNotification(object? sender, Notification notification, CancellationToken cancellationToken)
         {
             String json = "Fehler Beim Prepare somit nichts vorhanden.";
-            List<HttpResponse> clientsToRemove = new List<HttpResponse>();
+            List<HttpResponse> clientsToRemove = [];
             try
             {
 
@@ -324,40 +324,40 @@ namespace Sonos.Controllers
                 switch (eventchange)
                 {
                     case SonosEnums.EventingEnums.AlarmListVersion:
-                        t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.AlarmListVersion[SoftwareGeneration.ZG1].ToString());
+                        t.ChangedValues.Add(eventchange.ToString(), sd.Zone.Properties.AlarmListVersion.ToString());
                         break;
                     case SonosEnums.EventingEnums.DailyIndexRefreshTime:
-                        t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.DailyIndexRefreshTime[SoftwareGeneration.ZG1]);
+                        t.ChangedValues.Add(eventchange.ToString(), sd.Zone.Properties.DailyIndexRefreshTime);
                         break;
                     case SonosEnums.EventingEnums.DateFormat:
-                        t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.DateFormat[SoftwareGeneration.ZG1]);
+                        t.ChangedValues.Add(eventchange.ToString(), sd.Zone.Properties.DateFormat);
                         break;
                     case SonosEnums.EventingEnums.TimeFormat:
-                        t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.TimeFormat[SoftwareGeneration.ZG1]);
+                        t.ChangedValues.Add(eventchange.ToString(), sd.Zone.Properties.TimeFormat);
                         break;
                     case SonosEnums.EventingEnums.TimeGeneration:
-                        t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.TimeGeneration[SoftwareGeneration.ZG1].ToString());
+                        t.ChangedValues.Add(eventchange.ToString(), sd.Zone.Properties.TimeGeneration.ToString());
                         break;
                     case SonosEnums.EventingEnums.TimeServer:
-                        t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.TimeServer[SoftwareGeneration.ZG1]);
+                        t.ChangedValues.Add(eventchange.ToString(), sd.Zone.Properties.TimeServer);
                         break;
                     case SonosEnums.EventingEnums.TimeZone:
-                        t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.TimeZone[SoftwareGeneration.ZG1]);
+                        t.ChangedValues.Add(eventchange.ToString(), sd.Zone.Properties.TimeZone);
                         break;
                     case SonosEnums.EventingEnums.ShareListUpdateID:
-                        t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.ShareListUpdateID[SoftwareGeneration.ZG1].ToString());
+                        t.ChangedValues.Add(eventchange.ToString(), sd.Zone.Properties.ShareListUpdateID.ToString());
                         break;
                     case SonosEnums.EventingEnums.SavedQueuesUpdateID:
-                        t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.SavedQueuesUpdateID[SoftwareGeneration.ZG1].ToString());
+                        t.ChangedValues.Add(eventchange.ToString(), sd.Zone.Properties.SavedQueuesUpdateID.ToString());
                         break;
                     case SonosEnums.EventingEnums.FavoritesUpdateID:
-                        t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.FavoritesUpdateID[SoftwareGeneration.ZG1].ToString());
+                        t.ChangedValues.Add(eventchange.ToString(), sd.Zone.Properties.FavoritesUpdateID.ToString());
                         break;
                     case SonosEnums.EventingEnums.ShareIndexInProgress:
-                        t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.ShareIndexInProgress.ToString());
+                        t.ChangedValues.Add(eventchange.ToString(), sd.Zone.Properties.ShareIndexInProgress.ToString());
                         break;
                     case SonosEnums.EventingEnums.ShareIndexLastError:
-                        t.ChangedValues.Add(eventchange.ToString(), sd.ZoneProperties.ShareIndexLastError[SoftwareGeneration.ZG1]);
+                        t.ChangedValues.Add(eventchange.ToString(), sd.Zone.Properties.ShareIndexLastError);
                         break;
                     case SonosEnums.EventingEnums.ReloadNeeded:
                         t.ChangedValues.Add(eventchange.ToString(), "true");

@@ -194,14 +194,14 @@ namespace Sonos.Controllers
                 if (pp == null) return false;
                 if (!string.IsNullOrEmpty(pl))
                 {
-                    if (sonosDiscovery.ZoneProperties.ListOfAllPlaylist.Count == 0)
+                    if (sonosDiscovery.Zone.Properties.ListOfAllPlaylist.Count == 0)
                         await sonosHelper.GetAllPlaylist();
-                    var playlist = sonosDiscovery.ZoneProperties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.Equals(pl, StringComparison.CurrentCultureIgnoreCase));
+                    var playlist = sonosDiscovery.Zone.Properties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.Equals(pl, StringComparison.CurrentCultureIgnoreCase));
                     if (playlist == null)
                     {
                         await sonosHelper.GetAllPlaylist();
                     }
-                    playlist = sonosDiscovery.ZoneProperties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.Equals(pl, StringComparison.CurrentCultureIgnoreCase));
+                    playlist = sonosDiscovery.Zone.Properties.ListOfAllPlaylist.FirstOrDefault(x => x.Title.Equals(pl, StringComparison.CurrentCultureIgnoreCase));
                     Boolean loadPlaylist = false;
                     if (playlist == null)
                     {

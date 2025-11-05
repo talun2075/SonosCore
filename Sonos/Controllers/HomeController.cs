@@ -1,12 +1,9 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Mvc;
 using System;
-using System.IO;
 
 namespace Sonos.Controllers
 {
-    public class HomeController(IWebHostEnvironment env) : Controller
+    public class HomeController() : Controller
     {
         private static DateTimeOffset lastmod = DateTimeOffset.MinValue;
 

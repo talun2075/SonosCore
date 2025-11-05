@@ -42,7 +42,7 @@ namespace Sonos.Controllers
                 {
                     await _sonos.SetPlaylists(true);
                 }
-                return _sonos.ZoneProperties.ListOfAllPlaylist;
+                return _sonos.Zone.Properties.ListOfAllPlaylist;
             }
             catch (Exception x)
             {
@@ -61,16 +61,16 @@ namespace Sonos.Controllers
             if (!_sonos.Players.Any()) return new List<SonosItem>();
             if (_sonos.CheckPlaylists())
                 await _sonos.SetPlaylists();
-            return _sonos.ZoneProperties.ListOfFavorites;
+            return _sonos.Zone.Properties.ListOfFavorites;
         }
         /// <summary>
         /// Liefert die Globalen Einstellungen zurück. 
         /// </summary>
         /// <returns></returns>
         [HttpGet("GetZoneProp")]
-        public DiscoveryZoneProperties GetZoneProp()
+        public Zone GetZoneProp()
         {
-            return _sonos.ZoneProperties;
+            return _sonos.Zone;
         }
         /// <summary>
         /// Gibt alle Zonen zurück
@@ -81,7 +81,7 @@ namespace Sonos.Controllers
         {
             try
             {
-                if (_sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.Count != _sonos.Players.Count && !getzonesRunning)
+                if (_sonos.Zone.Properties.ZoneGroupState.ZoneGroupStates.Count != _sonos.Players.Count && !getzonesRunning)
                 {
                     try
                     {
@@ -99,14 +99,14 @@ namespace Sonos.Controllers
                                 }
                             }
                         }
-                        if (calculatedzones != _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.Count)
+                        if (calculatedzones != _sonos.Zone.Properties.ZoneGroupState.ZoneGroupStates.Count)
                         {
                             //Hier komme ich rein, wenn es eine unstimmigkeit gibt
-                            if (calculatedzones < _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.Count)
-                                _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.Clear();
+                            if (calculatedzones < _sonos.Zone.Properties.ZoneGroupState.ZoneGroupStates.Count)
+                                _sonos.Zone.Properties.ZoneGroupState.ZoneGroupStates.Clear();
 
                             //Need Update
-                            var s1 = _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.FirstOrDefault(x => x.SoftwareGeneration == SoftwareGeneration.ZG1);
+                            var s1 = _sonos.Zone.Properties.ZoneGroupState.ZoneGroupStates.FirstOrDefault(x => x.SoftwareGeneration == SoftwareGeneration.ZG1);
                             if (s1 == null)
                             {
                                 //Update for 1
@@ -114,13 +114,13 @@ namespace Sonos.Controllers
                                 if (pl != null)
                                 {
                                     var k = await pl.ZoneGroupTopology.GetZoneGroupState();
-                                    lock (_sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates)
+                                    lock (_sonos.Zone.Properties.ZoneGroupState.ZoneGroupStates)
                                     {
-                                        _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.AddRange(k.ZoneGroupStates);
+                                        _sonos.Zone.Properties.ZoneGroupState.ZoneGroupStates.AddRange(k.ZoneGroupStates);
                                     }
                                 }
                             }
-                            var s2 = _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.FirstOrDefault(x => x.SoftwareGeneration == SoftwareGeneration.ZG2);
+                            var s2 = _sonos.Zone.Properties.ZoneGroupState.ZoneGroupStates.FirstOrDefault(x => x.SoftwareGeneration == SoftwareGeneration.ZG2);
                             if (s2 == null)
                             {
                                 //Update for 2
@@ -128,9 +128,9 @@ namespace Sonos.Controllers
                                 if (pl != null)
                                 {
                                     var k = await pl.ZoneGroupTopology.GetZoneGroupState();
-                                    lock (_sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates)
+                                    lock (_sonos.Zone.Properties.ZoneGroupState.ZoneGroupStates)
                                     {
-                                        _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.AddRange(k.ZoneGroupStates);
+                                        _sonos.Zone.Properties.ZoneGroupState.ZoneGroupStates.AddRange(k.ZoneGroupStates);
                                     }
                                 }
                             }
@@ -141,27 +141,27 @@ namespace Sonos.Controllers
                     catch (Exception ex)
                     {
                         _logger.ServerErrorsAdd("GetZones:Block1", ex, "ZoneController");
-                        return _sonos.ZoneProperties.ZoneGroupState;
+                        return _sonos.Zone.Properties.ZoneGroupState;
                     }
                 }
                 try
                 {
                     //Sort Test
                     ZoneGroupStateList t = new();
-                    t.ZoneGroupStates = _sonos.ZoneProperties.ZoneGroupState.ZoneGroupStates.OrderBy(x => x.ZoneGroupMember.First().ZoneName).ToList();
-                    _sonos.ZoneProperties.ZoneGroupState = t;
+                    t.ZoneGroupStates = _sonos.Zone.Properties.ZoneGroupState.ZoneGroupStates.OrderBy(x => x.ZoneGroupMember.First().ZoneName).ToList();
+                    _sonos.Zone.Properties.ZoneGroupState = t;
                 }
                 catch (Exception ex)
                 {
                     _logger.ServerErrorsAdd("GetZones:Sort", ex, "ZoneController");
-                    return _sonos.ZoneProperties.ZoneGroupState;
+                    return _sonos.Zone.Properties.ZoneGroupState;
                 }
-                return _sonos.ZoneProperties.ZoneGroupState;
+                return _sonos.Zone.Properties.ZoneGroupState;
             }
             catch (Exception ex)
             {
                 _logger.ServerErrorsAdd("GetZones", ex, "ZoneController");
-                return _sonos.ZoneProperties.ZoneGroupState;
+                return _sonos.Zone.Properties.ZoneGroupState;
             }
         }
         [HttpGet("SetPlaylists")]
