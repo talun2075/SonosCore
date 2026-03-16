@@ -34,7 +34,6 @@ namespace SonosUPNPCore.Interfaces
         Queue Queue { get; }
         SonosRatingFilter RatingFilter { get; set; }
         RenderingControl RenderingControl { get; }
-        SoftwareGeneration SoftwareGeneration { get; set; }
         SystemProperties SystemProperties { get; }
         string UUID { get; set; }
         ZoneGroupTopology ZoneGroupTopology { get; }

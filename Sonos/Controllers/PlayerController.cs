@@ -23,7 +23,7 @@ namespace Sonos.Controllers
     [Route("/[controller]")]
     public class PlayerController(IMusicPictures musicPictures, ISonosHelper sonosHelper, ILogging logger, ISonosDiscovery sonosDiscovery) : Controller
     {
-        private JsonSerializerOptions jsonOptions = new()
+        private readonly JsonSerializerOptions _jsonOptions = new()
         {
             PropertyNameCaseInsensitive = true,
             Converters = { new JsonStringEnumConverter() }
@@ -151,7 +151,7 @@ namespace Sonos.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("BaseURL/{id}")]
-        public IActionResult BaseURL(string id)
+        public IActionResult BaseUrl(string id)
         {
             try
             {
@@ -598,7 +598,7 @@ namespace Sonos.Controllers
             try
             {
                 SonosPlayer pl = sonosDiscovery.GetPlayerbyUuid(id);
-                if (pl.PlayerProperties.CurrentTrack.Uri == null || pl.PlayerProperties.CurrentTrack.Uri.StartsWith(SonosConstants.xrinconstream) && (pl.PlayerProperties.CurrentTrack.StreamContent == SonosConstants.AudioEingang || pl.PlayerProperties.CurrentTrack.Title == "Heimkino"))
+                if (pl.PlayerProperties.CurrentTrack.Uri.StartsWith(SonosConstants.xrinconstream) && (pl.PlayerProperties.CurrentTrack.StreamContent == SonosConstants.AudioEingang || pl.PlayerProperties.CurrentTrack.Title == "Heimkino"))
                 {
                     //Normale Playlist laden
                     await pl.AVTransport.SetAVTransportURI(SonosConstants.xrinconqueue + pl.UUID + "#0");
@@ -622,37 +622,37 @@ namespace Sonos.Controllers
         /// Liefert die Liste von Ratingsfehlern
         /// </summary>
         /// <returns></returns>
-        //[HttpGet("GetErrorListCount")]
-        //public int GetErrorListCount()
-        //{
-        //    MP3ReadWrite.WriteNow();
-        //    return MP3ReadWrite.listOfCurrentErrors.Count;
-        //}
-        ///// <summary>
-        ///// Liefert die Namen der kaputten Songs
-        ///// </summary>
-        ///// <returns></returns>
-        //[HttpGet("GetErrorList")]
-        //public List<MP3File.MP3File> GetErrorList()
-        //{
-        //    try
-        //    {
-        //        foreach (MP3File.MP3File mp3 in MP3ReadWrite.listOfCurrentErrors)
-        //        {
-        //            if (String.IsNullOrEmpty(mp3.Titel))
-        //            {
-        //                mp3.Titel = MP3ReadWrite.ReadMetaData(mp3.Pfad).Titel;
-        //            }
-        //        }
+        [HttpGet("GetErrorListCount")]
+        public int GetErrorListCount()
+        {
+            MP3ReadWrite.WriteNow();
+            return MP3ReadWrite.listOfCurrentErrors.Count;
+        }
+        /// <summary>
+        /// Liefert die Namen der kaputten Songs
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("GetErrorList")]
+        public List<MP3File.MP3File> GetErrorList()
+        {
+            try
+            {
+                foreach (MP3File.MP3File mp3 in MP3ReadWrite.listOfCurrentErrors)
+                {
+                    if (String.IsNullOrEmpty(mp3.Titel))
+                    {
+                        mp3.Titel = MP3ReadWrite.ReadMetaData(mp3.Pfad).Titel;
+                    }
+                }
 
-        //        return MP3ReadWrite.listOfCurrentErrors;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        AddServerErrors("GetErrorList", ex);
-        //        return new List<MP3File.MP3File>();
-        //    }
-        //}
+                return MP3ReadWrite.listOfCurrentErrors;
+            }
+            catch (Exception ex)
+            {
+                AddServerErrors("GetErrorList", ex);
+                return new List<MP3File.MP3File>();
+            }
+        }
         /// <summary>
         /// Lautstärke setzen
         /// </summary>
@@ -749,10 +749,12 @@ namespace Sonos.Controllers
                 throw;
             }
         }
+
         /// <summary>
         /// Für den Übergebenen Player den Typ Playlist zurückgeben
         /// </summary>
         /// <param name="id">Rincon des Players</param>
+        /// <param name="v">Reload Playlist</param>
         /// <returns>Playlist mit SonosItems und TotalMatches</returns>
         [HttpGet("GetPlayerPlaylist/{id}/{v}")]
         public async Task<Playlist> GetPlayerPlaylist(string id, Boolean v)
@@ -770,10 +772,7 @@ namespace Sonos.Controllers
                         {
                             try
                             {
-                                if (item != null)
                                     musicPictures.UpdateItemToHashPath(item);
-                                else
-                                   break;
                             }
                             catch
                             {
@@ -835,11 +834,11 @@ namespace Sonos.Controllers
         /// <summary>
         /// Fügt Exception zum _sonosHelper
         /// </summary>
-        /// <param name="Func"></param>
+        /// <param name="func"></param>
         /// <param name="ex"></param>
-        private void AddServerErrors(string Func, Exception ex)
+        private void AddServerErrors(string func, Exception ex)
         {
-            logger.ServerErrorsAdd(Func, ex, "PlayerController");
+            logger.ServerErrorsAdd(func, ex, "PlayerController");
         }
 
         #endregion PrivateFunctions
@@ -875,7 +874,6 @@ namespace Sonos.Controllers
         /// <summary>
         /// Entfernt ein übergebenes FAvoriten Item
         /// </summary>
-        /// <param name="id">Player ID</param>
         /// <param name="v">Favorititem Muster: FV:2/XX</param>
         [HttpPost("RemoveFavItem")]
         public async Task<Boolean> RemoveFavItem([FromBody] string v)
@@ -886,6 +884,7 @@ namespace Sonos.Controllers
                 var k = sonosDiscovery.Zone.Properties.ListOfFavorites.FirstOrDefault(x => x.ItemID == v);
                 if (k == null && sonosDiscovery.Zone.Properties.ListOfFavorites.Count > 0) return false;
                 var pl = sonosDiscovery.Players.FirstOrDefault();
+                if (pl == null) return false;
                 return await pl.ContentDirectory.DestroyObject(v);
             }
             catch (Exception ex)
@@ -951,7 +950,7 @@ namespace Sonos.Controllers
                     }
                     if (pla.AVTransport != null)
                     {
-                        pl = await pla.AVTransport?.GetPositionInfo();
+                        pl = await pla.AVTransport.GetPositionInfo();
                     }
                     else
                     {
@@ -962,14 +961,12 @@ namespace Sonos.Controllers
                 {
                     return cur;
                 }
-                if (pla == null)
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+                if (pla == null || pl == null)
                 {
                     return cur;
                 }
-                if (pl == null)
-                {
-                    return cur;
-                }
+
                 if (pl.TrackMetaData != SonosConstants.NotImplemented) //Kommt, wenn kein Song in Playlist
                 {
                     try
@@ -996,7 +993,7 @@ namespace Sonos.Controllers
                     }
                     try
                     {
-                        if (cur.Uri != pla.PlayerProperties.CurrentTrack.Uri)
+                        if (pla.PlayerProperties.CurrentTrack != null && cur.Uri != pla.PlayerProperties.CurrentTrack.Uri)
                         {
                             var cump3 = pla.PlayerProperties.CurrentTrack.MP3;
                             pla.PlayerProperties.CurrentTrack = cur;
@@ -1067,6 +1064,14 @@ namespace Sonos.Controllers
                 AddServerErrors("GetAktSongInfo", ex);
                 throw;
             }
+            finally
+            {
+                //Falls mal Fehler vorhanden waren diese nun abarbeiten und hoffen, das dies geht
+                if (MP3ReadWrite.listOfCurrentErrors.Count > 0)
+                {
+                    MP3ReadWrite.WriteNow();
+                }
+            }
         }
         /// <summary>
         /// Läd die MetaDaten aus dem Übergebenen Parameter über die TagLib
@@ -1093,6 +1098,14 @@ namespace Sonos.Controllers
             {
                 AddServerErrors("GetSongMeta", ex);
                 return new MP3File.MP3File();
+            }
+            finally
+            {
+                //Falls mal Fehler vorhanden waren diese nun abarbeiten und hoffen, das dies geht
+                if (MP3ReadWrite.listOfCurrentErrors.Count > 0)
+                {
+                    MP3ReadWrite.WriteNow();
+                }
             }
         }
 
@@ -1140,10 +1153,11 @@ namespace Sonos.Controllers
 
             try
             {
-                lied = System.Text.Json.JsonSerializer.Deserialize<MP3File.MP3File>(content, jsonOptions);
+                lied = System.Text.Json.JsonSerializer.Deserialize<MP3File.MP3File>(content, _jsonOptions);
             }
-            catch (Exception ex) {
-                logger.ServerErrorsAdd("SetSongMeta:" + id+ "Content:"+content, ex, "PlayerController");
+            catch (Exception ex)
+            {
+                logger.ServerErrorsAdd("SetSongMeta:" + id + "Content:" + content, ex, "PlayerController");
                 return BadRequest($"Fehler bei der JSON-Deserialisierung: {ex.Message}");
             }
             if (string.IsNullOrEmpty(lied.Pfad))
@@ -1152,8 +1166,6 @@ namespace Sonos.Controllers
             }
             try
             {
-                //Stream Rating
-                Boolean streaming = false;
                 if (pla.PlayerProperties.CurrentTrack.MP3.Pfad == lied.Pfad)
                 {
                     //wenn aktueller song diesen hinterlegen
@@ -1165,25 +1177,21 @@ namespace Sonos.Controllers
                     try
                     {
                         var plid = pla.PlayerProperties.Playlist.PlayListItems[lied.Tracknumber];
-                        if (plid != null)
-                        {
-                            plid.MP3 = lied;
-                        }
+                        plid.MP3 = lied;
+
                     }
                     catch
                     {
-
+                        //conttinue
                     }
 
                 }
-                if (!streaming)
+                if (!MP3ReadWrite.WriteMetaData(lied))
                 {
-                    if (!MP3ReadWrite.WriteMetaData(lied))
-                    {
-                        logger.ServerErrorsAdd("MP3 Schreiben SetSongMeta:" + id + "Content:" + content, MP3ReadWrite.LetzerFehler, "PlayerController");
-                        MP3ReadWrite.Add(lied);
-                    }
+                    // logger.ServerErrorsAdd("MP3 Schreiben SetSongMeta:" + id + "Content:" + content, MP3ReadWrite.LetzerFehler, "PlayerController");
+                    MP3ReadWrite.Add(lied);
                 }
+
                 return Ok(true);
             }
             catch

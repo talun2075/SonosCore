@@ -13,16 +13,18 @@ namespace SonosData.DataClasses
 
         public List<ZoneGroup> ZoneGroupStates { get; set; } = new();
 
-        public void UpdateZoneGroups(string MetaData)
+        public void UpdateZoneGroups(string metaData)
         {
-            var tocheck = ParseZoneGroupStates(MetaData);
-            if (tocheck.Any())
-            {
-                var swgen = tocheck[0].SoftwareGeneration;
-                if (ZoneGroupStates.Any())
-                    ZoneGroupStates.RemoveAll(x => x.SoftwareGeneration == swgen);
-                ZoneGroupStates = ZoneGroupStates.Union(tocheck).ToList();
-            }
+            ZoneGroupStates = ParseZoneGroupStates(metaData); 
+
+            //var tocheck = ParseZoneGroupStates(MetaData);
+            //if (tocheck.Any())
+            //{
+            //    var swgen = tocheck[0].SoftwareGeneration;
+            //    if (ZoneGroupStates.Any())
+            //        ZoneGroupStates.RemoveAll(x => x.SoftwareGeneration == swgen);
+            //    ZoneGroupStates = ZoneGroupStates.Union(tocheck).ToList();
+            //}
         }
         private static List<ZoneGroup> ParseZoneGroupStates(string meta)
         {
@@ -57,25 +59,6 @@ namespace SonosData.DataClasses
                                 Configuration = Convert.ToInt16((string)zgmxml.Attribute("Configuration")),
                                 SoftwareVersion = (string)zgmxml.Attribute("SoftwareVersion") ?? ""
                             };
-                            var swgentemp = (string)zgmxml.Attribute("SWGen") ?? "";
-                            if (Enum.TryParse(swgentemp, out SoftwareGeneration swgen))
-                            {
-                                zgm.SoftwareGeneration = swgen;
-                            }
-                            else
-                            {
-                                switch (swgentemp)
-                                {
-                                    case "2":
-                                        zgm.SoftwareGeneration = SoftwareGeneration.ZG2;
-                                        break;
-                                    default:
-                                        zgm.SoftwareGeneration = SoftwareGeneration.ZG1;
-                                        break;
-                                }
-
-                            }
-
                             zgm.MinCompatibleVersion = (string)zgmxml.Attribute("MinCompatibleVersion") ?? "";
                             zgm.LegacyCompatibleVersion = (string)zgmxml.Attribute("LegacyCompatibleVersion") ?? "";
                             zgm.BootSeq = Convert.ToInt16((string)zgmxml.Attribute("BootSeq"));
@@ -132,14 +115,6 @@ namespace SonosData.DataClasses
                             zgm.SecureRegState = Convert.ToInt16((string)zgmxml.Attribute("SecureRegState"));
                             zgm.MoreInfo = (string)zgmxml.Attribute("MoreInfo") ?? "";
                             zg.ZoneGroupMember.Add(zgm);
-                        }
-                        try
-                        {
-                            zg.SoftwareGeneration = zg.ZoneGroupMember[0].SoftwareGeneration;
-                        }
-                        catch
-                        {
-                            //ignore
                         }
                         list.Add(zg);
                     }

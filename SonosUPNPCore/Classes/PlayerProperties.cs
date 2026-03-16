@@ -45,7 +45,7 @@ namespace SonosUPNPCore.Classes
         /// <summary>
         /// Aktueller Song als SonosItem
         /// </summary>
-        public SonosItem CurrentTrack { get; set; } = new SonosItem();
+        public SonosItem CurrentTrack { get; set; } = new();
         [IgnoreDataMember]
         public string CurrentSection { get; set; } = "0";
         /// <summary>

@@ -22,10 +22,18 @@ function SonosZonesObject() {
             }
             SoDo.devicesWrapper.innerHTML="";
             if (!SonosZones.CheckActiveZone()) {
-                if (SonosZones.CheckStringIsNullOrEmpty(SoVa.urldevice)) {
+
+                let urld = SonosZones.CheckStringIsNullOrEmpty(SoVa.LocalStorage.UrlDevice);
+                let aplay = SonosZones.CheckStringIsNullOrEmpty(SoVa.LocalStorage.AllowedPlayer)
+
+                if (urld && aplay) {
                     SonosZones.SetFirstZonetoActive();
                 } else {
-                    SonosZones.SetZonetoActiveByName(SoVa.urldevice);
+                    if (!urld) {
+                        SonosZones.SetZonetoActiveByName(SoVa.LocalStorage.UrlDevice);
+                    } else {
+                        SonosZones.SetZonetoActiveByName(SoVa.LocalStorage.AllowedPlayer);
+                    }
                 }
             } else {
                 //hier prüfen, wenn die aktive Zone nicht mehr aktiv sein kann, weil in gruppe.
@@ -46,9 +54,9 @@ function SonosZonesObject() {
                 for (var i = 0; i < data.zoneGroupStates.length; i++) {
                     var zuuid = data.zoneGroupStates[i].coordinatorUUID;
                     var zonemember = data.zoneGroupStates[i].zoneGroupMember;
-                    if (SoVa.LimitPlayer == true) {
+                    if (SoVa.LocalStorage.AllowedPlayer !== "") {
                         let name = zonemember[0].zoneName;
-                        if (name.toLowerCase() !== SoVa.AllowedPlayer)
+                        if (name !== SoVa.LocalStorage.AllowedPlayer)
                             continue;
                     }
                     SonosZones.ZonesList[zuuid] = new Zone();
@@ -95,7 +103,7 @@ function SonosZonesObject() {
                 if (IsVisible(SoDo.deviceLoader)) {
                     SetHide(SoDo.deviceLoader);
                 }
-                if (!IsVisible(SoDo.groupDeviceShow) && SoVa.LimitPlayer !== true) {
+                if (!IsVisible(SoDo.groupDeviceShow) && SoVa.LocalStorage.AllowedPlayer === "") {
                     SetVisible(SoDo.groupDeviceShow);
                 }
                 SonosZones.RenderActiveZone(SonosZones.ActiveZoneUUID, true);
@@ -169,8 +177,9 @@ function SonosZonesObject() {
             n = SonosPlayers[rincon].name;
         }
         //Die URl Ändern, damit diese beim reload genommen wird.
-        window.history.pushState(null, "Sonos:" + n, location.origin + "/?device=" + n);
-
+        //window.history.pushState(null, "Sonos:" + n, location.origin + "/?device=" + n);
+        SoVa.LocalStorage.UrlDevice = n;
+        setStore("Sonos", SoVa.LocalStorage);
         this.ActiveZoneUUID = rincon;
         this.ActiveZoneName = n;
         document.title = 'Sonos:' + this.ActiveZoneName;
@@ -197,6 +206,12 @@ function SonosZonesObject() {
                 var uuid = prop[i];
                 if (uuid.substring(0, Checker.length) === Checker && SonosPlayers[uuid].playerProperties.groupCoordinatorIsLocal === true) {
                     //Es handelt sich um einen Sonosplayer
+                    if (SoVa.LocalStorage.AllowedPlayer !== "") {
+                        if (SoVa.LocalStorage.AllowedPlayer !== SonosPlayers[uuid].name) {
+                            continue;
+                        }
+                    }
+
                     this.ActiveZoneUUID = uuid;
                     this.ActiveZoneName = SonosPlayers[this.ActiveZoneUUID].name;
                     break;
@@ -217,7 +232,7 @@ function SonosZonesObject() {
                 var uuid = prop[i];
                 if (uuid.substring(0, Checker.length) === Checker) {
                     //Es handelt sich um einen Sonosplayer
-                    var tname = SonosPlayers[uuid].name.toLowerCase();
+                    var tname = SonosPlayers[uuid].name;
                     if (tname === s) {
                         //Player gefunden und nun prüfen welcher aktiv werden soll, falls nicht Alleine
                         if (SonosPlayers[uuid].playerProperties.groupCoordinatorIsLocal === true && SonosPlayers[uuid].playerProperties.localGroupUUID === SonosPlayers[uuid].uuid) {
@@ -782,7 +797,7 @@ function SonosZonesObject() {
                 let domlelemts = "";
                 this.AllPlaylists.forEach(function (item, i) { 
 
-                    if (item.title.startsWith("zzz") && SoVa.IsAdmin === false) {
+                    if (item.title.startsWith("zzz") && SoVa.LocalStorage.IsAdmin != AdminStatus.AKTIV) {
                         return;
                     }
                     var playlisttype;

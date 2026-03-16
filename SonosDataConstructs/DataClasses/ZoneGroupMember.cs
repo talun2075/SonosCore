@@ -13,7 +13,6 @@ namespace SonosData.DataClasses
         public int Configuration { get; set; }
 
         public string SoftwareVersion { get; set; } = "";
-        public SoftwareGeneration SoftwareGeneration { get; set; }
         public string MinCompatibleVersion { get; set; } = "";
         public string LegacyCompatibleVersion { get; set; } = "";
         public int BootSeq { get; set; }

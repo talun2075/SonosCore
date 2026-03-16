@@ -16,6 +16,25 @@
     min-height: 20px;
     margin-top: 20px;
 }
+#LocalSettingWrapper {
+    border: 1px solid;
+    border-radius: 25px;
+    padding: 10px;
+    min-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    min-height: 20px;
+    margin-top: 20px;
+}
+.asFlex {
+    display: flex;
+    border-bottom: 1px solid;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+.asLabel{
+    width: 50%;
+}
 .settingprop {
     display: flex;
     border-bottom: 1px solid gray;
@@ -224,7 +243,7 @@
     .settingprop {
         display: block;
     }
-    #SettingWrapper {
+    #SettingWrapper, #LocalSettingWrapper {
         min-width: 0;
     }
     .propertyName, .propertyValue {

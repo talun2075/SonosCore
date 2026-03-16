@@ -337,21 +337,7 @@ var GetZonesTimer = 0;
 
 function LoadDevices() {
     try {
-        SoVa.urldevice = GetURLParameter('device').toLowerCase();
-        let limit = GetURLParameter('limit').toLowerCase();
-        if (limit === "true") {
-            SoVa.LimitPlayer = true;
-        }
-        SoVa.AllowedPlayer = GetURLParameter('player').toLowerCase();
-        if (SoVa.LimitPlayer === true && SoVa.AllowedPlayer === "") {
-            SoVa.LimitPlayer = false;
-        }
-        let admin = GetURLParameter('admin').toLowerCase();
-        console.log(admin);
-        if (admin === "true") {
-            SoVa.IsAdmin = true;
-        }
-        SoVa.IsAdmin
+        InitParameters();
         clearTimeout(SoVa.TopologieChangeID);
         SoVa.GetZonesTimer = window.setTimeout("GetZones()", 100);
     }
@@ -373,12 +359,12 @@ function GetZones() {
             var plpromise = new Promise(function (resolve, reject) {
                 for (var i = 0; i < data.length; i++) {
                     var u = data[i].uuid;
-                    if (SoVa.LimitPlayer == true) {
+                    if (SoVa.LocalStorage.AllowedPlayer !== "") {
                         if (IsVisible(SoDo.groupDeviceShow)) {
                             SetHide(SoDo.groupDeviceShow);
                         }
                         let name = data[i].name;
-                        if (name.toLowerCase() !== SoVa.AllowedPlayer)
+                        if (name !== SoVa.LocalStorage.AllowedPlayer)
                             continue;
                     }
                     if (typeof SonosPlayers[u] === "undefined") {
@@ -505,24 +491,7 @@ function SetDevice(dev) {
         alert("Es ist ein Fehler beim SetDevice aufgetreten:<br>" + Ex.message);
     }
 } //Ende SetDevice
-//Sucht den übergebenen Parameter in der URL um ein Device auszuwählen.
-function GetURLParameter(sParam) {
-    try {
-        var sPageURL = window.location.search.substring(1);
-        var sURLVariables = sPageURL.split('&');
-        for (var i = 0; i < sURLVariables.length; i++) {
-            var sParameterName = sURLVariables[i].split('=');
-            var devicesParameterName = sParameterName[0].toLowerCase();
-            if (devicesParameterName === sParam) {
-                return decodeURIComponent(sParameterName[1]);
-            }
-        }
-        return "leer";
-    }
-    catch (Ex) {
-        alert("Es ist ein Fehler beim GetURLParameter aufgetreten:<br>" + Ex.message);
-    }
-}
+
 //Wenn auf Play gedrückt wird.
 function PlayPress() {
     if (SonosZones.CheckActiveZone()) {

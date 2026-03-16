@@ -106,25 +106,11 @@ namespace Sonos.Controllers
                                 _sonos.Zone.Properties.ZoneGroupState.ZoneGroupStates.Clear();
 
                             //Need Update
-                            var s1 = _sonos.Zone.Properties.ZoneGroupState.ZoneGroupStates.FirstOrDefault(x => x.SoftwareGeneration == SoftwareGeneration.ZG1);
+                            var s1 = _sonos.Zone.Properties.ZoneGroupState.ZoneGroupStates.FirstOrDefault();
                             if (s1 == null)
                             {
                                 //Update for 1
-                                SonosPlayer pl = _sonos.GetPlayerbySoftWareGeneration(SoftwareGeneration.ZG1);
-                                if (pl != null)
-                                {
-                                    var k = await pl.ZoneGroupTopology.GetZoneGroupState();
-                                    lock (_sonos.Zone.Properties.ZoneGroupState.ZoneGroupStates)
-                                    {
-                                        _sonos.Zone.Properties.ZoneGroupState.ZoneGroupStates.AddRange(k.ZoneGroupStates);
-                                    }
-                                }
-                            }
-                            var s2 = _sonos.Zone.Properties.ZoneGroupState.ZoneGroupStates.FirstOrDefault(x => x.SoftwareGeneration == SoftwareGeneration.ZG2);
-                            if (s2 == null)
-                            {
-                                //Update for 2
-                                SonosPlayer pl = _sonos.GetPlayerbySoftWareGeneration(SoftwareGeneration.ZG2);
+                                SonosPlayer pl = _sonos.Players.FirstOrDefault();
                                 if (pl != null)
                                 {
                                     var k = await pl.ZoneGroupTopology.GetZoneGroupState();

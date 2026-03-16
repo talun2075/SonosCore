@@ -8,11 +8,15 @@ function setStore(key, value) {
 }
 
 // Funktion zum Abrufen eines Wertes aus dem localStorage
-function getStore(key) {
+function getStore(key, onlyValue = false) {
 
     const data = localStorage.getItem(key);
     if (data) {
-        return JSON.parse(data); 
+        let pdata = JSON.parse(data); 
+        if (onlyValue) {
+            return pdata.value;
+        }
+        return pdata
     }
     return null; // Gibt null zurück, wenn kein Wert vorhanden ist
 }

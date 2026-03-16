@@ -276,7 +276,7 @@ namespace Sonos.Controllers
         {
             try
             {
-                var player = sonosDiscovery.GetPlayerbySoftWareGeneration(SoftwareGeneration.ZG1);
+                var player = sonosDiscovery.Players.FirstOrDefault();
                 List<SonosItem> genre = await sonosDiscovery.ZoneMethods.Browsing(player, SonosConstants.aGenre + "/Hörspiel", false);
                 List<SonosItem> childmusic = await sonosDiscovery.ZoneMethods.Browsing(player, SonosConstants.aGenre + "/Children%e2%80%99s%20Music", false);
                 genre = genre.Union(childmusic).ToList();
@@ -335,12 +335,12 @@ namespace Sonos.Controllers
                             continue;
                         }
                         musicPictures.UpdateItemToHashPath(artistchildlist);
-                        var childvalues = await sonosDiscovery.ZoneMethods.Browsing(sonosDiscovery.GetPlayerbySoftWareGeneration(SoftwareGeneration.ZG1), artistchildlist.ContainerID);
+                        var childvalues = await sonosDiscovery.ZoneMethods.Browsing(sonosDiscovery.Players.FirstOrDefault(), artistchildlist.ContainerID);
                         foreach (var item in childvalues)
                         {
                             try
                             {
-                                var meta = await sonosDiscovery.ZoneMethods.Browsing(sonosDiscovery.GetPlayerbySoftWareGeneration(SoftwareGeneration.ZG1), item.ItemID, false, SonosEnums.BrowseFlagData.BrowseMetadata);
+                                var meta = await sonosDiscovery.ZoneMethods.Browsing(sonosDiscovery.Players.FirstOrDefault(), item.ItemID, false, SonosEnums.BrowseFlagData.BrowseMetadata);
                                 SonosItem metaitem = meta.FirstOrDefault();
                                 if (metaitem != null)
                                     tspan += metaitem.Duration.TimeSpan;

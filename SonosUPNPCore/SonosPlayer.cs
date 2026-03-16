@@ -570,8 +570,6 @@ namespace SonosUPnP
         [DataMember(Name = "LastChange")]
         public DateTime LastChange { get; set; }
 
-        [DataMember(Name = "SoftwareGeneration")]
-        public SoftwareGeneration SoftwareGeneration { get; set; } = SoftwareGeneration.ZG1;
         /// <summary>
         /// Eigenschaft welches Gerät aktiv ist
         /// </summary>
@@ -615,7 +613,7 @@ namespace SonosUPnP
         [JsonIgnore]
         public AudioIn AudioIn { get; private set; }
         [DataMember(Name = "Name")]
-        public PlayerProperties PlayerProperties { get; set; } = new PlayerProperties();
+        public PlayerProperties PlayerProperties { get; set; } = new();
         /// <summary>
         /// Unbekannt
         /// </summary>

@@ -2,7 +2,6 @@
 //Liste mit Allen Sonos Variablen
 function SonosVariablen() {
     this.apiDeviceURL = '/Devices/'; //Url der API der Geräte
-    this.IsAdmin = false; //Url der API der Geräte
     this.apiPlayerURL = '/Player/'; //URL der API des einzelnen Players
     this.apiZoneURL = '/Zone/'; //URL der API des einzelnen Players
     this.apiSettingURL = '/settings/'; //URL der API des einzelnen Players
@@ -19,7 +18,6 @@ function SonosVariablen() {
     this.ratingonlycurrent = false; //Nur noch vom aktuellen Song die Ratings anzeigen.
     if (typeof MP3 !== "undefined")
     this.ratingMP3 =  new MP3(); //Wird für das Rating genommen. Evtl. Änderungen werden dann an den Server gesendet.
-    this.urldevice = ""; //Wenn über URL Parameter aufgerufen.
     this.playlistLoadError = 0;
     this.savePlaylistInputText = "Wiedergabeliste Speichern als..."; //Placeholder Text für Save/Export der Playlist
     this.exportPlaylistInputText = "Wiedergabeliste Exportieren als...";
@@ -49,8 +47,7 @@ function SonosVariablen() {
     this.aktiv = "aktiv" //wird für die CSS Klassen benutzt um dinge aktiv zu setzen.
     this.selected = "selected";
     this.moveLeft = "moveleft";
-    this.LimitPlayer = false;//Ist die DeviceListe zu Limitieren?
-    this.AllowedPlayer = "";//Welcher Player ist Erlaubt
+    this.LocalStorage;
 }
 
 //Globale Varibalen auf DOM Objekten

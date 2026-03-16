@@ -202,7 +202,7 @@ a {
     left: 0;
     width: 1310px;
     height: 99%;
-    min-height: 605px;
+    min-height: 585px;
     border-radius: 25px 25px 25px 25px;
     border: 1px solid;
     border-color: black;
@@ -528,7 +528,7 @@ a {
     box-shadow: rgb(136, 136, 136) 5px 5px 7px;
     border-radius: 25px;
     bottom: 40px;
-    height: 570px;
+    height: 490px;
     margin: auto;
     padding-left: 15px;
 }

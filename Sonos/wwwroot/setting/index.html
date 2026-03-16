@@ -4,6 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <script src="/js/Send.js" type="text/javascript"></script>
+    <script src="/js/JSParameterSettings.js" type="text/javascript"></script>
+    <script src="/js/LocalStorage.js" type="text/javascript"></script>
     <script src="/js/settingClass.js" type="text/javascript"></script>
     <link rel="stylesheet" href="/css/setting.css" media="all" />
     <title>Player Einstellungen</title>
@@ -19,7 +21,30 @@
         <div id="LoadSettings">Load</div>
         <div id="Settingscontent"></div>
     </div>
-        <script>
+    <div id="LocalSettingWrapper">
+        <div class="asFlex">
+            <div class="asLabel">IsAdmin (Als Admin sieht man mehr)</div>
+            <div>
+                <select id="IsAdmin">
+                    <option value="2">AKTIV</option>
+                    <option value="1">INAKTIV</option>
+                    <option value="0">NOTSET</option>
+                </select>
+            </div>
+        </div>
+        <div class="asFlex">
+            <div class="asLabel">UrlDevice (Aktuell ausgewählter Player)</div>
+            <div><div id="UrlDevice"></div></div>
+        </div>
+
+        <div class="asFlex">
+            <div class="asLabel">AllowedPlayer (Player der alleine Angezeigt wird)</div>
+            <div><div id="AllowedPlayer"></div></div>
+        </div>
+        <div id="SonosParamReset">Reset</div>
+    </div>
+    
+    <script>
         window.DS = new SettingClass();
         DS.Init();
     </script>

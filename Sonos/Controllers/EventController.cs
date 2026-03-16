@@ -1,18 +1,18 @@
 ﻿#nullable enable
-using Sonos.Classes.Events;
+using HomeLogging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MP3File;
+using Sonos.Classes.Events;
+using Sonos.Classes.Interfaces;
+using SonosData.DataClasses;
+using SonosSQLiteWrapper.Interfaces;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Linq;
-using HomeLogging;
-using Sonos.Classes.Interfaces;
-using SonosData.DataClasses;
-using SonosData.Enums;
-using SonosSQLiteWrapper.Interfaces;
 
 namespace Sonos.Controllers
 {
@@ -20,14 +20,13 @@ namespace Sonos.Controllers
     [Route("[controller]")]
     public class EventController : ControllerBase
     {
-        private static readonly IMessageRepository _messageRepository = new MessageRepository();
-        private static int EventID = 0;
+        private static readonly IMessageRepository MessageRepository = new MessageRepository();
+        private static int _eventId;
         private static readonly Dictionary<int, RinconLastChangeItem> ListEvents = [];
         private readonly JsonSerializerOptions _jsonSerializerOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         private readonly ILogging _logger;
         private readonly IMusicPictures _musicPictures;
         private HttpResponse? _activeClient;
-        private CancellationToken _cancellationToken;
         public EventController(ILogging log, IMusicPictures imu)
         {
             _logger = log;
@@ -45,7 +44,6 @@ namespace Sonos.Controllers
         {
             try
             {
-                _cancellationToken = cancellationToken;
                 SetServerSentEventHeaders();
                 _activeClient = Response;
                 // On connect, welcome message ;)
@@ -55,7 +53,7 @@ namespace Sonos.Controllers
                 await Response.WriteAsync($"data: {jsonConnection}\n\n", cancellationToken);
                 await Response.Body.FlushAsync(cancellationToken);
 
-                _messageRepository.NotificationEvent += (sender, args) => OnNotification(sender, args, cancellationToken);
+                MessageRepository.NotificationEvent += (sender, args) => OnNotification(sender, args, cancellationToken);
                 try
                 {
                     while (!cancellationToken.IsCancellationRequested)
@@ -67,7 +65,6 @@ namespace Sonos.Controllers
                 catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
                 {
                     //task is cancelled, return or do something else
-                    return;
                 }
                 catch (Exception ex)
                 {
@@ -76,7 +73,7 @@ namespace Sonos.Controllers
                 finally
                 {
                     _activeClient = null;
-                    _messageRepository.NotificationEvent -= (sender, args) => OnNotification(sender, args, cancellationToken);
+                    MessageRepository.NotificationEvent -= (sender, args) => OnNotification(sender, args, cancellationToken);
                 }
             }
             catch (Exception ex)
@@ -87,8 +84,7 @@ namespace Sonos.Controllers
 
         private async void OnNotification(object? sender, Notification notification, CancellationToken cancellationToken)
         {
-            String json = "Fehler Beim Prepare somit nichts vorhanden.";
-            List<HttpResponse> clientsToRemove = [];
+           String json = JsonSerializer.Serialize("Fehler Beim Prepare somit nichts vorhanden", _jsonSerializerOptions);
             try
             {
 
@@ -124,7 +120,7 @@ namespace Sonos.Controllers
                     return PrepareDataForDiscovery(notification);
 
                 _logger.ServerErrorsAdd("PrepareData", new Exception("Eventargs ist leer; Typ:" + notification.EventType), "EventController");
-                return String.Empty;
+                return JsonSerializer.Serialize("Fehler Beim Prepare somit nichts vorhanden. Intern", _jsonSerializerOptions);
             }
             catch (Exception ex)
             {
@@ -134,7 +130,7 @@ namespace Sonos.Controllers
         }
         public static Task EventBroadCast(Notification notification)
         {
-            _messageRepository.Broadcast(notification);
+            MessageRepository.Broadcast(notification);
 
             return Task.CompletedTask;
         }
@@ -190,6 +186,10 @@ namespace Sonos.Controllers
                             t.ChangedValues.Add(eventchange.ToString(), pl.PlayerProperties.CurrentCrossFadeMode.ToString());
                             break;
                         case SonosEnums.EventingEnums.TransportState:
+                            if (MP3ReadWrite.listOfCurrentErrors.Count > 0)
+                            {
+                                MP3ReadWrite.WriteNow();
+                            }
                             t.ChangedValues.Add(eventchange.ToString(), pl.PlayerProperties.TransportState.ToString());
                             break;
                         case SonosEnums.EventingEnums.CurrentPlayMode:
@@ -216,18 +216,22 @@ namespace Sonos.Controllers
                                 if (!string.IsNullOrEmpty(tcstring))
                                     t.ChangedValues.Add(eventchange.ToString(), tcstring);
                             }
+                            if (MP3ReadWrite.listOfCurrentErrors.Count > 0)
+                            {
+                                MP3ReadWrite.WriteNow();
+                            }
                             break;
                         case SonosEnums.EventingEnums.LineInConnected:
                             t.ChangedValues.Add(eventchange.ToString(), pl.PlayerProperties.AudioInput_LineInConnected.ToString());
                             break;
                         case SonosEnums.EventingEnums.AudioInputName:
-                            t.ChangedValues.Add(eventchange.ToString(), pl.PlayerProperties.AudioInput_Name.ToString());
+                            t.ChangedValues.Add(eventchange.ToString(), pl.PlayerProperties.AudioInput_Name);
                             break;
                         case SonosEnums.EventingEnums.ZoneName:
-                            t.ChangedValues.Add(eventchange.ToString(), pl.PlayerProperties.DeviceProperties_ZoneName.ToString());
+                            t.ChangedValues.Add(eventchange.ToString(), pl.PlayerProperties.DeviceProperties_ZoneName);
                             break;
                         case SonosEnums.EventingEnums.LocalGroupUUID:
-                            t.ChangedValues.Add(eventchange.ToString(), pl.PlayerProperties.LocalGroupUUID.ToString());
+                            t.ChangedValues.Add(eventchange.ToString(), pl.PlayerProperties.LocalGroupUUID);
                             break;
                         case SonosEnums.EventingEnums.GroupCoordinatorIsLocal:
                             t.ChangedValues.Add(eventchange.ToString(), pl.PlayerProperties.GroupCoordinatorIsLocal.ToString());
@@ -237,10 +241,10 @@ namespace Sonos.Controllers
                             t.ChangedValues.Add("Counter", pl.PlayerProperties.ZoneGroupTopology_ZonePlayerUUIDsInGroup.Count.ToString());
                             break;
                         case SonosEnums.EventingEnums.ZoneGroupName:
-                            t.ChangedValues.Add(eventchange.ToString(), pl.PlayerProperties.ZoneGroupTopology_ZoneGroupName.ToString());
+                            t.ChangedValues.Add(eventchange.ToString(), pl.PlayerProperties.ZoneGroupTopology_ZoneGroupName);
                             break;
                         case SonosEnums.EventingEnums.ZoneGroupID:
-                            t.ChangedValues.Add(eventchange.ToString(), pl.PlayerProperties.ZoneGroupTopology_ZoneGroupID.ToString());
+                            t.ChangedValues.Add(eventchange.ToString(), pl.PlayerProperties.ZoneGroupTopology_ZoneGroupID);
                             break;
                         case SonosEnums.EventingEnums.IsIdle:
                             t.ChangedValues.Add(eventchange.ToString(), pl.PlayerProperties.DeviceProperties_IsIdle.ToString());
@@ -266,7 +270,7 @@ namespace Sonos.Controllers
                             }
                             break;
                         case SonosEnums.EventingEnums.ThirdPartyMediaServersX:
-                            t.ChangedValues.Add(eventchange.ToString(), pl.PlayerProperties.ZoneGroupTopology_ThirdPartyMediaServersX.ToString());
+                            t.ChangedValues.Add(eventchange.ToString(), pl.PlayerProperties.ZoneGroupTopology_ThirdPartyMediaServersX);
                             break;
                         case SonosEnums.EventingEnums.RemainingSleepTimerDuration:
                             t.ChangedValues.Add(eventchange.ToString(), pl.PlayerProperties.RemainingSleepTimerDuration);
@@ -284,9 +288,12 @@ namespace Sonos.Controllers
                     }
                     try
                     {
-                        EventID++;
-                        t.ChangedValues.Add("EventID", EventID.ToString());
-                        ListEvents.Add(EventID, t);
+                        _eventId++;
+                        t.ChangedValues.Add("EventID", _eventId.ToString());
+                        lock (ListEvents)
+                        {
+                            ListEvents.Add(_eventId, t);
+                        }
                     }
                     catch
                     {
@@ -295,14 +302,14 @@ namespace Sonos.Controllers
                 }
                 catch (Exception ex)
                 {
-                    _logger.ServerErrorsAdd("EventPlayerChange:Switch:eventchange:" + eventchange.ToString() + ":", ex, "EventController");
+                    _logger.ServerErrorsAdd("EventPlayerChange:Switch:eventchange:" + eventchange + ":", ex, "EventController");
                     throw;
                 }
                 return JsonSerializer.Serialize(t, _jsonSerializerOptions);
             }
             catch (Exception ex)
             {
-                _logger.ServerErrorsAdd("EventPlayerChange Eventenum:" + notification.EventType.ToString(), ex, "EventController");
+                _logger.ServerErrorsAdd("EventPlayerChange Eventenum:" + notification.EventType, ex, "EventController");
                 return "Fehler beim eventing Player";
             }
 
@@ -395,7 +402,7 @@ namespace Sonos.Controllers
         {
             try
             {
-                _messageRepository.Broadcast(notification);
+                MessageRepository.Broadcast(notification);
             }
             catch (Exception ex)
             {

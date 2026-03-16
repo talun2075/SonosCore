@@ -1,17 +1,19 @@
+using HomeLogging;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Sonos.Classes;
+using Sonos.Classes.Interfaces;
 using SonosSQLiteWrapper;
 using SonosSQLiteWrapper.Interfaces;
-using HomeLogging;
-using Sonos.Classes.Interfaces;
 using SonosUPnP;
 using SonosUPNPCore;
 using SonosUPNPCore.Interfaces;
 using System.Diagnostics;
+using System.IO;
 
 namespace Sonos
 {
@@ -37,7 +39,6 @@ namespace Sonos
                 .AddSingleton<ISonosDiscovery, SonosDiscovery>()
                 .AddSingleton<ISonosPlayerPrepare, SonosPlayerPrepare>()
                 .AddSingleton<ISQLiteWrapper, SQLiteWrapper>();
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -6,9 +6,14 @@
 var Types = {
     buttonLockState: 0, bass: 1, ledState: 2, loudness: 3, outputFixed: 4, treble: 5, name: 6
 };
+function isString(value) {
+    return typeof value === 'string' || value instanceof String;
+}
 
 function SettingClass() {
     let t = this;
+    this.Localstorage;
+    this.Players;
     this.settings = null;
     this.settingprops = ["dateFormat", "timeFormat", "timeServer", "dailyIndexRefreshTime", "currentSonosTime", "currentUTCTime", "currentLocalTime", "timeZoneData", "externalString", "autoAdjustDst"];
     let NotRendered = "none";
@@ -17,19 +22,85 @@ function SettingClass() {
     let Slidertext = "SliderText";
     this.AjaxRender = document.getElementById("Ajaxloader");
     let AjaxRenderSettings = document.getElementById("AjaxloaderSettings");
+    this.IsAdminDom = document.getElementById("IsAdmin");
     this.Init = function () {
 
         Send("/Devices/GetPlayerNamesAndUUID").then(function (data) {
-            console.log(data);
+            t.Players = data;
             t.RenderPlayerList(data);
+            let store = getStore("Sonos",true);
+            if (store === null) {
+                store = new SonosParameters();
+            }
+            t.Localstorage = store;
+            t.RenderSonosParameters(data);
             document.getElementById("LoadSettings").addEventListener("click", function (s) {
                 t.RenderSettings();
             })
+            document.getElementById("UrlDevice").addEventListener("change", function (s) {
+                t.SonosParameters("UrlDevice", s.target.value);
+            })
+            document.getElementById("IsAdmin").addEventListener("change", function (s) {
+                t.SonosParameters("IsAdmin", s.target.value);
+            })
+            document.getElementById("SonosParamReset").addEventListener("click", function (s) {
+                removeStore("Sonos");
+                t.Localstorage = new SonosParameters();
+                t.RenderSonosParameters(t.Players);
+            })
+            
         }).catch(function (ex) {
             console.log(ex);
             alert(ex.statusText + " " + ex.responseText);
         })
+        
+    }
+    this.RenderSonosParameters = function (players) {
+        //AllowedPlayer
+        document.getElementById("AllowedPlayer").innerHTML = "";
+        let selectdom = document.createElement("select");
+        selectdom.name = "ParaPlayerSelection";
+        selectdom.id = selectdom.name;
+        let selectoptiondefault = document.createElement("option");
+        selectoptiondefault.text = "Sonos Player auswählen";
+        selectoptiondefault.value = "";
+        selectdom.appendChild(selectoptiondefault);
+        for (var propertyName in players) {
+            let selectoptioplayer = document.createElement("option");
+            selectoptioplayer.text = propertyName;
+            selectoptioplayer.value = propertyName;
+            if (this.Localstorage.AllowedPlayer !== "" && propertyName == this.Localstorage.AllowedPlayer) {
+                selectoptioplayer.selected = true;
+            }
+            selectdom.appendChild(selectoptioplayer);
+        }
+        
+        selectdom.addEventListener("change", function (s) { t.SonosParameters("AllowedPlayer", s.target.value) });
+        document.getElementById("AllowedPlayer").appendChild(selectdom);
 
+        //UrlDEvice
+        document.getElementById("UrlDevice").innerHTML = "";
+        let selectdom2 = document.createElement("select");
+        selectdom2.name = "UrlDEvicePlayerSelection";
+        selectdom2.id = selectdom.name;
+        let selectoptiondefault2 = document.createElement("option");
+        selectoptiondefault2.text = "Sonos Player auswählen";
+        selectoptiondefault2.value = "";
+        selectdom2.appendChild(selectoptiondefault2);
+        for (var propertyName in players) {
+            let selectoptioplayer2 = document.createElement("option");
+            selectoptioplayer2.text = propertyName;
+            selectoptioplayer2.value = propertyName;
+            if (this.Localstorage.UrlDevice !== "" && propertyName == this.Localstorage.UrlDevice) {
+                selectoptioplayer2.selected = true;
+            }
+            selectdom2.appendChild(selectoptioplayer2);
+        }
+
+        selectdom2.addEventListener("change", function (s) { t.SonosParameters("UrlDevice", s.target.value) });
+        document.getElementById("UrlDevice").appendChild(selectdom2);
+
+        this.IsAdminDom.value = this.Localstorage.IsAdmin;
     }
     this.RenderPlayerList = function (players) {
         let selectdom = document.createElement("select");
@@ -273,42 +344,48 @@ function SettingClass() {
         AjaxRenderSettings.style.display = "none";
     }
     this.CreateSettingsValueDom = function (data, count) {
-        if (typeof count === "undefined") {
-            count = 1;
-        }
+        
         let datawrapper = document.createElement("DIV");
         datawrapper.classList.add("dataWrapper");
-        for (var propertyName in data) {
-            if (this.settingprops.indexOf(propertyName) == -1) continue;
 
-            let valwrapper = document.createElement("DIV");
-            valwrapper.classList.add("valueWrapper" + count);
-            let val = data[propertyName];
-            let dataname = document.createElement("DIV");
-            dataname.classList.add("settingValueName" + count);
-            dataname.innerText = propertyName.toUpperCase();
-            valwrapper.appendChild(dataname);
-            let dataval = document.createElement("DIV");
-            if (typeof val == "string") {
-                if (val === "") {
-                    val = "NotSet";
+        if (isString(data) && typeof count === "undefined") {
+            datawrapper.innerText = data;
+        } else {
+            if (typeof count === "undefined") {
+                count = 1;
+            }
+            for (var propertyName in data) {
+                if (this.settingprops.indexOf(propertyName) == -1) continue;
+
+                let valwrapper = document.createElement("DIV");
+                valwrapper.classList.add("valueWrapper" + count);
+                let val = data[propertyName];
+                let dataname = document.createElement("DIV");
+                dataname.classList.add("settingValueName" + count);
+                dataname.innerText = propertyName.toUpperCase();
+                valwrapper.appendChild(dataname);
+                let dataval = document.createElement("DIV");
+                if (typeof val == "string") {
+                    if (val === "") {
+                        val = "NotSet";
+                    }
+                    dataval.innerText = val;
+                    dataval.classList.add("stringValueConten");
+                } else if (typeof val === "number") {
+                    dataval.innerText = val;
+                    dataval.classList.add("numberValueConten");
+
+                } else if (typeof val === "boolean") {
+                    dataval.innerText = val;
+                    dataval.classList.add("booleanValueConten");
                 }
-                dataval.innerText = val;
-                dataval.classList.add("stringValueConten");
-            } else if (typeof val === "number") {
-                dataval.innerText = val;
-                dataval.classList.add("numberValueConten");
-
-            } else if (typeof val === "boolean") {
-                dataval.innerText = val;
-                dataval.classList.add("booleanValueConten");
+                else {
+                    dataval.appendChild(this.CreateSettingsValueDom(val, count + 1));
+                    dataval.classList.add("ObjectValueConten");
+                }
+                valwrapper.appendChild(dataval);
+                datawrapper.appendChild(valwrapper);
             }
-            else {
-                dataval.appendChild(this.CreateSettingsValueDom(val, count + 1));
-                dataval.classList.add("ObjectValueConten");
-            }
-            valwrapper.appendChild(dataval);
-            datawrapper.appendChild(valwrapper);
         }
         return datawrapper;
     }
@@ -338,5 +415,17 @@ function SettingClass() {
             t.SetPlayer(ppr.uuid);
             alert(ex.statusText + " " + ex.responseText);
         });
+    }
+    this.SonosParameters = function (para, value) {
+        if (para === "AllowedPlayer") {
+            this.Localstorage.AllowedPlayer = value;
+        }
+        if (para === "IsAdmin") {
+            this.Localstorage.IsAdmin = value;
+        }
+        if (para === "UrlDevice") {
+            this.Localstorage.UrlDevice = value;
+        }
+        setStore("Sonos", this.Localstorage)
     }
 }

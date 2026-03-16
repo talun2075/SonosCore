@@ -587,7 +587,7 @@ function GetLatestEvents() {
             while (eventlist.length > 0) {
                 var curevent = eventlist.pop();
                 if (typeof curevent !== "undefined" && curevent !== null) {
-                    let tEventId = parseInt(curevent.changedValues.EventID)
+                    let tEventId = parseInt(curevent.changedValues.EventID);
                     if (SoVa.LastEventID < tEventId) {
                         SoVa.LastEventID = tEventId;
                     }

@@ -16,7 +16,7 @@ namespace SonosConst
         public const string SchlafzimmerName = "Schlafen";
         public const int SchlafzimmerVolume = 9;
         public const string IanzimmerName = "Ian";
-        public const int IanzimmerVolume = 6;
+        public const int IanzimmerVolume = 8;
         public const string FinnzimmerName = "Finn";
         public const int FinnzimmerVolume = 6;
         public const string ArbeitszimmerName = "Arbeit";

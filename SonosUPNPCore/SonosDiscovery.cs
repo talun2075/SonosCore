@@ -92,20 +92,6 @@ namespace SonosUPNPCore
             return null;
         }
         /// <summary>
-        /// Gibt den ersten Player einer bestimmten Softwaregen zurück
-        /// </summary>
-        /// <param name="uuid"></param>
-        /// <returns></returns>
-        public SonosPlayer GetPlayerbySoftWareGeneration(SoftwareGeneration softgen)
-        {
-            if (!Players.Any()) return null;
-            lock (Players)
-            {
-                return Players.FirstOrDefault(x => x.SoftwareGeneration == softgen);
-            }
-        }
-
-        /// <summary>
         /// Alle Wiedergabelisten befüllen
         /// </summary>
         public async Task<bool> SetPlaylists(bool makenew = false)
@@ -229,8 +215,7 @@ namespace SonosUPNPCore
             {
                 try
                 {
-                    SonosPlayer pl1 = Players.FirstOrDefault(x => x.SoftwareGeneration == SoftwareGeneration.ZG1);
-                    SonosPlayer pl2 = Players.FirstOrDefault(x => x.SoftwareGeneration == SoftwareGeneration.ZG2);
+                    SonosPlayer pl1 = Players.FirstOrDefault();
                     if (pl1 != null)
                     {
                         var cd = pl1.ContentDirectory;
@@ -240,18 +225,6 @@ namespace SonosUPNPCore
                             while (await cd.GetShareIndexInProgress())
                             {
                                 await Task.Delay(300);
-                            }
-                        }
-                    }
-                    if (pl2 != null)
-                    {
-                        var cd = pl2.ContentDirectory;
-                        if (cd != null)
-                        {
-                            await cd.RefreshShareIndex();
-                            while (await cd.GetShareIndexInProgress())
-                            {
-                                await Task.Delay(1000);
                             }
                         }
                     }
@@ -285,7 +258,7 @@ namespace SonosUPNPCore
             string timeServer = _config["TimeServer"];
             if (!string.IsNullOrEmpty(timeServer))
             {
-                SonosPlayer sp1 = Players.FirstOrDefault(p => p.SoftwareGeneration == SoftwareGeneration.ZG1);
+                SonosPlayer sp1 = Players.FirstOrDefault();
                 if (Zone.Properties.TimeServer != timeServer)
                 {
                     if (sp1 != null)
@@ -528,11 +501,6 @@ namespace SonosUPNPCore
                     player.ControlPoint = ControlPoint;
 
                     var swgentemp = (string)playerXml.Attribute("SWGen");
-                    if (swgentemp == "2")
-                    {
-                        player.SoftwareGeneration = SoftwareGeneration.ZG2;
-                    }
-
                     SonosPlayer sp = Players.FirstOrDefault(x => x.UUID == player.UUID);
                     if (sp == null)
                     {
@@ -650,10 +618,6 @@ namespace SonosUPNPCore
                         //    DeviceLocation = new Uri(locat),
                         //    ControlPoint = ControlPoint
                         //};
-                        if (swgen == "2")
-                        {
-                            pl.SoftwareGeneration = SoftwareGeneration.ZG2;
-                        }
                         pl.SetDevice(device);
                         pl.Player_Changed += Player_Changed;
                         Players.Add(pl);
@@ -765,7 +729,7 @@ namespace SonosUPNPCore
             bool retval = false;
             if (Players?.Count > 0)
             {
-                SonosPlayer sp = Players.FirstOrDefault(x => x.SoftwareGeneration == SoftwareGeneration.ZG1);
+                SonosPlayer sp = Players.FirstOrDefault();
                 if (sp != null && sp.ContentDirectory != null)
                 {
                     Zone.Properties.ListOfFavorites.Clear();
@@ -785,7 +749,7 @@ namespace SonosUPNPCore
             bool retval = false;
             if (Players.Count > 0)
             {
-                SonosPlayer sp = Players.FirstOrDefault(x => x.SoftwareGeneration == SoftwareGeneration.ZG1);
+                SonosPlayer sp = Players.FirstOrDefault();
                 if (sp != null && sp.ContentDirectory != null)
                 {
                     var br = await sp.ContentDirectory.Browse(BrowseObjects.SonosPlaylist);
@@ -804,7 +768,7 @@ namespace SonosUPNPCore
             bool retval = false;
             if (Players?.Count > 0)
             {
-                SonosPlayer sp = Players.FirstOrDefault(x => x.SoftwareGeneration == SoftwareGeneration.ZG1);
+                SonosPlayer sp = Players.FirstOrDefault();
                 if (sp != null && sp.ContentDirectory != null)
                 {
                     Zone.Properties.ListOfImportedPlaylist.Clear();

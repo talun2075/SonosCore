@@ -18,8 +18,6 @@ namespace SonosUPNPCore.Interfaces
 
         SonosPlayer GetPlayerbyName(string playerName);
         SonosPlayer GetPlayerbyUuid(string uuid);
-        SonosPlayer GetPlayerbySoftWareGeneration(SoftwareGeneration softgen);
-
         void CheckDevicesToPlayer();
         bool CheckPlaylists();
         Task<bool> GetSonosTimeStuff();
