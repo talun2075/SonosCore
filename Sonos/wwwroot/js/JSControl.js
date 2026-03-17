@@ -870,9 +870,11 @@ function ShowPlaylistLyricCurrent() {
     }
 };//done
 //Neue Funktionen für Jquery remove
-function IsVisible(DomElement) {
-    //Kein OffSetParent keine Sichtbarkeit
-    return DomElement.offsetParent !== null;
+function IsVisible(el) {
+    if (!el) return false;
+    if (!el.offsetParent && getComputedStyle(el).position !== 'fixed') return false;
+    const style = getComputedStyle(el);
+    return style.visibility !== 'hidden' && style.opacity !== '0';
 };//done
 function SetVisible(DomElement) {
     DomElement.style.display = "block";

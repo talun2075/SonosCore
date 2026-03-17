@@ -45,17 +45,7 @@ a {
 }
 
 
-    #CurrentMeta:after {
-        border-color: #000 transparent transparent;
-        border-style: solid;
-        border-width: 20px;
-        bottom: -16%;
-        content: "";
-        height: 0;
-        position: absolute;
-        right: 60%;
-        width: 0;
-    }
+    
 
 #CurrentMetaWrapper {
     overflow-x: hidden;
@@ -156,17 +146,6 @@ a {
     text-align: center;
 }
 
-#SleepModeWrapper:after {
-    border-color: transparent transparent transparent rgb(0, 0, 0);
-    border-style: solid;
-    border-width: 25px;
-    content: "";
-    height: 0;
-    left: 100%;
-    position: absolute;
-    top: 25%;
-    width: 0;
-}
 
 #SleepModeSave {
     border: 2px solid;
@@ -202,7 +181,7 @@ a {
     left: 0;
     width: 1310px;
     height: 99%;
-    min-height: 585px;
+    min-height: 570px;
     border-radius: 25px 25px 25px 25px;
     border: 1px solid;
     border-color: black;
@@ -984,7 +963,6 @@ a {
 #Akttitle {
     height: 23px;
     overflow: hidden;
-    max-width: 70%;
     white-space: nowrap;
 }
 
@@ -997,7 +975,6 @@ a {
     height: 23px;
     overflow: hidden;
     margin-left: 10px;
-    max-width: 30%;
     white-space: nowrap;
 }
 
@@ -1061,7 +1038,7 @@ a {
     background: grey;
     position: absolute;
     left: 85px;
-    top: 300px;
+    top: 290px;
     height: 200px;
     writing-mode: sideways-lr;
     width: 5px;
@@ -1351,7 +1328,7 @@ a {
     left: 105px;
     position: absolute;
     text-align: center;
-    top: 490px;
+    top: 290px;
     width: 30px;
 }
 /* LYRIC */
@@ -1460,18 +1437,6 @@ a {
         display: none;
     }
 
-    #Lyricbox::after {
-        border-style: solid;
-        border-width: 25px;
-        content: "";
-        height: 0px;
-        position: absolute;
-        top: 370px;
-        width: 0px;
-        border-color: transparent transparent transparent rgb(0, 0, 0);
-        left: 100%;
-    }
-
 #Lyricboxwrapper {
     overflow: auto;
     -webkit-overflow-scrolling: touch;
@@ -1532,18 +1497,6 @@ a {
     position: absolute;
     top: 5px;
 }
-
-    #Browsebox:after {
-        border-style: solid;
-        border-width: 25px;
-        content: "";
-        height: 0px;
-        position: absolute;
-        top: 285px;
-        width: 0px;
-        border-color: transparent transparent transparent rgb(0, 0, 0);
-        left: 100%;
-    }
 
 #Browseboxwrapper {
     overflow: auto;
@@ -1724,17 +1677,6 @@ a {
     top: 230px;
 }
 
-    #Settingsbox::before {
-        border-style: solid;
-        border-width: 25px;
-        content: "";
-        height: 0px;
-        position: absolute;
-        top: 40%;
-        width: 0px;
-        border-color: transparent rgb(0, 0, 0) transparent transparent;
-        right: 100%;
-    }
 
 #Settingsclose {
     display: none;
