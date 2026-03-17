@@ -63,10 +63,10 @@
     display: inline-block;
 }
 #EditAlarmDaysSelectionWrapper {
-    margin-top: 20px;
+    margin-top: 10px;
 }
 #EditAlarmStartTimeWrapper {
-    margin-top: 20px;
+    margin-top: 10px;
 }
 #EditAlarmStartTimeDIV{
 	margin-left:5px;
@@ -79,7 +79,7 @@
 	margin-left: 20px;
 }
 #EditAlarmRoomSelectionWrapper{
-	margin-top: 20px;
+	margin-top: 10px;
 }
 #EditAlarmDaysSelectionWrapperText {
     float: left;
@@ -115,7 +115,7 @@
 	width:40px;
 }
 #EditAlarmDurationWrapper{
-	margin-top:20px;
+	margin-top:10px;
 }
 #EditAlarmDurationSelection{
 	margin-left:20px;
